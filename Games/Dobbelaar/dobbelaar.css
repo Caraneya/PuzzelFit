@@ -547,3 +547,263 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .ta1-die, .ta1-hand, .ta1-land--1, .ta1-land--2, .ta1-land .ta1-pip { animation: none; }
 }
+
+/* ── Step 2: Rotate and match ── */
+/* Same scene geometry as step 1.
+   Pair (blue+red) is tapped 3 times → rotates 90° CCW each tap → 270° total (blue under red).
+   Then dragged to last column (top-right + bottom-right cells).
+   Pair center in tray: (50.01, 101.19) cqw.
+   Pair center target: col-2 x=80.945, row midpoint y=34.52 → dx=30.94, dy=-66.67. */
+.ta2-scene {
+  container-type: inline-size;
+  container-name: ta2;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 168 / 204;
+  --ta2-dx: 30.94cqw;   /* pair-center → col-2 center: 80.945 - 50.01 */
+  --ta2-dy: -66.67cqw;  /* pair-center → row midpoint: 34.52 - 101.19 */
+}
+
+.ta2-grid {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100cqw;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  grid-template-columns: repeat(3, 26.19cqw);
+  grid-template-rows: repeat(2, 26.19cqw);
+  gap: 4.76cqw;
+  padding: 5.95cqw;
+  box-sizing: border-box;
+}
+
+.ta2-cell {
+  background: var(--color-background);
+  border-radius: var(--radius-xs);
+}
+
+/* Pre-placed cells — green + blue already on board (placed in step 1) */
+.ta2-placed--g {
+  background: var(--color-die-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta2-placed--b {
+  background: var(--color-die-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+/* Landing cells (top-right = red, bottom-right = blue) */
+.ta2-land--r {
+  animation: ta2-land-r calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+.ta2-land--b {
+  animation: ta2-land-b calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+/* Tray */
+.ta2-tray {
+  position: absolute;
+  left: 14.29cqw;
+  top:  80.95cqw;
+  width:  71.43cqw;
+  height: 40.48cqw;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Rotate icon — visual indicator only */
+.ta2-rotate {
+  position: absolute;
+  top:   2.38cqw;
+  right: 2.38cqw;
+  width: 7.14cqw;
+  aspect-ratio: 1;
+  color: var(--color-primary);
+}
+.ta2-rotate svg { width: 100%; height: 100%; display: block; }
+
+/* Pips */
+.ta2-pip {
+  display: block;
+  width:  3.57cqw;
+  height: 3.57cqw;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.ta2-pip--tl { align-self: flex-end; }
+.ta2-pip--br { align-self: flex-start; }
+
+.ta2-pair .ta2-pip { width: 2cqw; height: 2cqw; }
+
+.ta2-land .ta2-pip {
+  opacity: 0;
+  animation: ta2-pip-fade calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+/* Pair wrapper — blue + red dice, rotates as a unit around its center.
+   Center = (left + 14.19, top + 6.5) = (50.01, 101.19) in scene coords.
+   transform: translate(dx,dy) rotate(angle) scale(s)
+   → translate in scene space, rotate around pair center, then scale. */
+.ta2-pair {
+  position: absolute;
+  left: 35.82cqw;    /* pair bounding box left edge */
+  top:  94.69cqw;    /* pair bounding box top edge */
+  width:  28.38cqw;  /* 2×13 + 2.38 gap */
+  height: 13cqw;
+  transform-origin: center; /* = (14.19, 6.5) from wrapper = (50.01, 101.19) in scene */
+  animation: ta2-pair-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+.ta2-die {
+  position: absolute;
+  width: 13cqw;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xs);
+}
+
+.ta2-die--b {
+  background: var(--color-die-2);
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.34cqw;
+  box-sizing: border-box;
+}
+
+.ta2-die--r {
+  background: var(--color-die-4);
+  left: 15.38cqw;  /* 13 + 2.38 gap */
+  top: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 2.34cqw;
+  box-sizing: border-box;
+}
+
+/* Tap ripple — centered on pair in tray; pulses 3 times (once per rotation tap) */
+.ta2-tap {
+  position: absolute;
+  width:  11cqw;
+  height: 11cqw;
+  left: 44.51cqw;  /* pair-center 50.01 − 5.5 */
+  top:  95.69cqw;  /* pair-center 101.19 − 5.5 */
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: center;
+  animation: ta2-tap-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+/* Hand cursor — sits at pair, drags after 3 taps */
+.ta2-hand {
+  position: absolute;
+  color: var(--color-primary);
+  left: 50.01cqw;
+  top: 101.19cqw;
+  width: 20cqw;
+  animation: ta2-hand-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+/* Pair: 3 × 90° CCW rotations (−90/−180/−270°) then drag to last column */
+@keyframes ta2-pair-anim {
+  0%,    10% { transform: translate(0, 0) rotate(0deg)   scale(1); opacity: 1; }
+  18.33%     { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; } /* tap 1 done (300ms) */
+  20%        { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; }
+  28.33%     { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; } /* tap 2 done (300ms) */
+  30%        { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; }
+  38.33%     { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* tap 3 done (300ms) — blue under red */
+  40%        { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* settle before drag */
+  60%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1;
+             animation-timing-function: ease-out; } /* drag arrive (~720ms travel) */
+  64%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1.12); opacity: 1;
+             animation-timing-function: ease-in; }
+  67%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1; }
+  70%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
+  88%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
+  89%      { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  100%     { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+/* Hand: stays at pair for all 3 tap phases, then drags */
+@keyframes ta2-hand-anim {
+  0%,  40% { transform: translate(0, 0);                          opacity: 1; }
+  60%, 78% { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 1; }
+  88%      { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 0; }
+  89%      { transform: translate(0, 0);                          opacity: 0; }
+  100%     { transform: translate(0, 0);                          opacity: 1; }
+}
+
+/* Tap ripple: 3 pulses — one per rotation tap */
+@keyframes ta2-tap-anim {
+  0%,  8%   { transform: scale(0);   opacity: 0; }
+  /* Tap 1 */
+  13%        { transform: scale(1);   opacity: 0.45; }
+  17%        { transform: scale(1.5); opacity: 0;    }
+  17.5%      { transform: scale(0);   opacity: 0;    }
+  /* Tap 2 */
+  23%        { transform: scale(1);   opacity: 0.45; }
+  27%        { transform: scale(1.5); opacity: 0;    }
+  27.5%      { transform: scale(0);   opacity: 0;    }
+  /* Tap 3 */
+  33%        { transform: scale(1);   opacity: 0.45; }
+  37%        { transform: scale(1.5); opacity: 0;    }
+  38%, 100%  { transform: scale(0);   opacity: 0;    }
+}
+
+/* Landing cells light up when pair fades out (70%) */
+@keyframes ta2-land-r {
+  0%,  69% { background: var(--color-background); }
+  70%, 78% { background: var(--color-die-4); }
+  88%, 100%{ background: var(--color-background); }
+}
+
+@keyframes ta2-land-b {
+  0%,  69% { background: var(--color-background); }
+  70%, 78% { background: var(--color-die-2); }
+  88%, 100%{ background: var(--color-background); }
+}
+
+@keyframes ta2-pip-fade {
+  0%,  69% { opacity: 0; }
+  70%, 78% { opacity: 1; }
+  88%, 100%{ opacity: 0; }
+}
+
+@media (max-width: 390px) {
+  /* Pair center y compact: 87.55 + 6.5 = 94.05 → dy = 34.52 − 94.05 = −59.53 */
+  .ta2-scene  { aspect-ratio: 168 / 192; --ta2-dy: -59.53cqw; }
+  .ta2-tray   { top: 73.81cqw; }
+  .ta2-pair   { top: 87.55cqw; }
+  .ta2-hand   { top: 94.05cqw; }
+  .ta2-tap    { top: 88.55cqw; } /* pair-center compact 94.05 − 5.5 */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta2-pair, .ta2-hand, .ta2-tap,
+  .ta2-land--r, .ta2-land--b, .ta2-land .ta2-pip { animation: none; }
+}
