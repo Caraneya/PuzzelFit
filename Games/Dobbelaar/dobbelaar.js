@@ -7,7 +7,7 @@
 const TUTORIAL_STEPS = [
   { title: 'Place your dice',           desc: 'You get 1 or 2 dice each turn. Drag them on an empty cell to place them on the grid.',                             icon: '🎲' },
   { title: 'Rotate and match',          desc: 'Rotate your dice by tapping on them once. Place the matching dice next to each other.',                             icon: '🔄' },
-  { title: 'Merge and add to score',    desc: 'Score points by merging three or more similar dice. If the total adds up to 6, the dice disappear from the board.', icon: '✨' },
+  { title: 'Merge and score',            desc: 'You score points merging three or more similar dice. They merge into their sum, or disappear if the total is over 6.',  icon: '✨' },
   { title: 'Parking spot',              desc: 'Rotate your piece or stash it in the parking spot to play something else first.',                                    icon: '🅿️' },
   { title: 'More pairs = higher score', desc: 'Increase your score by matching all the dice on the grid.',                                                          icon: '🏆' },
 ];

@@ -401,14 +401,14 @@ html, body {
 
 /* Landing cells — animate from empty to die color when dice are placed */
 .ta1-land--1 {
-  animation: ta1-land-1 calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta1-land-1 calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .ta1-land--2 {
-  animation: ta1-land-2 calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta1-land-2 calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -434,7 +434,7 @@ html, body {
   width: 13cqw;
   aspect-ratio: 1;
   border-radius: var(--radius-xs);
-  animation: ta1-die-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta1-die-anim calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 .ta1-die--1 {
@@ -476,7 +476,7 @@ html, body {
 /* Pips in landing cells are hidden until die is placed */
 .ta1-land .ta1-pip {
   opacity: 0;
-  animation: ta1-pip-fade calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta1-pip-fade calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 /* Hand cursor */
@@ -489,50 +489,50 @@ html, body {
   left: 50.01cqw; /* tray pair-mid-x = (35.82+6.5 + 51.20+6.5) / 2 */
   top: 101.19cqw; /* tray pair-mid-y = die_top(94.69) + half-die(6.5) */
   width: 20cqw;   /* reduced so bottom stays within scene (101.19+20=121.19 ≤ 121.43) */
-  animation: ta1-hand-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta1-hand-anim calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 /* Dice: float from tray → bounce into grid → fade (board cell takes over) → reset */
 @keyframes ta1-die-anim {
-  0%,  20% { transform: translate(0, 0) scale(1);                           opacity: 1; }
-  52%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 1;
+  0%,  16% { transform: translate(0, 0) scale(1);                            opacity: 1; }
+  41%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);    opacity: 1;
              animation-timing-function: ease-out; }
-  56%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1.12); opacity: 1;
+  44%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1.12); opacity: 1;
              animation-timing-function: ease-in; }
-  60%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 1; }
-  63%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 0; }
-  88%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 0; }
-  89%      { transform: translate(0, 0) scale(1);                           opacity: 0; }
-  100%     { transform: translate(0, 0) scale(1);                           opacity: 1; }
+  47%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);    opacity: 1; }
+  49%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);    opacity: 0; }
+  69%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);    opacity: 0; }
+  70%      { transform: translate(0, 0) scale(1);                            opacity: 0; }
+  78%, 100%{ transform: translate(0, 0) scale(1);                            opacity: 1; }
 }
 
 /* Hand: follows dice to grid → stays visible while placed → fades at reset */
 @keyframes ta1-hand-anim {
-  0%,  20% { transform: translate(0, 0);                              opacity: 1; }
-  52%, 78% { transform: translate(var(--ta1-dx), var(--ta1-dy));     opacity: 1; }
-  88%      { transform: translate(var(--ta1-dx), var(--ta1-dy));     opacity: 0; }
-  89%      { transform: translate(0, 0);                              opacity: 0; }
-  100%     { transform: translate(0, 0);                              opacity: 1; }
+  0%,  16% { transform: translate(0, 0);                          opacity: 1; }
+  41%, 61% { transform: translate(var(--ta1-dx), var(--ta1-dy)); opacity: 1; }
+  69%      { transform: translate(var(--ta1-dx), var(--ta1-dy)); opacity: 0; }
+  70%      { transform: translate(0, 0);                          opacity: 0; }
+  78%, 100%{ transform: translate(0, 0);                          opacity: 1; }
 }
 
 /* Landing cells light up with die color as dice fade out */
 @keyframes ta1-land-1 {
-  0%,  62% { background: var(--color-background); }
-  63%, 78% { background: var(--color-die-1); }
-  88%, 100% { background: var(--color-background); }
+  0%,  48% { background: var(--color-background); }
+  49%, 61% { background: var(--color-die-1); }
+  69%, 100%{ background: var(--color-background); }
 }
 
 @keyframes ta1-land-2 {
-  0%,  62% { background: var(--color-background); }
-  63%, 78% { background: var(--color-die-2); }
-  88%, 100% { background: var(--color-background); }
+  0%,  48% { background: var(--color-background); }
+  49%, 61% { background: var(--color-die-2); }
+  69%, 100%{ background: var(--color-background); }
 }
 
 /* Pips in landing cells reveal with the cell */
 @keyframes ta1-pip-fade {
-  0%,  62% { opacity: 0; }
-  63%, 78% { opacity: 1; }
-  88%, 100% { opacity: 0; }
+  0%,  48% { opacity: 0; }
+  49%, 61% { opacity: 1; }
+  69%, 100%{ opacity: 0; }
 }
 
 /* Compact vsep (space-2 = 8px) on short screens — tray moves up, dy shortens */
@@ -602,7 +602,7 @@ html, body {
 
 /* Landing cells (top-right = red, bottom-right = blue) */
 .ta2-land--r {
-  animation: ta2-land-r calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-land-r calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
   display: grid;
   grid-template-columns: 1fr 1fr;
   place-items: center;
@@ -611,7 +611,7 @@ html, body {
 }
 
 .ta2-land--b {
-  animation: ta2-land-b calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-land-b calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -658,7 +658,7 @@ html, body {
 
 .ta2-land .ta2-pip {
   opacity: 0;
-  animation: ta2-pip-fade calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-pip-fade calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 /* Pair wrapper — blue + red dice, rotates as a unit around its center.
@@ -672,7 +672,7 @@ html, body {
   width:  28.38cqw;  /* 2×13 + 2.38 gap */
   height: 13cqw;
   transform-origin: center; /* = (14.19, 6.5) from wrapper = (50.01, 101.19) in scene */
-  animation: ta2-pair-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-pair-anim calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 .ta2-die {
@@ -716,7 +716,7 @@ html, body {
   opacity: 0;
   transform: scale(0);
   transform-origin: center;
-  animation: ta2-tap-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-tap-anim calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 /* Hand cursor — sits at pair, drags after 3 taps */
@@ -726,72 +726,72 @@ html, body {
   left: 50.01cqw;
   top: 101.19cqw;
   width: 20cqw;
-  animation: ta2-hand-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  animation: ta2-hand-anim calc(var(--duration-xslow) * 6 + 1000ms) ease-in-out infinite;
 }
 
 /* Pair: 3 × 90° CCW rotations (−90/−180/−270°) then drag to last column */
 @keyframes ta2-pair-anim {
-  0%,    10% { transform: translate(0, 0) rotate(0deg)   scale(1); opacity: 1; }
-  18.33%     { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; } /* tap 1 done (300ms) */
-  20%        { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; }
-  28.33%     { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; } /* tap 2 done (300ms) */
-  30%        { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; }
-  38.33%     { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* tap 3 done (300ms) — blue under red */
-  40%        { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* settle before drag */
-  60%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1;
-             animation-timing-function: ease-out; } /* drag arrive (~720ms travel) */
-  64%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1.12); opacity: 1;
+  0%,     8%  { transform: translate(0, 0) rotate(0deg)   scale(1); opacity: 1; }
+  14.33%      { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; } /* tap 1 done (300ms) */
+  15.65%      { transform: translate(0, 0) rotate(90deg)  scale(1); opacity: 1; }
+  22.17%      { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; } /* tap 2 done (300ms) */
+  23.48%      { transform: translate(0, 0) rotate(180deg) scale(1); opacity: 1; }
+  30%         { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* tap 3 done (300ms) */
+  31.3%       { transform: translate(0, 0) rotate(270deg) scale(1); opacity: 1; } /* settle before drag */
+  47%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1;
+             animation-timing-function: ease-out; }
+  50%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1.12); opacity: 1;
              animation-timing-function: ease-in; }
-  67%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1; }
-  70%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
-  88%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
-  89%      { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
-  100%     { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  52%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 1; }
+  55%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
+  69%      { transform: translate(var(--ta2-dx), var(--ta2-dy)) rotate(270deg) scale(1);    opacity: 0; }
+  70%      { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 0; }
+  78%, 100%{ transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
 }
 
 /* Hand: stays at pair for all 3 tap phases, then drags */
 @keyframes ta2-hand-anim {
-  0%,  40% { transform: translate(0, 0);                          opacity: 1; }
-  60%, 78% { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 1; }
-  88%      { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 0; }
-  89%      { transform: translate(0, 0);                          opacity: 0; }
-  100%     { transform: translate(0, 0);                          opacity: 1; }
+  0%,  31% { transform: translate(0, 0);                          opacity: 1; }
+  47%, 61% { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 1; }
+  69%      { transform: translate(var(--ta2-dx), var(--ta2-dy)); opacity: 0; }
+  70%      { transform: translate(0, 0);                          opacity: 0; }
+  78%, 100%{ transform: translate(0, 0);                          opacity: 1; }
 }
 
 /* Tap ripple: 3 pulses — one per rotation tap */
 @keyframes ta2-tap-anim {
-  0%,  8%   { transform: scale(0);   opacity: 0; }
+  0%,  6%  { transform: scale(0);   opacity: 0; }
   /* Tap 1 */
-  13%        { transform: scale(1);   opacity: 0.45; }
-  17%        { transform: scale(1.5); opacity: 0;    }
-  17.5%      { transform: scale(0);   opacity: 0;    }
+  10%       { transform: scale(1);   opacity: 0.45; }
+  13%       { transform: scale(1.5); opacity: 0;    }
+  14%       { transform: scale(0);   opacity: 0;    }
   /* Tap 2 */
-  23%        { transform: scale(1);   opacity: 0.45; }
-  27%        { transform: scale(1.5); opacity: 0;    }
-  27.5%      { transform: scale(0);   opacity: 0;    }
+  18%       { transform: scale(1);   opacity: 0.45; }
+  21%       { transform: scale(1.5); opacity: 0;    }
+  22%       { transform: scale(0);   opacity: 0;    }
   /* Tap 3 */
-  33%        { transform: scale(1);   opacity: 0.45; }
-  37%        { transform: scale(1.5); opacity: 0;    }
-  38%, 100%  { transform: scale(0);   opacity: 0;    }
+  26%       { transform: scale(1);   opacity: 0.45; }
+  29%       { transform: scale(1.5); opacity: 0;    }
+  30%, 100% { transform: scale(0);   opacity: 0;    }
 }
 
-/* Landing cells light up when pair fades out (70%) */
+/* Landing cells light up when pair fades out (55%) */
 @keyframes ta2-land-r {
-  0%,  69% { background: var(--color-background); }
-  70%, 78% { background: var(--color-die-4); }
-  88%, 100%{ background: var(--color-background); }
+  0%,  54% { background: var(--color-background); }
+  55%, 61% { background: var(--color-die-4); }
+  69%, 100%{ background: var(--color-background); }
 }
 
 @keyframes ta2-land-b {
-  0%,  69% { background: var(--color-background); }
-  70%, 78% { background: var(--color-die-2); }
-  88%, 100%{ background: var(--color-background); }
+  0%,  54% { background: var(--color-background); }
+  55%, 61% { background: var(--color-die-2); }
+  69%, 100%{ background: var(--color-background); }
 }
 
 @keyframes ta2-pip-fade {
-  0%,  69% { opacity: 0; }
-  70%, 78% { opacity: 1; }
-  88%, 100%{ opacity: 0; }
+  0%,  54% { opacity: 0; }
+  55%, 61% { opacity: 1; }
+  69%, 100%{ opacity: 0; }
 }
 
 @media (max-width: 390px) {
@@ -806,4 +806,327 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   .ta2-pair, .ta2-hand, .ta2-tap,
   .ta2-land--r, .ta2-land--b, .ta2-land .ta2-pip { animation: none; }
+}
+
+/* ── Step 3: Merge and score ── */
+/* Grid identical to steps 1/2. Pair (red-4 left, blue-2 right) drags to top-left 2 cells.
+   Three blue-2 dice form a group → merge into one die-6 at (1,1).
+   dx same as step 1 (same column pair). dy shorter: row 0 y=19.045 vs tray center 101.19.
+   Cycle: 7× xslow = 4200ms — longer hold on merged die (~800ms at 63–82%). */
+.ta3-scene {
+  container-type: inline-size;
+  container-name: ta3;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 168 / 204;
+  --ta3-dx: -15.49cqw;  /* (34.52 - 50.01): same pair-x target as step 1 */
+  --ta3-dy: -82.15cqw;  /* (19.045 - 101.19): row 0 center - tray pair center */
+}
+
+.ta3-grid {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100cqw;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  grid-template-columns: repeat(3, 26.19cqw);
+  grid-template-rows: repeat(2, 26.19cqw);
+  gap: 4.76cqw;
+  padding: 5.95cqw;
+  box-sizing: border-box;
+}
+
+.ta3-cell {
+  background: var(--color-background);
+  border-radius: var(--radius-xs);
+}
+
+/* Static pre-placed cells */
+.ta3-placed--r {
+  background: var(--color-die-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+.ta3-placed--g {
+  background: var(--color-die-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Landing cell: red-4 die at (0,0) — stays lit until reset */
+.ta3-land--r {
+  animation: ta3-land-r calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+/* Landing cell: blue-2 die at (0,1) — briefly lit, fades at merge */
+.ta3-land--b {
+  animation: ta3-land-b calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+/* Pre-placed blue-2 cells (1,1) and (1,2).
+   Uses background animation (not opacity) so cells look like empty cells after merge,
+   not transparent holes showing through to the page background. */
+.ta3-preblue {
+  background: var(--color-die-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+  animation: ta3-preblue calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+/* Pips */
+.ta3-pip {
+  display: block;
+  width:  3.57cqw;
+  height: 3.57cqw;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+.ta3-pip--tl { align-self: flex-end; }
+.ta3-pip--br { align-self: flex-start; }
+
+.ta3-pair .ta3-pip { width: 2cqw; height: 2cqw; }
+
+.ta3-land--r .ta3-pip {
+  opacity: 0;
+  animation: ta3-pip-r calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+.ta3-land--b .ta3-pip {
+  opacity: 0;
+  animation: ta3-pip-b calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+.ta3-preblue .ta3-pip {
+  animation: ta3-prepip calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+/* Tray */
+.ta3-tray {
+  position: absolute;
+  left: 14.29cqw;
+  top:  80.95cqw;
+  width:  71.43cqw;
+  height: 40.48cqw;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Pair wrapper: red-4 (left) + blue-2 (right) */
+.ta3-pair {
+  position: absolute;
+  left: 35.82cqw;
+  top:  94.69cqw;
+  width:  28.38cqw;
+  height: 13cqw;
+  transform-origin: center;
+  animation: ta3-pair-anim calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+.ta3-die {
+  position: absolute;
+  width: 13cqw;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xs);
+}
+
+.ta3-die--r {
+  background: var(--color-die-4);
+  left: 0;
+  top: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 2.34cqw;
+  box-sizing: border-box;
+}
+
+.ta3-die--b {
+  background: var(--color-die-2);
+  left: 15.38cqw;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.34cqw;
+  box-sizing: border-box;
+}
+
+/* Merged 6-die — absolutely overlays cell (1,1):
+   cell (1,1) left = 2px + padding(5.95) + col(26.19) + gap(4.76) = 2px + 36.90cqw
+   cell (1,1) top  = same */
+.ta3-merged {
+  position: absolute;
+  left: calc(36.90cqw + 2px);
+  top:  calc(36.90cqw + 2px);
+  width:  26.19cqw;
+  height: 26.19cqw;
+  background: var(--color-die-6);
+  border-radius: var(--radius-xs);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
+  place-items: center;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: ta3-merged-anim calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+/* Merged die pips */
+.ta3-mpip {
+  display: block;
+  width:  3.57cqw;
+  height: 3.57cqw;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+/* ! badge */
+.ta3-badge {
+  position: absolute;
+  top:   -2.38cqw;
+  right: -2.38cqw;
+  width:  7.14cqw;
+  height: 7.14cqw;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-primary);
+  font-size: 4.76cqw;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Hand cursor */
+.ta3-hand {
+  position: absolute;
+  color: var(--color-primary);
+  left: 50.01cqw;
+  top: 101.19cqw;
+  width: 20cqw;
+  animation: ta3-hand-anim calc(var(--duration-xslow) * 7 + 1000ms) ease-in-out infinite;
+}
+
+/* Pair: drag from tray to cells (0,0)+(0,1).
+   Cycle: 7×600ms + 1000ms = 5200ms. All % = old-7×-% × 0.8077.
+   Content ends at ~81% (= old 100% rescaled); 81–100% (988ms ≈ 1s) is idle pause before loop. */
+@keyframes ta3-pair-anim {
+  0%,  14% { transform: translate(0, 0) scale(1);                            opacity: 1; }
+  36%      { transform: translate(var(--ta3-dx), var(--ta3-dy)) scale(1);    opacity: 1;
+             animation-timing-function: ease-out; }
+  40%      { transform: translate(var(--ta3-dx), var(--ta3-dy)) scale(1.12); opacity: 1;
+             animation-timing-function: ease-in; }
+  42%      { transform: translate(var(--ta3-dx), var(--ta3-dy)) scale(1);    opacity: 1; }
+  44%      { transform: translate(var(--ta3-dx), var(--ta3-dy)) scale(1);    opacity: 0; }
+  77%      { transform: translate(var(--ta3-dx), var(--ta3-dy)) scale(1);    opacity: 0; }
+  78%      { transform: translate(0, 0) scale(1);                            opacity: 0; }
+  81%, 100%{ transform: translate(0, 0) scale(1);                            opacity: 1; }
+}
+
+/* Hand: drag with pair, linger through merge, fade before reset */
+@keyframes ta3-hand-anim {
+  0%,  14% { transform: translate(0, 0);                          opacity: 1; }
+  36%, 55% { transform: translate(var(--ta3-dx), var(--ta3-dy)); opacity: 1; }
+  68%      { transform: translate(var(--ta3-dx), var(--ta3-dy)); opacity: 0; }
+  77%      { transform: translate(0, 0);                          opacity: 0; }
+  81%, 100%{ transform: translate(0, 0);                          opacity: 1; }
+}
+
+/* Landing cell red (0,0): empty → red at 44%, holds through 77%, resets at 78% */
+@keyframes ta3-land-r {
+  0%,  43%   { background: var(--color-background); }
+  44%, 77%   { background: var(--color-die-4); }
+  78%, 100%  { background: var(--color-background); }
+}
+
+/* Landing cell blue (0,1): brief blue, flashes with the other blues at 49% */
+@keyframes ta3-land-b {
+  0%,  43%  { background: var(--color-background); }
+  44%, 48%  { background: var(--color-die-2); }
+  49%       { background: var(--color-surface); }
+  51%, 100% { background: var(--color-background); }
+}
+
+/* Red pips in land-r */
+@keyframes ta3-pip-r {
+  0%,  43%  { opacity: 0; }
+  44%, 77%  { opacity: 1; }
+  78%, 100% { opacity: 0; }
+}
+
+/* Blue pips in land-b: visible briefly, gone at flash */
+@keyframes ta3-pip-b {
+  0%,  43%  { opacity: 0; }
+  44%, 48%  { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
+/* Pre-placed blue cells: blue → surface flash → background (empty) → blue reset.
+   Background animation keeps cells opaque; no transparency holes after merge.
+   At 77% empty cell fades out, 78% snaps to blue (still invisible), fades in to 81%. */
+@keyframes ta3-preblue {
+  0%,  48%  { background: var(--color-die-2); opacity: 1; }
+  49%       { background: var(--color-surface); opacity: 1; }
+  51%, 76%  { background: var(--color-background); opacity: 1; }
+  77%       { background: var(--color-background); opacity: 0; }
+  78%       { background: var(--color-die-2); opacity: 0; }
+  81%, 100% { background: var(--color-die-2); opacity: 1; }
+}
+
+/* Pips in pre-placed blue cells — opacity:1 at 78% so parent fade drives the effect */
+@keyframes ta3-prepip {
+  0%,  48%  { opacity: 1; }
+  51%, 77%  { opacity: 0; }
+  78%, 100% { opacity: 1; }
+}
+
+/* Merged die: pops in (52%), holds ~1200ms (52–75% of 5200ms) so the user can read it,
+   then fades out at 77%; cells + pair reset at 78%, fade-in completes at 81%. */
+@keyframes ta3-merged-anim {
+  0%,  50%  { opacity: 0; transform: scale(0.85); }
+  52%       { opacity: 1; transform: scale(1); }
+  75%       { opacity: 1; transform: scale(1); }
+  77%, 100% { opacity: 0; transform: scale(0.85); }
+}
+
+@media (max-width: 390px) {
+  /* Compact: pair center y = 94.05 → dy = 19.045 - 94.05 = -75.01 */
+  .ta3-scene { aspect-ratio: 168 / 192; --ta3-dy: -75.01cqw; }
+  .ta3-tray  { top: 73.81cqw; }
+  .ta3-pair  { top: 87.55cqw; }
+  .ta3-hand  { top: 94.05cqw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta3-pair, .ta3-hand,
+  .ta3-land--r, .ta3-land--b,
+  .ta3-land--r .ta3-pip, .ta3-land--b .ta3-pip,
+  .ta3-preblue, .ta3-preblue .ta3-pip,
+  .ta3-merged { animation: none; }
+  .ta3-preblue { background: var(--color-die-2); }
+  .ta3-merged  { opacity: 0; }
 }
