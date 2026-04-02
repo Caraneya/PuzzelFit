@@ -4,31 +4,34 @@ saved: 2026-04-02
 ---
 
 ## Goal
-Implement tutorial step animations for Dobbelaar. Steps 1 and 2 are complete. Step 3 was just built. Steps 4–5 still need building.
+Implement tutorial step animations for Dobbelaar. Steps 1, 2, and 3 are built. Steps 4–5 still need building.
 
 ## Decisions
 - `.tut-anim.tut-anim--active` drives visibility; `showTutorialStep(n)` toggles by index
 - All scenes use `container-type: inline-size` with `aspect-ratio` and `cqw` units for uniform scaling
+- **Loop reset pattern**: near end of cycle, movable elements fade OUT at their final position → invisible snap to start → fade IN at start → loop. No extra idle after respawn.
+- **1s hold after action**: pause happens while the result is VISIBLE (cells lit / merged die showing), not after the pair reappears in the tray
 - Step 1: pair (green die-1 + blue die-2) dragged to bottom-left + bottom-middle cells
 - Step 2: pair (blue die-2 LEFT + red die-4 RIGHT) tapped 3× rotating 90° CW, dragged to last column
-- Step 3: pair (red-4 LEFT + blue-2 RIGHT) dragged to top-left 2 empty cells; three blue-2 dice (0,1)+(1,1)+(1,2) merge into die-6 at (1,1); `.ta3-merged` overlays cell (1,1) absolutely
-- Step 3 cycle: `calc(var(--duration-xslow) * 7 + 1000ms)` = 5200ms — content at same speed as 4200ms, extra 1000ms added as idle pause at cycle end (81–100% ≈ 988ms) before looping
-- Step 3 merged die hold: 52–67% of 5200ms ≈ 780ms (design target was ~800ms)
-- Pre-placed cells use **background animation** (not opacity) so they appear as empty cells after merge rather than transparent holes
-- `ta3-merged` absolutely positioned at `calc(36.90cqw + 2px)` to account for grid border
-- Rotate icon in tray is static visual only (no rotate icon in step 3 — no rotation needed)
+- Step 3: pair (red-4 LEFT + blue-2 RIGHT) dragged to top-left 2 empty cells; three blue-2 dice merge into die-6 at (1,1)
+- Pre-placed cells use **background animation** (not opacity) during merge so they appear as empty cells after merge rather than transparent holes
+- Blue pre-placed cells fade IN with opacity animation on reset (not a background-color snap)
 - `prefers-reduced-motion` block required on every step
 - All colors via CSS tokens only — no hardcoded hex
 
 ## Work completed
-- `dobbelaar.html` — step 3 `.tut-anim--step-3` fully populated: grid (red-4 at (0,2), green-1 at (1,0), blue-2 at (1,1) and (1,2) pre-placed; land-r at (0,0), land-b at (0,1)); `.ta3-merged` overlay with 6 pips + ! badge; tray; pair (red+blue); hand SVG. Steps 4–5 remain empty placeholders.
-- `dobbelaar.js` — step 3 description updated to: "You score points merging three or more similar dice. They merge into their sum, or disappear if the total is over 6."
-- `dobbelaar.css` — full `ta3-*` block: scene/grid/cell/pip/tray/pair/merged/badge/hand rules + all keyframes (ta3-pair-anim, ta3-hand-anim, ta3-land-r, ta3-land-b, ta3-pip-r, ta3-pip-b, ta3-preblue, ta3-prepip, ta3-merged-anim) + compact + reduced-motion
+- `dobbelaar.css` — Full tutorial animation rework:
+  - **Step 1** (`* 6` = 3600ms): action done 63%, 1s hold 63–90%, fade-out 90–93%, snap 94%, fade-in 94–100%
+  - **Step 2** (`* 7` = 4200ms): content rescaled ×0.857 from 3600ms; action done 60%, 1s hold 60–84%, fade-out 84–88%, snap 89%, fade-in 89–100%
+  - **Step 3** (`* 7` = 4200ms): content rescaled ×(5200/4200) from 5200ms; merge appears 64%, 1s hold 64–88%, fade-out 88–92%, snap 93%, fade-in 93–100%
+  - `ta3-preblue`: opacity-based fade-in on reset (snaps to blue at 92% opacity:0, fades to opacity:1 at 100%)
+- `dobbelaar.html` — Steps 1–3 fully populated; steps 4–5 remain empty placeholders
+- `dobbelaar.js` — Step 3 description: "You score points merging three or more similar dice. They merge into their sum, or disappear if the total is over 6."
 
 ## Open threads
 - Steps 4–5 of the tutorial have empty `.tut-anim` divs — HTML + CSS + keyframes still needed
-- Visual QA of step 3 not yet confirmed in browser (merged die position, flash timing, 1s loop pause feel)
-- Visual QA of step 2 also still pending from last checkpoint
+- Visual QA of steps 1, 2, 3 not yet confirmed in browser after today's timing restructure
+- Step 3 `ta3-merged` absolutely positioned at `calc(36.90cqw + 2px)` — verify overlay still lands correctly with new 4200ms total (layout unchanged, should be fine)
 
 ## Constraints
 - Never use PowerShell `WriteAllText` with complex string interpolation — use Edit tool only
@@ -37,8 +40,8 @@ Implement tutorial step animations for Dobbelaar. Steps 1 and 2 are complete. St
 - No hardcoded hex colors or px sizes — tokens and cqw only
 - `aria-hidden="true"` on every `.tut-anim` wrapper
 - `prefers-reduced-motion` block required on every step
-- Pre-placed cells in merge steps: use background animation (not opacity) to avoid transparency holes
-- Step 3 uses 5200ms cycle (`* 7 + 1000ms`); all keyframe % are 4200ms values × 0.8077
+- Pre-placed cells in merge steps: use background animation (not opacity) DURING the animation to avoid transparency holes; opacity fade-in is fine for the reset phase
+- Loop reset pattern: fade-out at final position → invisible snap → fade-in at start → no extra idle
 
 ## Next step
-Visual QA of step 3 in the browser — verify merged die overlays cell (1,1) correctly, flash timing at 49%, ~780ms hold, and the ~1s pause before loop restart. Then build step 4 (parking spot).
+Visual QA of steps 1–3 in the browser after the timing restructure, then build step 4 (parking spot mechanic).
