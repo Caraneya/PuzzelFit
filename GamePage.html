@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GamePage — PuzzleFit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-normal);
+    }
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-12) var(--space-6) var(--space-24);
+    }
+
+    /* ── HERO ── */
+    .hero { margin-bottom: var(--space-12); }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-accent);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .hero-title {
+      font-size: var(--font-size-h1);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--line-height-tight);
+      letter-spacing: var(--letter-spacing-tight);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-size-body);
+      color: var(--color-text-secondary);
+    }
+
+    /* ── PIPELINE ── */
+    .pipeline-wrap {
+      margin: var(--space-8) 0 var(--space-12);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .pipeline-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .pipeline-row::-webkit-scrollbar { display: none; }
+    .pipeline-track-label {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      white-space: nowrap;
+      min-width: 90px;
+      padding-right: var(--space-3);
+      flex-shrink: 0;
+    }
+    .pipeline-step {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+    }
+    a.pipeline-step:hover { background-color: var(--color-surface); }
+    .pipeline-step--done { color: var(--color-success); }
+    .pipeline-step--active {
+      background-color: var(--color-accent);
+      color: var(--color-primary);
+      border: var(--stroke-thin) solid var(--color-accent);
+    }
+    .pipeline-step--next {
+      color: var(--color-accent);
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-accent);
+    }
+    .pipeline-arrow {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-small);
+      padding: 0 var(--space-1);
+      flex-shrink: 0;
+    }
+
+    /* ── GAMES GRID ── */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: var(--space-5);
+      margin-bottom: var(--space-10);
+    }
+
+    .game-card {
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      text-decoration: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+    a.game-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 2px 12px var(--color-scrim);
+    }
+
+    .game-card__icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .game-card__name {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .game-card__desc {
+      font-size: var(--font-size-body);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-normal);
+      flex: 1;
+    }
+
+    .game-card__footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-badge {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      border: var(--stroke-thin) solid currentColor;
+    }
+    .status-badge--active  { color: var(--color-accent); }
+    .status-badge--planned { color: var(--color-text-tertiary); }
+
+    .game-card__arrow {
+      font-size: var(--font-size-body);
+      color: var(--color-text-tertiary);
+    }
+    a.game-card:hover .game-card__arrow { color: var(--color-primary); }
+
+    /* Placeholder card — future games */
+    .game-card--placeholder {
+      border-style: dashed;
+      border-color: var(--color-text-tertiary);
+      background: var(--color-surface-alt);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 180px;
+      cursor: pointer;
+    }
+    .game-card--placeholder .game-card__name {
+      color: var(--color-primary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-regular);
+    }
+
+    /* ── SECTION CARDS ── */
+    .section-card {
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-8);
+      margin-bottom: var(--space-4);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .section-badge {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-surface-alt);
+      border: var(--stroke-thin) solid var(--color-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-accent);
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .flow-diagram {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: var(--space-2); padding: var(--space-4) 0;
+    }
+    .flow-node {
+      background-color: var(--color-surface-alt);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      white-space: nowrap;
+    }
+    .flow-arrow { color: var(--color-text-secondary); font-size: var(--font-size-body); }
+.divider { height: 1px; background-color: var(--color-surface-alt); margin: var(--space-5) 0; }
+    p { color: var(--color-text-secondary); font-size: var(--font-size-body); line-height: var(--line-height-normal); margin-bottom: var(--space-3); }
+    ul { color: var(--color-text-secondary); font-size: var(--font-size-body); padding-left: var(--space-5); margin-bottom: var(--space-3); }
+    li { margin-bottom: var(--space-2); line-height: var(--line-height-normal); }
+    strong { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+    code {
+      font-family: var(--font-family-secondary, monospace);
+      font-size: var(--font-size-small);
+      background-color: var(--color-surface-alt);
+      color: var(--color-accent);
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-xs);
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      margin-top: var(--space-16);
+      padding-top: var(--space-6);
+      border-top: var(--stroke-thin) solid var(--color-surface-alt);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+    .footer-pipeline { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+    .footer-step {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      color: var(--color-text-secondary);
+    }
+    .footer-step--current { color: var(--color-accent); border-color: var(--color-accent); }
+    .footer-meta { font-size: var(--font-size-small); color: var(--color-text-secondary); }
+
+    /* ── PAGE LAYOUT ── */
+    .page-layout { display: flex; gap: var(--space-8); align-items: flex-start; }
+    .page-main   { flex: 1; min-width: 0; }
+    .page-nav {
+      width: 184px; flex-shrink: 0;
+      position: sticky; top: var(--space-8);
+      max-height: calc(100vh - var(--space-16));
+      overflow-y: auto; scrollbar-width: none;
+      padding-bottom: var(--space-8);
+    }
+    .page-nav::-webkit-scrollbar { display: none; }
+    .nav-group-label {
+      font-size: 10px; font-weight: var(--font-weight-bold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      padding: var(--space-2) var(--space-2) var(--space-1);
+      margin-top: var(--space-4);
+    }
+    .nav-group-label:first-child { margin-top: 0; }
+    .nav-link {
+      display: block; font-size: var(--font-size-small);
+      color: var(--color-text-secondary); text-decoration: none;
+      padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs);
+      border-left: 2px solid transparent; line-height: var(--line-height-normal);
+      transition: color 100ms, background 100ms;
+    }
+    .nav-link:hover { color: var(--color-text-primary); background: var(--color-surface); }
+    .nav-link--active { color: var(--color-accent); border-left-color: var(--color-accent); background: var(--color-surface); }
+    .nav-theme-btns { display: flex; gap: var(--space-1); padding: var(--space-1) var(--space-2); }
+    .nav-theme-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--radius-xs);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: color var(--duration-fast), background var(--duration-fast);
+    }
+    .nav-theme-btn:hover { color: var(--color-text-primary); background: var(--color-surface); }
+    .nav-theme-btn--active { color: var(--color-accent); background: var(--color-surface); }
+
+    @media (max-width: 900px) {
+      .page-layout { flex-direction: column; }
+      .page-nav    { position: static; width: 100%; max-height: none; }
+    }
+    @media (max-width: 600px) {
+      .page-wrapper { padding: var(--space-6) var(--space-4) var(--space-16); }
+      .hero-title   { font-size: var(--font-size-h2); }
+      .games-grid   { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+  <div class="page-layout">
+  <div class="page-main">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">🎮 PuzzleFit · Game Page</div>
+      <h1 class="hero-title">Games</h1>
+      <p class="hero-subtitle">Select a game to open its bible and begin the build pipeline.</p>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="pipeline-wrap">
+      <div class="pipeline-row">
+        <span class="pipeline-track-label">Foundation</span>
+        <div class="pipeline-step pipeline-step--active">GamePage</div>
+        <span class="pipeline-arrow">→</span>
+        <a class="pipeline-step" href="./MasterStyleguide.html">MasterStyleguide</a>
+        <span class="pipeline-arrow">→</span>
+        <a class="pipeline-step" href="./flow-prototype.html">FlowPrototype</a>
+      </div>
+    </div>
+
+    <!-- GAMES GRID -->
+    <div class="games-grid" id="sec-games">
+
+      <!-- Dobbelaar -->
+      <a class="game-card" href="./Games/Dobbelaar/dobbelaar-bible.html">
+        <div class="game-card__icon">
+          <img src="./Games/Dobbelaar/dobbelaar_icon.svg" alt="Dobbelaar icon" style="width:100%;height:100%;object-fit:contain;" />
+        </div>
+        <div class="game-card__name">Dobbelaar</div>
+        <p class="game-card__desc">Drag, rotate, and merge dice on a 5×5 grid. Three identical dice adjacent merge — score points, clear the board, beat the daily target.</p>
+        <div class="game-card__footer">
+          <span class="status-badge status-badge--active">In development</span>
+          <span class="game-card__arrow">→</span>
+        </div>
+      </a>
+
+      <!-- New Game -->
+      <a class="game-card game-card--placeholder" href="./game-passport.html">
+        <div class="game-card__name">+ New Game</div>
+      </a>
+
+    </div>
+
+    <!-- SCREEN FLOW -->
+    <div class="section-card" id="sec-screen-flow">
+      <div class="section-header">
+        <div class="section-badge">1</div>
+        <div class="section-title">Screen Flow</div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">Home Screen</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Loading</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Gameplay Screen</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Win / Lose Sheet</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Home Screen</div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">First visit</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Welcome Popup</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Tutorial Overlay</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Today's Goal Popup</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Gameplay Screen</div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">Returning visit</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Today's Goal Popup</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Gameplay Screen</div>
+      </div>
+      <div class="divider"></div>
+      <ul>
+        <li><strong>Home Screen</strong> — Game name, today's challenge card, Play CTA, Calendar, Stats, Settings.</li>
+        <li><strong>Loading</strong> — Brief loading state (max 2s) while gameplay screen preloads in background.</li>
+        <li><strong>Welcome Popup</strong> — First-time greeting modal. CTA: "Let's go" (→ Tutorial) or "Skip".</li>
+        <li><strong>Tutorial Overlay</strong> — 5-step inline overlay on first session. Ends with Today's Goal popup.</li>
+        <li><strong>Today's Goal Popup</strong> — Shown after tutorial (first visit) or on loading into gameplay (returning). CTA: "Ready to play".</li>
+        <li><strong>Gameplay Screen</strong> — Game board, score bar, timer, hint tooltip, toolbar (info, calendar, stats, settings).</li>
+        <li><strong>Pause Sheet</strong> — Timer paused. Resume / Exit options. Triggered by tapping the timer.</li>
+        <li><strong>Win Sheet</strong> — Congratulations, countdown to next puzzle, Share / Home CTAs.</li>
+        <li><strong>Lose Sheet</strong> — Time elapsed, Try Again / Home CTAs.</li>
+      </ul>
+    </div>
+
+    <!-- TECHNICAL NOTES -->
+    <div class="section-card" id="sec-tech">
+      <div class="section-header">
+        <div class="section-badge">2</div>
+        <div class="section-title">Technical Notes</div>
+      </div>
+      <ul>
+        <li><strong>Stack:</strong> Vanilla HTML5 + CSS + JavaScript. No frameworks, no build tools. Opens directly in a browser.</li>
+        <li><strong>Structure:</strong> Each game lives in its own subfolder. Shared styles: <code>tokens.css</code> + <code>components.css</code>. Per-game styles: <code>base.css</code> + <code>game.css</code>.</li>
+        <li><strong>Responsive:</strong> 320px–1920px fluid full-screen. Portrait lock recommended.</li>
+        <li><strong>Target devices:</strong> iOS Safari, Android Chrome. Minimum viewport 375px wide.</li>
+        <li><strong>Performance:</strong> 60fps on mid-range devices (2019+). All animations use CSS transforms only — no layout thrash.</li>
+        <li><strong>Touch handling:</strong> All interactions via touch/pointer events. No hover-only states. Minimum 44×44px touch targets.</li>
+        <li><strong>Accessibility:</strong> WCAG AA contrast on all text. Interactive elements accessible via <code>aria-label</code>.</li>
+        <li><strong>Icons:</strong> All icons rendered via <code>icons.js</code> — no raw SVG in HTML.</li>
+      </ul>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="page-footer">
+      <div class="footer-meta">PuzzleFit · DendaGames</div>
+    </div>
+
+  </div><!-- /.page-main -->
+
+  <!-- SIDEBAR NAV -->
+  <nav class="page-nav" aria-label="Page navigation">
+    <div class="nav-group-label">Navigate</div>
+    <a class="nav-link" href="#sec-games">Games</a>
+    <a class="nav-link" href="#sec-screen-flow">Screen Flow</a>
+    <a class="nav-link" href="#sec-tech">Technical Notes</a>
+
+    <div class="nav-group-label">Theme</div>
+    <div class="nav-theme-btns">
+      <button class="nav-theme-btn" data-theme-btn="light" title="Light"><span id="nav-icon-theme-light"></span></button>
+      <button class="nav-theme-btn" data-theme-btn="auto"  title="Auto"><span id="nav-icon-theme-auto"></span></button>
+      <button class="nav-theme-btn" data-theme-btn="dark"  title="Dark"><span id="nav-icon-theme-dark"></span></button>
+    </div>
+  </nav>
+
+  </div><!-- /.page-layout -->
+  </div><!-- /.page-wrapper -->
+
+  <script>
+    const themeBtns = document.querySelectorAll('[data-theme-btn]');
+    function setTheme(theme) {
+      if (theme === 'auto') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      themeBtns.forEach(btn =>
+        btn.classList.toggle('nav-theme-btn--active', btn.dataset.themeBtn === theme)
+      );
+      localStorage.setItem('sg-theme', theme);
+    }
+    themeBtns.forEach(btn => btn.addEventListener('click', () => setTheme(btn.dataset.themeBtn)));
+
+    // Scroll spy
+    const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(a => a.classList.toggle('nav-link--active', a.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+
+    setTheme(localStorage.getItem('sg-theme') || 'light');
+  </script>
+  <script src="./icons.js"></script>
+  <script>
+    Icons.render(document.getElementById('nav-icon-theme-light'), 'themeLight',     { size: 'md' });
+    Icons.render(document.getElementById('nav-icon-theme-auto'),  'themeAutomatic', { size: 'md' });
+    Icons.render(document.getElementById('nav-icon-theme-dark'),  'themeDark',      { size: 'md' });
+  </script>
+</body>
+</html>

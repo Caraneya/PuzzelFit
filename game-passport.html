@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Game Passport — PuzzleFit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100vh;
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-normal);
+    }
+
+    .page-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: var(--space-12) var(--space-6) var(--space-24);
+    }
+
+    /* ── BACK ── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-8);
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .back-btn:hover { background: var(--color-surface); color: var(--color-text-primary); }
+
+    /* ── HERO ── */
+    .hero { margin-bottom: var(--space-10); }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-accent);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    .hero-title {
+      font-size: var(--font-size-h1);
+      font-weight: var(--font-weight-bold);
+      line-height: var(--line-height-tight);
+      letter-spacing: var(--letter-spacing-tight);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+    .hero-subtitle {
+      font-size: var(--font-size-body);
+      color: var(--color-text-secondary);
+    }
+
+    /* ── PROGRESS ── */
+    .progress-bar-wrap { margin-bottom: var(--space-10); }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+    .progress-label {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+    .progress-count { font-size: var(--font-size-small); color: var(--color-text-tertiary); }
+    .progress-track {
+      height: 4px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: var(--radius-full);
+      transition: width 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── STEPS ── */
+    .step { display: none; }
+    .step.is-active { display: block; animation: stepIn 220ms ease; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .step-title {
+      font-size: var(--font-size-h2);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+    .step-subtitle {
+      font-size: var(--font-size-body);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-8);
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-group { margin-bottom: var(--space-6); }
+    .form-label {
+      display: block;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    .form-hint {
+      font-size: var(--font-size-small);
+      color: var(--color-text-tertiary);
+      margin-top: var(--space-2);
+      font-style: italic;
+    }
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      background: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: border-color 150ms ease;
+      resize: none;
+    }
+    .form-input:focus,
+    .form-textarea:focus { border-color: var(--color-accent); }
+    .form-input::placeholder,
+    .form-textarea::placeholder { color: var(--color-text-tertiary); }
+    .form-textarea { min-height: 100px; }
+
+    /* ── SECTION DIVIDERS ── */
+    .section-divider {
+      height: 1px;
+      background: var(--color-surface-alt);
+      margin: var(--space-8) 0;
+    }
+    .section-label {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: var(--space-4);
+    }
+
+    /* ── UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2px dashed var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-8) var(--space-6);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 150ms ease, background 150ms ease;
+      position: relative;
+    }
+    .upload-zone:hover,
+    .upload-zone.is-dragging { border-color: var(--color-accent); background: var(--color-surface); }
+    .upload-zone.has-file {
+      border-style: solid;
+      border-color: var(--color-success);
+      background: var(--color-surface);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon { font-size: 2rem; margin-bottom: var(--space-3); }
+    .upload-label {
+      display: block;
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+    .upload-sub {
+      font-size: var(--font-size-small);
+      color: var(--color-text-tertiary);
+      margin-top: var(--space-1);
+    }
+    .upload-preview {
+      display: none;
+      align-items: center;
+      gap: var(--space-3);
+      justify-content: center;
+    }
+    .upload-zone.has-file .upload-preview { display: flex; }
+    .upload-zone.has-file .upload-default { display: none; }
+    .upload-preview-img {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+    .upload-preview-name {
+      font-size: var(--font-size-small);
+      color: var(--color-success);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* ── TAG TOGGLES ── */
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+    .tag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: all 150ms ease;
+      user-select: none;
+    }
+    .tag-btn:hover:not(.is-selected) { border-color: var(--color-accent); color: var(--color-accent); }
+    .tag-btn.is-selected { background: var(--color-accent); border-color: var(--color-accent); color: #ffffff; }
+    .tag-check { display: none; }
+    .tag-btn.is-selected .tag-check { display: inline; }
+
+    /* ── CHECKBOX GRID ── */
+    .check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+    }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      cursor: pointer;
+      transition: border-color 150ms ease, background 150ms ease;
+      user-select: none;
+    }
+    .check-row:has(input:checked) {
+      border-color: var(--color-accent);
+      background: var(--color-surface-alt);
+    }
+    .check-row input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-xs);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-background);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: transparent;
+      transition: all 150ms ease;
+    }
+    .check-row:has(input:checked) .check-box { background: var(--color-accent); border-color: var(--color-accent); color: #ffffff; }
+    .check-text {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      line-height: 1.3;
+    }
+    .check-row:has(input:checked) .check-text { color: var(--color-text-primary); }
+
+    /* ── TOGGLE (yes/no) ── */
+    .toggle-group { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+    .toggle-btn {
+      flex: 1;
+      padding: var(--space-3);
+      border-radius: var(--radius-sm);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      transition: all 150ms ease;
+      text-align: center;
+    }
+    .toggle-btn.is-active { background: var(--color-accent); border-color: var(--color-accent); color: #ffffff; }
+
+    /* ── NUMBER STEPPER ── */
+    .number-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .number-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font-size: var(--font-size-h3);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 150ms ease;
+      flex-shrink: 0;
+    }
+    .number-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .number-display {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      min-width: 32px;
+      text-align: center;
+    }
+    .number-label { font-size: var(--font-size-small); color: var(--color-text-secondary); }
+
+    /* ── NAVIGATION ── */
+    .step-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-10);
+      padding-top: var(--space-6);
+      border-top: 1px solid var(--color-surface-alt);
+    }
+    .nav-btn {
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-sm);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+    .nav-btn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+    .nav-btn--primary {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #ffffff;
+    }
+    .nav-btn--primary:hover { opacity: 0.9; border-color: var(--color-accent); color: #ffffff; }
+    .nav-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+    /* ── REVIEW STEP ── */
+    .passport-output-area {
+      background: var(--color-surface-alt);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-5);
+      font-family: var(--font-family-secondary, monospace);
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-loose);
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 480px;
+      overflow-y: auto;
+      margin-bottom: var(--space-4);
+    }
+    .copy-btn {
+      width: 100%;
+      padding: var(--space-4);
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--color-accent);
+      color: #ffffff;
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      transition: opacity 150ms ease, background 150ms ease;
+      margin-bottom: var(--space-4);
+    }
+    .copy-btn:hover { opacity: 0.9; }
+    .copy-btn.is-copied { background: var(--color-success); }
+
+    .handoff-note {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-accent);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: var(--space-4) var(--space-5);
+      font-size: var(--font-size-small);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-normal);
+    }
+    .handoff-note strong { color: var(--color-text-primary); font-weight: var(--font-weight-semibold); }
+    .handoff-steps { margin: var(--space-3) 0 0 var(--space-4); }
+    .handoff-steps li { margin-bottom: var(--space-1); }
+
+    /* ── REQUIRED FIELD ── */
+    .form-label--required::after { content: ' *'; color: var(--color-error); }
+
+    /* ── LABEL ROW + GENERATE BUTTON ── */
+    .form-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+    .form-label-row .form-label { margin-bottom: 0; }
+    .generate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      border: var(--stroke-thin) solid var(--color-accent);
+      background: transparent;
+      color: var(--color-accent);
+      font-size: 10px;
+      font-weight: var(--font-weight-bold);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      transition: all 150ms ease;
+      flex-shrink: 0;
+    }
+    .generate-btn:hover { background: var(--color-accent); color: var(--color-text-on-accent); }
+    .generate-btn.is-toggled { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text-on-accent); }
+    .generate-btn.is-toggled:hover { opacity: 0.85; }
+
+    /* ── DISABLED (generate-toggled) field ── */
+    .form-textarea:disabled,
+    .form-input:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: var(--color-surface-alt);
+    }
+
+    /* ── ILLUSTRATION UPLOAD GRID ── */
+    .illus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+    .illus-cell {}
+    .illus-label {
+      font-size: 11px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      margin-bottom: var(--space-2);
+      display: block;
+    }
+    .upload-zone--sm {
+      padding: var(--space-5) var(--space-3);
+    }
+    .upload-zone--sm .upload-icon { font-size: 1.4rem; margin-bottom: var(--space-2); }
+
+    @media (max-width: 600px) { .illus-grid { grid-template-columns: 1fr; } }
+
+    /* ── CUSTOM TAG INPUT ── */
+    .custom-tag-input-wrap { margin-top: var(--space-3); animation: stepIn 150ms ease; }
+
+    /* ── CHECK ROW VISUAL ── */
+    .check-row { align-items: flex-start; }
+    .check-box { margin-top: 2px; }
+    .check-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .check-content { flex: 1; min-width: 0; }
+    .check-sub { display: block; font-size: 11px; color: var(--color-text-tertiary); margin-top: 2px; line-height: 1.3; }
+
+    /* ── TUTORIAL STEP CARDS ── */
+    .tutorial-steps-list { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-4); }
+    .tutorial-step-card {
+      background: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-4);
+    }
+    .tutorial-step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+    .tutorial-step-num {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-accent);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+    }
+
+    /* ── SAVE BUTTON ── */
+    .save-btn {
+      padding: var(--space-4) var(--space-6);
+      border-radius: var(--radius-sm);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-primary);
+      cursor: pointer;
+      transition: all 150ms ease;
+      white-space: nowrap;
+    }
+    .save-btn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+
+    /* ── TOAST ── */
+    .toast-bar {
+      position: fixed;
+      bottom: var(--space-6);
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--color-surface-tooltip);
+      color: var(--color-text-on-overlay);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-full);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      white-space: nowrap;
+      pointer-events: none;
+      transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 100;
+    }
+    .toast-bar.is-visible { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .page-wrapper { padding: var(--space-6) var(--space-4) var(--space-16); }
+      .hero-title { font-size: var(--font-size-h2); }
+      .check-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <a class="back-btn" href="./GamePage.html">← Games</a>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">🎮 PuzzleFit · New Game</div>
+      <h1 class="hero-title">Game Passport</h1>
+      <p class="hero-subtitle">Define your concept. Claude will generate the full game bible from this. Fields marked <span style="color:var(--color-error)">*</span> are required.</p>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-bar-wrap">
+      <div class="progress-meta">
+        <span class="progress-label" id="progress-label">Step 1 — Identity</span>
+        <span class="progress-count" id="progress-count">1 / 5</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 20%"></div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: IDENTITY ══════════════════════════════════════ -->
+    <div class="step is-active" id="step-1">
+      <h2 class="step-title">Identity</h2>
+      <p class="step-subtitle">Name your game and define the feeling it creates for the player.</p>
+
+      <div class="form-group">
+        <label class="form-label form-label--required" for="game-name">Game Name</label>
+        <input class="form-input" type="text" id="game-name" placeholder="e.g. Dicer, Shift, Bloom…" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Game Icon</label>
+        <div class="upload-zone" id="icon-upload-zone">
+          <input type="file" id="icon-file" accept="image/*" />
+          <div class="upload-default">
+            <div class="upload-icon">🖼️</div>
+            <span class="upload-label">Drop your icon here or click to browse</span>
+            <span class="upload-sub">PNG, JPG, SVG · recommended 512×512px</span>
+          </div>
+          <div class="upload-preview">
+            <img class="upload-preview-img" id="icon-preview" src="" alt="Icon preview" />
+            <span class="upload-preview-name" id="icon-filename">icon.png</span>
+          </div>
+        </div>
+        <p class="form-hint">Also attach this image directly in Claude after submitting the passport.</p>
+      </div>
+
+    </div>
+
+    <!-- ══ STEP 2: MECHANICS ═════════════════════════════════════ -->
+    <div class="step" id="step-2">
+      <h2 class="step-title">Core Mechanic</h2>
+      <p class="step-subtitle">Describe exactly how the game is played, turn by turn.</p>
+
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label form-label--required" for="primary-action">Primary Action</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'primary-action')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="primary-action" placeholder="Each turn, the player…" rows="3"></textarea>
+        <p class="form-hint">The physical or logical action taken each turn. Be specific about input (tap, drag, swipe).</p>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label form-label--required" for="match-rule">Match / Resolve Rule</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'match-rule')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="match-rule" placeholder="After the action, the game checks…" rows="3"></textarea>
+        <p class="form-hint">What rule determines whether the action succeeded? What triggers a clear, merge, or score?</p>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" for="feedback-response">Feedback Response</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'feedback-response')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="feedback-response" placeholder="The player immediately sees / hears…" rows="3"></textarea>
+        <p class="form-hint">Describe the visual and audio moment. This is the "juice" — the satisfying instant of feedback.</p>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" for="skill-expression">Skill Expression</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'skill-expression')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="skill-expression" placeholder="An expert plans 3–5 moves ahead and…  A beginner tends to…" rows="3"></textarea>
+        <p class="form-hint">What separates a skilled player from a new one? What does mastery look like?</p>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" for="depth-layer">Depth Layer</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'depth-layer')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="depth-layer" placeholder="The twist that adds strategic depth is…" rows="3"></textarea>
+        <p class="form-hint">The secondary mechanic or special slot that creates risk/reward tension. E.g. the Park slot in Dicer.</p>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: WIN & LOSE ════════════════════════════════════ -->
+    <div class="step" id="step-3">
+      <h2 class="step-title">Win & Lose Conditions</h2>
+      <p class="step-subtitle">Select all that apply. Claude will expand these into full condition descriptions.</p>
+
+      <div class="form-group">
+        <label class="form-label form-label--required">Win Condition</label>
+        <div class="tag-group" id="win-tags">
+          <button class="tag-btn" data-value="score-target"    onclick="toggleTag(this)"><span class="tag-check">✓ </span>Reach Score Target</button>
+          <button class="tag-btn" data-value="board-cleared"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Clear the Board</button>
+          <button class="tag-btn" data-value="survive-timer"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Survive the Timer</button>
+          <button class="tag-btn" data-value="sequence"        onclick="toggleTag(this)"><span class="tag-check">✓ </span>Complete a Sequence</button>
+          <button class="tag-btn" data-value="pattern-match"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Match a Pattern</button>
+          <button class="tag-btn" data-value="fill-grid"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Fill the Grid</button>
+          <button class="tag-btn" data-value="chain-goal"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Chain Reaction Goal</button>
+          <button class="tag-btn" data-value="daily-challenge" onclick="toggleTag(this)"><span class="tag-check">✓ </span>Daily Challenge</button>
+          <button class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'win-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
+        </div>
+        <div class="custom-tag-input-wrap" id="win-custom-wrap" style="display:none">
+          <input class="form-input" type="text" id="win-custom" placeholder="Describe your custom win condition…" />
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="form-group">
+        <label class="form-label form-label--required">Lose Condition</label>
+        <div class="tag-group" id="lose-tags">
+          <button class="tag-btn" data-value="board-full"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Board Full / No Space</button>
+          <button class="tag-btn" data-value="timer-out"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Timer Runs Out</button>
+          <button class="tag-btn" data-value="lives-depleted"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>Lives Depleted</button>
+          <button class="tag-btn" data-value="wrong-move"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Wrong Move (instant fail)</button>
+          <button class="tag-btn" data-value="no-valid-moves"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>No Valid Moves Left</button>
+          <button class="tag-btn" data-value="streak-broken"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Streak Broken</button>
+          <button class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'lose-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
+        </div>
+        <div class="custom-tag-input-wrap" id="lose-custom-wrap" style="display:none">
+          <input class="form-input" type="text" id="lose-custom" placeholder="Describe your custom lose condition…" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 4: CONTENT & FEEL ════════════════════════════════ -->
+    <div class="step" id="step-4">
+      <h2 class="step-title">Content & Feel</h2>
+      <p class="step-subtitle">Define the content requirements used when building each screen.</p>
+
+      <!-- Loading animation -->
+      <div class="section-label">Loading Screen</div>
+      <div class="form-group">
+        <label class="form-label">Loading Illustration</label>
+        <div class="upload-zone" id="anim-upload-zone">
+          <input type="file" id="anim-file" accept="image/*" />
+          <div class="upload-default">
+            <div class="upload-icon">🖼️</div>
+            <span class="upload-label">Drop illustration or click to browse</span>
+            <span class="upload-sub">PNG, JPG, SVG — we'll animate it ourselves</span>
+          </div>
+          <div class="upload-preview">
+            <img class="upload-preview-img" id="anim-preview" src="" alt="Loading illustration preview" />
+            <span class="upload-preview-name" id="anim-filename"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen illustrations -->
+      <div class="form-group">
+        <label class="form-label">Screen Illustrations</label>
+        <div class="illus-grid">
+          <div class="illus-cell">
+            <span class="illus-label">🏆 Win</span>
+            <div class="upload-zone upload-zone--sm" id="win-illus-zone">
+              <input type="file" id="win-illus-file" accept="image/*,.json,.gif,.mp4,.webm,.lottie" />
+              <div class="upload-default">
+                <div class="upload-icon">🖼️</div>
+                <span class="upload-sub">Image or Lottie</span>
+              </div>
+              <div class="upload-preview">
+                <span class="upload-preview-name" id="win-illus-filename"></span>
+              </div>
+            </div>
+          </div>
+          <div class="illus-cell">
+            <span class="illus-label">⏸ Pause</span>
+            <div class="upload-zone upload-zone--sm" id="pause-illus-zone">
+              <input type="file" id="pause-illus-file" accept="image/*,.json,.gif,.mp4,.webm,.lottie" />
+              <div class="upload-default">
+                <div class="upload-icon">🖼️</div>
+                <span class="upload-sub">Image or Lottie</span>
+              </div>
+              <div class="upload-preview">
+                <span class="upload-preview-name" id="pause-illus-filename"></span>
+              </div>
+            </div>
+          </div>
+          <div class="illus-cell">
+            <span class="illus-label">💀 Lose</span>
+            <div class="upload-zone upload-zone--sm" id="lose-illus-zone">
+              <input type="file" id="lose-illus-file" accept="image/*,.json,.gif,.mp4,.webm,.lottie" />
+              <div class="upload-default">
+                <div class="upload-icon">🖼️</div>
+                <span class="upload-sub">Image or Lottie</span>
+              </div>
+              <div class="upload-preview">
+                <span class="upload-preview-name" id="lose-illus-filename"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="form-hint">These files will be downloaded alongside the passport JSON when you save.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Animation Mood</label>
+        <div class="tag-group" id="mood-tags">
+          <button class="tag-btn" data-group="mood" data-value="calm"       onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Calm</button>
+          <button class="tag-btn" data-group="mood" data-value="playful"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Playful</button>
+          <button class="tag-btn" data-group="mood" data-value="energetic"  onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Energetic</button>
+          <button class="tag-btn" data-group="mood" data-value="mysterious" onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Mysterious</button>
+          <button class="tag-btn" data-group="mood" data-value="minimal"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Minimal</button>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Gameplay Board -->
+      <div class="section-label">Gameplay Board</div>
+      <div class="form-group">
+        <label class="form-label">Board Screenshot / Reference Image</label>
+        <div class="upload-zone" id="board-image-zone">
+          <input type="file" id="board-image-file" accept="image/*" />
+          <div class="upload-default">
+            <div class="upload-icon">🎮</div>
+            <span class="upload-label">Drop board image or click to browse</span>
+            <span class="upload-sub">PNG, JPG, SVG — the main game grid/board</span>
+          </div>
+          <div class="upload-preview">
+            <img class="upload-preview-img" id="board-image-preview" src="" alt="Board preview" />
+            <span class="upload-preview-name" id="board-image-filename"></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="board-figma-link">Figma Link</label>
+        <input class="form-input" type="url" id="board-figma-link" placeholder="https://www.figma.com/design/…" />
+        <p class="form-hint">Link to the Figma frame containing the gameplay board design.</p>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Tutorial -->
+      <div class="section-label">Tutorial</div>
+      <div class="form-group">
+        <label class="form-label">Number of Tutorial Steps</label>
+        <div class="number-input-wrap">
+          <button class="number-btn" onclick="changeNumber('tutorial-count', -1)">−</button>
+          <span class="number-display" id="tutorial-count">3</span>
+          <button class="number-btn" onclick="changeNumber('tutorial-count', 1)">+</button>
+          <span class="number-label">steps (max 8)</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What does each step teach?</label>
+        <div class="tutorial-steps-list" id="tutorial-steps-wrap"></div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Hint system -->
+      <div class="section-label">Hint System</div>
+      <div class="form-group">
+        <label class="form-label">Does this game have hints?</label>
+        <div class="toggle-group">
+          <button class="toggle-btn is-active" id="hints-yes" onclick="setHints(true)">Yes</button>
+          <button class="toggle-btn" id="hints-no" onclick="setHints(false)">No</button>
+        </div>
+        <div id="hint-detail-wrap">
+          <div class="form-label-row">
+            <label class="form-label" for="hint-detail">What do hints reveal?</label>
+            <button class="generate-btn" onclick="toggleGenerate(this,'hint-detail')">✦ Generate</button>
+          </div>
+          <textarea class="form-textarea" id="hint-detail" placeholder="Hints highlight the best cell to place the current piece, showing a glowing outline…" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Settings -->
+      <div class="section-label">Settings</div>
+      <div class="form-group">
+        <label class="form-label">Which settings does this game need?</label>
+        <div class="check-grid">
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Theme (Dark / Light)" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🎨</span>
+            <span class="check-content">
+              <span class="check-text">Theme</span>
+              <span class="check-sub">Light · Auto · Dark toggle in nav</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Sound Effects" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🔊</span>
+            <span class="check-content">
+              <span class="check-text">Sound Effects</span>
+              <span class="check-sub">On / Off toggle row</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Background Music" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🎵</span>
+            <span class="check-content">
+              <span class="check-text">Background Music</span>
+              <span class="check-sub">Continuous ambient music toggle</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Dominant Hand" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">✋</span>
+            <span class="check-content">
+              <span class="check-text">Dominant Hand</span>
+              <span class="check-sub">Left / Right — shifts toolbar side</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Haptic Feedback" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">📳</span>
+            <span class="check-content">
+              <span class="check-text">Haptic Feedback</span>
+              <span class="check-sub">Vibration on key game events</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="settings" value="Push Notifications" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🔔</span>
+            <span class="check-content">
+              <span class="check-text">Push Notifications</span>
+              <span class="check-sub">Daily challenge reminders</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Statistics -->
+      <div class="section-label">Statistics</div>
+      <div class="form-group">
+        <label class="form-label">Which stats should this game track?</label>
+        <div class="check-grid">
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Games Played" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🎮</span>
+            <span class="check-content">
+              <span class="check-text">Games Played</span>
+              <span class="check-sub">Total sessions started</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Current Streak" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🔥</span>
+            <span class="check-content">
+              <span class="check-text">Current Streak</span>
+              <span class="check-sub">Consecutive daily wins</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Best Streak" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🏅</span>
+            <span class="check-content">
+              <span class="check-text">Best Streak</span>
+              <span class="check-sub">All-time longest streak</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Best Score" checked />
+            <span class="check-box">✓</span>
+            <span class="check-icon">⭐</span>
+            <span class="check-content">
+              <span class="check-text">Best Score</span>
+              <span class="check-sub">Highest single-session score</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Average Score" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">📊</span>
+            <span class="check-content">
+              <span class="check-text">Average Score</span>
+              <span class="check-sub">Mean score across all games</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Win Rate" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">📈</span>
+            <span class="check-content">
+              <span class="check-text">Win Rate</span>
+              <span class="check-sub">% of games reaching target</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Total Score" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">🧮</span>
+            <span class="check-content">
+              <span class="check-text">Total Score</span>
+              <span class="check-sub">Cumulative all-time score</span>
+            </span>
+          </label>
+          <label class="check-row">
+            <input type="checkbox" name="stats" value="Total Time Played" />
+            <span class="check-box">✓</span>
+            <span class="check-icon">⏱️</span>
+            <span class="check-content">
+              <span class="check-text">Total Time Played</span>
+              <span class="check-sub">Cumulative playtime</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Score Bar -->
+      <div class="section-label">Score Bar</div>
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" for="score-bar-metrics">What metrics appear in the score bar?</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'score-bar-metrics')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="score-bar-metrics" rows="2" placeholder="e.g. Current score, moves left, time elapsed…"></textarea>
+      </div>
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label" for="score-bar-icons">What icons or visuals represent each metric?</label>
+          <button class="generate-btn" onclick="toggleGenerate(this,'score-bar-icons')">✦ Generate</button>
+        </div>
+        <textarea class="form-textarea" id="score-bar-icons" rows="2" placeholder="e.g. ⭐ for score, ↔ for moves, ⏱ for time…"></textarea>
+      </div>
+    </div>
+
+    <!-- ══ STEP 5: REVIEW & COPY ═════════════════════════════════ -->
+    <div class="step" id="step-5">
+      <h2 class="step-title">Review & Save</h2>
+      <p class="step-subtitle">Your passport is ready. Save it — then open Claude and share the file to start generation.</p>
+
+      <div class="passport-output-area" id="passport-output-area"></div>
+
+      <button class="save-btn" style="width:100%;margin-bottom:var(--space-4)" onclick="saveAnswers()">💾 Save Passport</button>
+
+      <div class="handoff-note">
+        <strong>What happens next:</strong>
+        <ol class="handoff-steps">
+          <li>Open a new Claude conversation and attach the saved passport JSON.</li>
+          <li>Share your Figma game screen design — Claude will extract grid dimensions, piece values, and timing from it.</li>
+          <li>Share any uploaded illustrations and the board image alongside.</li>
+          <li>Claude generates the full game bible HTML and adds your game to the Games page.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="step-nav">
+      <button class="nav-btn" id="nav-back" onclick="prevStep()" disabled>← Back</button>
+      <button class="nav-btn nav-btn--primary" id="nav-next" onclick="nextStep()">Next →</button>
+    </div>
+
+  </div>
+
+  <div class="toast-bar" id="toast-bar"></div>
+
+  <script>
+    // ── State ─────────────────────────────────────────────────────
+    let currentStep = 1;
+    const TOTAL_STEPS = 5;
+    let hasHints = true;
+    let tutorialCount = 3;
+    const stepLabels = ['Identity', 'Core Mechanic', 'Win & Lose', 'Content & Feel', 'Review & Save'];
+
+    // ── Navigation ────────────────────────────────────────────────
+    function updateProgress() {
+      const pct = (currentStep / TOTAL_STEPS) * 100;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-label').textContent = `Step ${currentStep} — ${stepLabels[currentStep - 1]}`;
+      document.getElementById('progress-count').textContent = `${currentStep} / ${TOTAL_STEPS}`;
+      document.getElementById('nav-back').disabled = currentStep === 1;
+      const nextBtn = document.getElementById('nav-next');
+      if (currentStep === TOTAL_STEPS) {
+        nextBtn.style.display = 'none';
+      } else {
+        nextBtn.style.display = '';
+        nextBtn.textContent = currentStep === TOTAL_STEPS - 1 ? 'Review →' : 'Next →';
+      }
+    }
+
+    function showStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('is-active'));
+      document.getElementById('step-' + n).classList.add('is-active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      currentStep = n;
+      updateProgress();
+      if (n === TOTAL_STEPS) buildPassport();
+    }
+
+    function nextStep() { if (currentStep < TOTAL_STEPS) showStep(currentStep + 1); }
+    function prevStep() { if (currentStep > 1) showStep(currentStep - 1); }
+
+    // ── Toast ─────────────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg, duration = 2500) {
+      const el = document.getElementById('toast-bar');
+      el.textContent = msg;
+      el.classList.add('is-visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('is-visible'), duration);
+    }
+
+    // ── Tag toggles ───────────────────────────────────────────────
+    function toggleTag(btn) { btn.classList.toggle('is-selected'); }
+    function toggleCustomTag(btn, wrapId) {
+      btn.classList.toggle('is-selected');
+      document.getElementById(wrapId).style.display = btn.classList.contains('is-selected') ? '' : 'none';
+    }
+    function toggleTagSingle(btn) {
+      btn.closest('.tag-group').querySelectorAll('.tag-btn').forEach(b => b.classList.remove('is-selected'));
+      btn.classList.add('is-selected');
+    }
+
+    // ── Hints toggle ──────────────────────────────────────────────
+    function setHints(val) {
+      hasHints = val;
+      document.getElementById('hints-yes').classList.toggle('is-active', val);
+      document.getElementById('hints-no').classList.toggle('is-active', !val);
+      document.getElementById('hint-detail-wrap').style.display = val ? '' : 'none';
+    }
+
+    // ── Number stepper ────────────────────────────────────────────
+    function changeNumber(id, delta) {
+      const el = document.getElementById(id);
+      let v = parseInt(el.textContent) + delta;
+      if (id === 'tutorial-count') {
+        v = Math.max(1, Math.min(8, v));
+        tutorialCount = v;
+        renderTutorialSteps(v);
+      }
+      el.textContent = v;
+    }
+
+    // ── Tutorial steps render ─────────────────────────────────────
+    function renderTutorialSteps(count) {
+      const wrap = document.getElementById('tutorial-steps-wrap');
+      const existing = [...wrap.querySelectorAll('.tutorial-step-input')].map(inp => inp.value);
+      wrap.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const saved = (existing[i - 1] || '').replace(/"/g, '&quot;');
+        const card = document.createElement('div');
+        card.className = 'tutorial-step-card';
+        const isGen = !!generateFields[`tutorial-step-${i}`];
+        card.innerHTML = `
+          <div class="tutorial-step-header">
+            <span class="tutorial-step-num">Step ${i}</span>
+            <button class="generate-btn${isGen ? ' is-toggled' : ''}" onclick="toggleGenerate(this,'tutorial-step-${i}')">${isGen ? '✦ Generates ✓' : '✦ Generate'}</button>
+          </div>
+          <input class="form-input tutorial-step-input"
+                 id="tutorial-step-${i}"
+                 type="text"
+                 placeholder="${isGen ? 'Claude will generate this after you complete the form.' : `Step ${i}: Teach the player how to…`}"
+                 value="${saved}"
+                 ${isGen ? 'disabled' : ''} />
+        `;
+        wrap.appendChild(card);
+      }
+    }
+
+    // ── Generate toggles ──────────────────────────────────────────
+    const generateFields = {};
+
+    function toggleGenerate(btn, fieldId) {
+      const isNowOn = !generateFields[fieldId];
+      generateFields[fieldId] = isNowOn;
+      const field = document.getElementById(fieldId);
+      if (isNowOn) {
+        btn.textContent = '✦ Generates ✓';
+        btn.classList.add('is-toggled');
+        if (field) {
+          field._savedPlaceholder = field.placeholder;
+          field.placeholder = 'Claude will generate this after you complete the form.';
+          field.disabled = true;
+        }
+      } else {
+        btn.textContent = '✦ Generate';
+        btn.classList.remove('is-toggled');
+        if (field) {
+          field.placeholder = field._savedPlaceholder || '';
+          field.disabled = false;
+        }
+      }
+      showToast(isNowOn ? `Claude will generate this field` : `Field unlocked — fill it manually`);
+    }
+
+    function toggleGenerateStep(btn, stepKey) {
+      toggleGenerate(btn, stepKey);
+    }
+
+    // ── Upload zones ──────────────────────────────────────────────
+    document.getElementById('icon-file').addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const zone = document.getElementById('icon-upload-zone');
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById('icon-preview').src = e.target.result;
+          document.getElementById('icon-filename').textContent = this.files[0].name;
+          zone.classList.add('has-file');
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    document.getElementById('anim-file').addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('anim-preview').src = e.target.result; };
+        reader.readAsDataURL(this.files[0]);
+        document.getElementById('anim-filename').textContent = this.files[0].name;
+        document.getElementById('anim-upload-zone').classList.add('has-file');
+      }
+    });
+
+    // Illustration + board upload zones
+    ['win-illus-file', 'pause-illus-file', 'lose-illus-file'].forEach(fileId => {
+      document.getElementById(fileId).addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+          const zoneId = fileId.replace('-file', '-zone');
+          document.getElementById(fileId.replace('-file', '-filename')).textContent = this.files[0].name;
+          document.getElementById(zoneId).classList.add('has-file');
+        }
+      });
+    });
+
+    document.getElementById('board-image-file').addEventListener('change', function () {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById('board-image-preview').src = e.target.result;
+          document.getElementById('board-image-filename').textContent = this.files[0].name;
+          document.getElementById('board-image-zone').classList.add('has-file');
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+
+    ['icon-upload-zone', 'anim-upload-zone', 'win-illus-zone', 'pause-illus-zone', 'lose-illus-zone', 'board-image-zone'].forEach(id => {
+      const zone = document.getElementById(id);
+      zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('is-dragging'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('is-dragging'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('is-dragging');
+        const input = zone.querySelector('input[type="file"]');
+        if (e.dataTransfer.files[0]) {
+          const dt = new DataTransfer();
+          dt.items.add(e.dataTransfer.files[0]);
+          input.files = dt.files;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+
+    // ── Collect values ────────────────────────────────────────────
+    function val(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+    function getSelectedTags(containerId) {
+      return [...document.querySelectorAll(`#${containerId} .tag-btn.is-selected:not(.tag-btn--custom)`)]
+        .map(btn => btn.textContent.replace('✓ ', '').trim());
+    }
+
+    function getTutorialSteps() {
+      return [...document.querySelectorAll('.tutorial-step-input')]
+        .map((inp, i) => ({ step: i + 1, text: inp.value.trim() }));
+    }
+
+    function getChecked(name) {
+      return [...document.querySelectorAll(`input[name="${name}"]:checked`)]
+        .map(el => el.value);
+    }
+
+    // ── Build passport ────────────────────────────────────────────
+    function buildPassport() {
+      const gameName  = val('game-name') || 'Unnamed Game';
+      const iconFile       = document.getElementById('icon-file').files[0];
+      const animFile       = document.getElementById('anim-file').files[0];
+      const winIllusFile   = document.getElementById('win-illus-file').files[0];
+      const pauseIllusFile = document.getElementById('pause-illus-file').files[0];
+      const loseIllusFile  = document.getElementById('lose-illus-file').files[0];
+      const boardImageFile = document.getElementById('board-image-file').files[0];
+      const iconName       = iconFile  ? iconFile.name  : '(none — attach in Claude)';
+      const animName       = animFile  ? animFile.name  : '(none)';
+      const boardFigma     = val('board-figma-link');
+      const moodBtn   = document.querySelector('#mood-tags .tag-btn.is-selected');
+      const moodVal   = moodBtn ? moodBtn.textContent.replace('✓ ', '').trim() : '(not selected)';
+      const winTags  = getSelectedTags('win-tags');
+      const winCustom = val('win-custom');
+      if (winCustom) winTags.push(winCustom);
+
+      const loseTags  = getSelectedTags('lose-tags');
+      const loseCustom = val('lose-custom');
+      if (loseCustom) loseTags.push(loseCustom);
+
+      const settings  = getChecked('settings');
+      const stats     = getChecked('stats');
+      const tutSteps  = getTutorialSteps();
+
+      const lines = [
+        `GAME PASSPORT — ${gameName.toUpperCase()}`,
+        `${'─'.repeat(52)}`,
+        ``,
+        `IDENTITY`,
+        `  Name           ${gameName}`,
+        `  Icon           ${iconName}`,
+        ``,
+        `CORE MECHANIC`,
+        `  Primary Action ${val('primary-action') || '(not filled)'}`,
+        `  Match Rule     ${val('match-rule') || '(not filled)'}`,
+        `  Feedback       ${val('feedback-response') || '(not filled)'}`,
+        `  Skill Gap      ${val('skill-expression') || '(not filled)'}`,
+        `  Depth Layer    ${val('depth-layer') || '(not filled)'}`,
+        ``,
+        `WIN CONDITIONS`,
+        ...(winTags.length ? winTags.map(t => `  · ${t}`) : ['  (none selected)']),
+        ``,
+        `LOSE CONDITIONS`,
+        ...(loseTags.length ? loseTags.map(t => `  · ${t}`) : ['  (none selected)']),
+        ``,
+        `LOADING SCREEN`,
+        `  Illustration   ${animName}`,
+        `  Win Screen     ${winIllusFile ? winIllusFile.name : '(none)'}`,
+        `  Pause Screen   ${pauseIllusFile ? pauseIllusFile.name : '(none)'}`,
+        `  Lose Screen    ${loseIllusFile ? loseIllusFile.name : '(none)'}`,
+        `  Mood           ${moodVal}`,
+        ``,
+        `GAMEPLAY BOARD`,
+        `  Image          ${boardImageFile ? boardImageFile.name : '(none — attach in Claude)'}`,
+        `  Figma          ${boardFigma || '(not provided)'}`,
+        ``,
+        `TUTORIAL`,
+        `  Steps          ${tutorialCount}`,
+        ...tutSteps.map(s => `  Step ${s.step}      ${s.text || '(not filled)'}`),
+        ``,
+        `HINT SYSTEM`,
+        `  Enabled        ${hasHints ? 'Yes' : 'No'}`,
+        ...(hasHints ? [`  Detail         ${val('hint-detail') || '(not described)'}`] : []),
+        ``,
+        `SETTINGS`,
+        ...(settings.length ? settings.map(s => `  · ${s}`) : ['  (none selected)']),
+        ``,
+        `STATISTICS`,
+        ...(stats.length ? stats.map(s => `  · ${s}`) : ['  (none selected)']),
+        ``,
+        `SCORE BAR`,
+        `  Metrics        ${val('score-bar-metrics') || '(not filled)'}`,
+        `  Icons          ${val('score-bar-icons') || '(not filled)'}`,
+        ``,
+        ...(Object.values(generateFields).some(Boolean) ? [
+          ``,
+          `GENERATE (Claude will fill these after form)`,
+          ...Object.entries(generateFields).filter(([,v]) => v).map(([k]) => `  · ${k}`),
+        ] : []),
+        ``,
+        `${'─'.repeat(52)}`,
+        `Paste this passport into Claude, then share your Figma`,
+        `game screen. Claude will extract game variables from it`,
+        `and generate the complete game bible.`,
+      ];
+
+      const text = lines.join('\n');
+      document.getElementById('passport-output-area').textContent = text;
+      window._passportText = text;
+    }
+
+    // ── Save answers to file ──────────────────────────────────────
+    async function saveAnswers() {
+      const gameName = val('game-name') || 'unnamed-game';
+      const slug = gameName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+      const winTags = getSelectedTags('win-tags');
+      const winCustom = val('win-custom');
+      if (winCustom) winTags.push(winCustom);
+      const loseTags = getSelectedTags('lose-tags');
+      const loseCustom = val('lose-custom');
+      if (loseCustom) loseTags.push(loseCustom);
+
+      const data = {
+        gameName:         val('game-name'),
+        primaryAction:    val('primary-action'),
+        matchRule:        val('match-rule'),
+        feedbackResponse: val('feedback-response'),
+        skillExpression:  val('skill-expression'),
+        depthLayer:       val('depth-layer'),
+        winConditions:    winTags,
+        loseConditions:   loseTags,
+        boardFigmaLink:   val('board-figma-link'),
+        animationMood:    document.querySelector('#mood-tags .tag-btn.is-selected')?.dataset.value || '',
+        tutorialCount,
+        tutorialSteps:    getTutorialSteps().map(s => s.text),
+        hasHints,
+        hintDetail:       val('hint-detail'),
+        settings:         getChecked('settings'),
+        stats:            getChecked('stats'),
+        scoreBarMetrics:  val('score-bar-metrics'),
+        scoreBarIcons:    val('score-bar-icons'),
+        generateFields:   { ...generateFields },
+        savedAt:          new Date().toISOString(),
+      };
+
+      const json = JSON.stringify(data, null, 2);
+      const filename = `${slug}-passport.json`;
+
+      // Save JSON
+      if ('showSaveFilePicker' in window) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+          });
+          const writable = await handle.createWritable();
+          await writable.write(json);
+          await writable.close();
+        } catch (e) {
+          if (e.name === 'AbortError') return;
+          // fall through to download
+          const a = document.createElement('a');
+          a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+          a.download = filename;
+          a.click();
+        }
+      } else {
+        const a = document.createElement('a');
+        a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(json);
+        a.download = filename;
+        a.click();
+      }
+
+      // Download all uploaded files renamed as slug_context.ext
+      const uploads = [
+        { id: 'icon-file',       context: 'icon'    },
+        { id: 'anim-file',       context: 'loading' },
+        { id: 'win-illus-file',  context: 'win'     },
+        { id: 'pause-illus-file',context: 'pause'   },
+        { id: 'lose-illus-file', context: 'lose'    },
+        { id: 'board-image-file',context: 'board'   },
+      ];
+      let delay = 300;
+      for (const { id, context } of uploads) {
+        const file = document.getElementById(id)?.files?.[0];
+        if (file) {
+          const ext = file.name.includes('.') ? '.' + file.name.split('.').pop() : '';
+          const renamedAs = `${slug}_${context}${ext}`;
+          setTimeout(() => {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(file);
+            a.download = renamedAs;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          }, delay);
+          delay += 300;
+        }
+      }
+
+      showToast(`Saved — all uploaded files downloaded alongside`);
+    }
+
+
+    // ── Init ──────────────────────────────────────────────────────
+    updateProgress();
+    setHints(true);
+    renderTutorialSteps(tutorialCount);
+  </script>
+</body>
+</html>

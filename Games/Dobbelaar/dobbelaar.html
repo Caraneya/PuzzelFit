@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" id="game-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dobbelaar — PuzzleFit</title>
+  <link rel="stylesheet" href="../../tokens.css" />
+  <link rel="stylesheet" href="../../components.css" />
+  <link rel="stylesheet" href="./dobbelaar.css" />
+</head>
+<body>
+
+  <div class="proto-badge">GAME BIBLE — DOBBELAAR</div>
+
+  <!-- == SCREEN: HOME ============================================== -->
+  <div class="proto-screen is-visible is-active" data-screen="home" id="screen-home">
+    <div class="home-page">
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="db-home-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">Dobbelaar</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" aria-label="Feedback" id="db-home-icon-feedback" data-sheet="sheet-feedback"></button>
+            <button class="btn btn--icon" aria-label="Share" id="db-home-icon-share"></button>
+            <button class="btn btn--icon" aria-label="Favourite" id="db-home-icon-heart"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-body">
+        <div class="home-game-panel">
+          <div class="home-game-icon">
+            <img src="./dobbelaar_icon.svg" alt="Dobbelaar icon" style="width:100%;height:100%;object-fit:contain;" />
+          </div>
+          <h1 class="home-game-title">Dobbelaar</h1>
+          <div class="home-game-cta">
+            <p class="home-game-date" id="db-home-date"></p>
+            <button class="btn btn--primary" id="db-btn-play">Play</button>
+          </div>
+        </div>
+
+        <div class="home-week">
+          <h3 class="home-week__heading">Last week</h3>
+          <div class="home-week__list">
+            <div class="home-day-row"><span class="home-day-row__name">Yesterday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Saturday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Friday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Thursday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Wednesday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Tuesday</span><button class="btn btn--pill">Play</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet-footer"></div>
+    </div>
+  </div>
+
+  <!-- == SCREEN: LOADING =========================================== -->
+  <div class="proto-screen" data-screen="loading" id="screen-loading" inert>
+    <div class="loading-page">
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="db-loading-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">Dobbelaar</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" id="db-loading-icon-feedback" aria-label="Feedback"></button>
+            <button class="btn btn--icon" id="db-loading-icon-share" aria-label="Share"></button>
+            <button class="btn btn--icon" id="db-loading-icon-heart" aria-label="Favourite"></button>
+          </div>
+        </div>
+      </div>
+      <div class="loading-body">
+        <svg class="loading-img" viewBox="-20 -20 295 247" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central die (face-6, dark green) -->
+          <g id="db-lm">
+            <path d="M154.591 116H100.775C90.8674 116 82.8359 124.032 82.8359 133.94V187.76C82.8359 197.668 90.8674 205.7 100.775 205.7H154.591C164.498 205.7 172.529 197.668 172.529 187.76V133.94C172.529 124.032 164.498 116 154.591 116Z" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M150.366 123.305H104.623C96.2017 123.305 89.375 129.998 89.375 138.255V183.105C89.375 191.361 96.2017 198.055 104.623 198.055H150.366C158.788 198.055 165.614 191.361 165.614 183.105V138.255C165.614 129.998 158.788 123.305 150.366 123.305Z" fill="#00565E"/>
+            <path d="M105.257 144.241C108.559 144.241 111.237 141.563 111.237 138.261C111.237 134.958 108.559 132.281 105.257 132.281C101.954 132.281 99.2773 134.958 99.2773 138.261C99.2773 141.563 101.954 144.241 105.257 144.241Z" fill="#F5F1ED"/>
+            <path d="M150.105 144.241C153.407 144.241 156.084 141.563 156.084 138.261C156.084 134.958 153.407 132.281 150.105 132.281C146.802 132.281 144.125 134.958 144.125 138.261C144.125 141.563 146.802 144.241 150.105 144.241Z" fill="#F5F1ED"/>
+            <path d="M105.257 166.655C108.559 166.655 111.237 163.978 111.237 160.675C111.237 157.373 108.559 154.695 105.257 154.695C101.954 154.695 99.2773 157.373 99.2773 160.675C99.2773 163.978 101.954 166.655 105.257 166.655Z" fill="#F5F1ED"/>
+            <path d="M150.105 166.655C153.407 166.655 156.084 163.978 156.084 160.675C156.084 157.373 153.407 154.695 150.105 154.695C146.802 154.695 144.125 157.373 144.125 160.675C144.125 163.978 146.802 166.655 150.105 166.655Z" fill="#F5F1ED"/>
+            <path d="M105.257 189.084C108.559 189.084 111.237 186.407 111.237 183.105C111.237 179.802 108.559 177.125 105.257 177.125C101.954 177.125 99.2773 179.802 99.2773 183.105C99.2773 186.407 101.954 189.084 105.257 189.084Z" fill="#F5F1ED"/>
+            <path d="M150.105 189.084C153.407 189.084 156.084 186.407 156.084 183.105C156.084 179.802 153.407 177.125 150.105 177.125C146.802 177.125 144.125 179.802 144.125 183.105C144.125 186.407 146.802 189.084 150.105 189.084Z" fill="#F5F1ED"/>
+          </g>
+          <!-- Left die (rotated, face-3) -->
+          <g id="db-ll">
+            <path d="M53.1682 19.3L12.9328 30.8382C5.79021 32.8864 1.6603 40.3375 3.70838 47.4805L15.2455 87.7184C17.2936 94.8615 24.7441 98.9916 31.8867 96.9433L72.1221 85.4052C79.2647 83.3569 83.3946 75.9059 81.3465 68.7628L69.8094 28.5249C67.7613 21.3819 60.3108 17.2517 53.1682 19.3Z" fill="white" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M55.4449 38.0857C58.2226 37.2891 59.8287 34.3916 59.0322 31.6138C58.2358 28.836 55.3384 27.2299 52.5607 28.0265C49.783 28.823 48.1769 31.7206 48.9734 34.4983C49.7698 37.2761 52.6672 38.8822 55.4449 38.0857Z" fill="#00565E"/>
+            <path d="M43.9721 63.1559C46.7498 62.3594 48.3559 59.4618 47.5595 56.684C46.7631 53.9063 43.8657 52.3002 41.088 53.0967C38.3103 53.8933 36.7042 56.7909 37.5007 59.5687C38.2971 62.3464 41.1945 63.9525 43.9721 63.1559Z" fill="#00565E"/>
+            <path d="M32.4995 88.2106C35.2772 87.4141 36.8833 84.5165 36.0869 81.7387C35.2904 78.9609 32.393 77.3549 29.6154 78.1514C26.8377 78.948 25.2316 81.8456 26.028 84.6234C26.8244 87.4011 29.7218 89.0072 32.4995 88.2106Z" fill="#00565E"/>
+          </g>
+          <!-- Right die (rotated, face-3) -->
+          <g id="db-lr">
+            <path d="M242.004 26.9181L201.574 16.084C194.396 14.1607 187.019 18.4202 185.096 25.5979L174.263 66.0311C172.34 73.2088 176.599 80.5866 183.776 82.5099L224.207 93.344C231.384 95.2673 238.761 91.0078 240.685 83.8301L251.518 43.3969C253.441 36.2192 249.182 28.8414 242.004 26.9181Z" fill="white" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M199.232 36.3529C202.023 37.1008 204.892 35.4444 205.64 32.6532C206.388 29.8619 204.732 26.9928 201.941 26.2449C199.149 25.497 196.28 27.1534 195.533 29.9446C194.785 32.7359 196.441 35.6049 199.232 36.3529Z" fill="#00565E"/>
+            <path d="M211.541 59.7748C214.332 60.5228 217.201 58.8664 217.949 56.0751C218.697 53.2839 217.04 50.4148 214.249 49.6668C211.458 48.9188 208.589 50.5753 207.841 53.3665C207.093 56.1577 208.75 59.0268 211.541 59.7748Z" fill="#00565E"/>
+            <path d="M223.83 83.1811C226.621 83.929 229.49 82.2726 230.238 79.4814C230.986 76.6901 229.329 73.821 226.538 73.0731C223.747 72.3251 220.878 73.9815 220.13 76.7728C219.382 79.564 221.039 82.4331 223.83 83.1811Z" fill="#00565E"/>
+          </g>
+          <!-- Sparkle left -->
+          <path id="db-ls1" d="M56.8496 8.00391L59.6797 15.0801L66.7568 17.9111L69.0781 18.8398L66.7568 19.7676L59.6807 22.5977L56.8496 29.6758L55.9209 31.9971L54.9932 29.6758L52.1611 22.5977L45.0859 19.7676L42.7646 18.8398L45.0859 17.9111L52.1621 15.0801L54.9932 8.00391L55.9209 5.68262L56.8496 8.00391Z" fill="white" stroke="#00565E" stroke-width="2"/>
+          <!-- Sparkle right -->
+          <path id="db-ls2" d="M207.838 5.01172L210.668 12.0879L217.745 14.9189L220.066 15.8477L217.745 16.7754L210.669 19.6055L207.838 26.6836L206.909 29.0049L205.981 26.6836L203.149 19.6055L196.074 16.7754L193.753 15.8477L196.074 14.9189L203.15 12.0879L205.981 5.01172L206.909 2.69043L207.838 5.01172Z" fill="white" stroke="#00565E" stroke-width="2"/>
+          <!-- Plus / merge indicator -->
+          <path id="db-lp" d="M128 102.735C125.238 102.735 123 100.496 123 97.7349V88.7347H114C111.239 88.7347 109 86.4961 109 83.7347C109 80.9732 111.239 78.7346 114 78.7346L123 78.7346V69.7345C123 66.973 125.238 64.7344 128 64.7344C130.761 64.7344 133 66.973 133 69.7345V78.7346H142C144.761 78.7346 147 80.9732 147 83.7347C147 86.4961 144.761 88.7347 142 88.7347H133V97.7349C133 100.496 130.761 102.735 128 102.735Z" fill="#49DE71" stroke="#00565E" stroke-width="2"/>
+        </svg>
+        <p class="loading-text">Loading engine<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- == SCREEN: GAMEPLAY ========================================== -->
+  <div class="proto-screen" data-screen="gameplay" id="screen-gameplay" inert>
+    <div class="game-screen">
+
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" aria-label="Back" id="db-game-icon-back"></button>
+            <span class="home-nav-bar__title">Dobbelaar</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" aria-label="Feedback" id="db-game-icon-feedback" data-sheet="sheet-feedback"></button>
+            <button class="btn btn--icon" aria-label="Share" id="db-game-icon-share"></button>
+            <button class="btn btn--icon" aria-label="Favourite" id="db-game-icon-heart"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-toolbar">
+        <div class="game-toolbar__left">
+          <button class="btn btn--icon" aria-label="Instructions" id="db-game-icon-info" data-sheet="sheet-info"></button>
+          <div class="game-hint-wrap" id="db-game-hint-wrap">
+            <button class="btn btn--icon" aria-label="Hint" id="db-game-icon-hint"></button>
+            <div class="game-hint-pointer">
+              <div class="game-hint-tooltip">
+                <p class="game-hint-tooltip__title">Hint</p>
+                <p class="game-hint-tooltip__body">Look for 2 identical dice already adjacent. Place a matching die next to them to trigger a merge and score points.</p>
+                <button class="game-hint-tooltip__close" aria-label="Close hint" id="db-game-icon-hint-close"></button>
+              </div>
+            </div>
+          </div>
+          <button class="game-timer-group" aria-label="Pause" id="db-timer-group">
+            <span class="game-timer" id="db-timer-display">00:00</span>
+            <span id="db-game-icon-pause"></span>
+          </button>
+        </div>
+        <div class="game-toolbar__right">
+          <button class="btn btn--icon" aria-label="Calendar" id="db-game-icon-calendar" data-sheet="sheet-calendar"></button>
+          <button class="btn btn--icon" aria-label="Statistics" id="db-game-icon-stats" data-sheet="sheet-stats"></button>
+          <button class="btn btn--icon" aria-label="Settings" id="db-game-icon-settings" data-sheet="sheet-settings"></button>
+        </div>
+      </div>
+
+      <div class="game-main">
+        <div class="game-board">
+          <div class="db-grid-outer">
+            <div class="db-grid" id="db-board-grid"></div>
+          </div>
+          <div class="db-tray-wrap">
+            <div class="db-tray">
+              <div class="db-tray-slot" id="db-spawner"></div>
+              <div class="db-tray-slot" id="db-parking">
+                <div class="db-tray-empty">
+                <svg viewBox="0 0 29 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 33.2308V0H13.8462C18.4154 0 22.0154 1.24616 24.5077 3.73846C27 6.23077 28.2462 9.41539 28.2462 13.2923C28.2462 17.1692 27 20.3538 24.5077 22.8462C22.0154 25.3385 18.4154 26.5846 13.8462 26.5846H7.75385V33.2308H0ZM7.75385 19.9385H13.2923C15.6462 19.9385 17.4462 19.2462 18.6923 17.8615C19.9385 16.4769 20.5615 15.0923 20.5615 13.2923C20.5615 11.4923 19.9385 10.1077 18.6923 8.72308C17.4462 7.33846 15.6462 6.64615 13.2923 6.64615H7.75385V19.9385Z" fill="currentColor"/>
+                </svg>
+              </div>
+              </div>
+            </div>
+            <div class="db-tray-hint">
+              <div>TAP TO ROTATE</div>
+              <div>·</div>
+              <div>DRAG TO PLACE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div id="db-score-icon"></div>
+            <span id="db-score-value">0</span>
+          </div>
+          <div class="game-score-item">
+            <div id="db-merges-icon"></div>
+            <span id="db-merges-value">0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- == TUTORIAL OVERLAY ========================================== -->
+  <div class="proto-tutorial" id="overlay-tutorial">
+    <div class="tutorial">
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="db-tut-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">Dobbelaar</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" id="db-tut-icon-feedback" aria-label="Feedback"></button>
+            <button class="btn btn--icon" id="db-tut-icon-share" aria-label="Share"></button>
+            <button class="btn btn--icon" id="db-tut-icon-heart" aria-label="Favourite"></button>
+          </div>
+        </div>
+      </div>
+      <div class="tutorial__step" id="db-tut-step">Step 1/5</div>
+      <div class="tutorial__play-area">
+        <div class="tut-anim tut-anim--step-1" aria-hidden="true">
+          <div class="ta1-scene">
+            <div class="ta1-grid">
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell ta1-land ta1-land--1"><span class="ta1-pip"></span></div>
+              <div class="ta1-cell ta1-land ta1-land--2">
+                <span class="ta1-pip ta1-pip--tl"></span>
+                <span class="ta1-pip ta1-pip--br"></span>
+              </div>
+              <div class="ta1-cell"></div>
+            </div>
+            <div class="ta1-tray"></div>
+            <div class="ta1-die ta1-die--1"><span class="ta1-pip"></span></div>
+            <div class="ta1-die ta1-die--2">
+              <span class="ta1-pip ta1-pip--tl"></span>
+              <span class="ta1-pip ta1-pip--br"></span>
+            </div>
+            <div class="ta1-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="tut-anim tut-anim--step-2" aria-hidden="true"></div>
+        <div class="tut-anim tut-anim--step-3" aria-hidden="true"></div>
+        <div class="tut-anim tut-anim--step-4" aria-hidden="true"></div>
+        <div class="tut-anim tut-anim--step-5" aria-hidden="true"></div>
+      </div>
+      <div class="tutorial__info">
+        <div class="tutorial__instruction">
+          <span class="tutorial__title" id="db-tut-title">Place your dice</span>
+          <div class="tutorial__desc-wrap">
+            <p class="tutorial__desc" id="db-tut-desc">You get 1 or 2 dice each turn. Drag them on an empty cell to place them on the grid.</p>
+          </div>
+        </div>
+        <button class="btn btn--primary" id="db-tut-next">Next</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- == POPUPS ==================================================== -->
+
+  <div class="overlay" id="popup-welcome" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Welcome to Dobbelaar!</h2>
+      <p class="modal__content">Place, rotate, and merge dice to rack up the highest score. Let's walk you through how to play.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-letsgo">Let's go!</button>
+        <button class="btn btn--secondary" id="db-btn-skip-tutorial">Skip tutorial</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="popup-goal" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Today's Goal</h2>
+      <p class="modal__content">Reach <strong>250 points</strong> before the board fills. Merges that exceed 6 disappear from the board and score bonus points!</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-ready">Ready to play</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="popup-exit" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Exit game?</h2>
+      <p class="modal__content">Your current progress will be lost if you leave now.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-exit-confirm">Exit</button>
+        <button class="btn btn--secondary" id="db-btn-exit-stay">Stay</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- == SHEETS ==================================================== -->
+
+  <!-- Pause -->
+  <div class="sheet-overlay" id="sheet-pause" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Pause</h2>
+        <p class="sheet__body">The game is paused. Your dice are safe — continue when you're ready.</p>
+      </div>
+      <div class="sheet__illustration">
+        <img src="./dobbelaar_pause.svg" alt="Pause illustration" style="width:100%;max-height:100%;object-fit:contain;" />
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--primary" id="db-btn-continue">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="sheet-overlay" id="sheet-info" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Instructions</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-instr-wrap">
+        <div class="sheet__list">
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">1</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Place your dice</span>
+              <span class="sheet__list-body">You get 1 or 2 dice each turn. Drag them onto an empty cell to place them on the grid.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">2</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Rotate and match</span>
+              <span class="sheet__list-body">Tap a die to rotate it 90Â°. Place matching dice adjacent to set up a merge.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">3</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Merge and score</span>
+              <span class="sheet__list-body">Three or more identical adjacent dice merge. Sum â‰¤ 6 â†’ one die of the sum. Sum &gt; 6 â†’ dice disappear and score bonus points.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">4</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Use the parking spot</span>
+              <span class="sheet__list-body">Stash a die in the parking spot to hold it while you place the other. Drag from the spawner to swap.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">5</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">More merges = higher score</span>
+              <span class="sheet__list-body">Chain merges across the whole grid for maximum points. Keep your streak alive by playing every day!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-instr-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-close-info">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="sheet-overlay" id="sheet-calendar" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Calendar</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-cal-wrap">
+        <div class="cal-card">
+          <div class="cal-nav">
+            <button class="btn btn--icon" aria-label="Previous month" id="db-cal-prev"></button>
+            <span class="cal-nav__title" id="db-cal-title"></span>
+            <button class="btn btn--icon" aria-label="Next month" id="db-cal-next" style="transform:scaleX(-1)"></button>
+          </div>
+          <div class="cal-month">
+            <div class="cal-weekdays">
+              <span class="cal-weekday">M</span><span class="cal-weekday">T</span><span class="cal-weekday">W</span>
+              <span class="cal-weekday">T</span><span class="cal-weekday">F</span><span class="cal-weekday">S</span><span class="cal-weekday">S</span>
+            </div>
+            <div class="divider"></div>
+            <div class="cal-grid" id="db-cal-grid"></div>
+          </div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-info__date">
+            <span>Today,</span>
+            <strong id="db-cal-today-label"></strong>
+          </div>
+          <div class="cal-info__sep"></div>
+          <div class="cal-info__badge">
+            <div class="cal-info__badge-icon" id="db-cal-trophy"></div>
+            <span class="cal-info__badge-text">In progress</span>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-cal-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-cal-btn">Play today</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics -->
+  <div class="sheet-overlay" id="sheet-stats" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Statistics</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-stats-wrap">
+        <div class="stat-card stat-card--bare">
+          <div class="stat-gallery__grid stat-gallery__grid--3">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">7</span>
+              <span class="stat-gallery__label">Played</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">3</span>
+              <span class="stat-gallery__label">Streak</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">71%</span>
+              <span class="stat-gallery__label">Win rate</span>
+            </div>
+          </div>
+          <div class="stat-gallery__grid">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">480</span>
+              <span class="stat-gallery__label">Best score</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">312</span>
+              <span class="stat-gallery__label">Avg. score</span>
+            </div>
+          </div>
+          <div class="stat-gallery__grid" style="grid-template-columns:1fr">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">1h 24m</span>
+              <span class="stat-gallery__label">Total time played</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-streak">
+          <span class="stat-streak__title">3 Daily streak</span>
+          <div class="stat-streak__body">
+            <div class="cal-weekdays">
+              <span class="cal-weekday">M</span><span class="cal-weekday">T</span><span class="cal-weekday">W</span>
+              <span class="cal-weekday">T</span><span class="cal-weekday">F</span><span class="cal-weekday">S</span><span class="cal-weekday">S</span>
+            </div>
+            <div class="divider"></div>
+            <div class="stat-streak__grid" id="db-stat-streak-grid"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-stats-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-close-stats">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="sheet-overlay" id="sheet-settings" role="dialog" aria-modal="true">
+    <div class="sheet sheet--footer-dual">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Settings</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-settings-wrap">
+        <div class="stt-card">
+          <div class="stt-row">
+            <span class="stt-row__label">Sound Effects</span>
+            <label class="stt-toggle" aria-label="Sound effects">
+              <input type="checkbox" id="db-toggle-sfx" checked />
+              <span class="stt-toggle__slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <span class="stt-row__label">Background Music</span>
+            <label class="stt-toggle" aria-label="Background music">
+              <input type="checkbox" id="db-toggle-music" />
+              <span class="stt-toggle__slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Theme</span>
+              <span class="stt-row__desc">Choose between dark, automatic or bright.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Theme" id="db-stt-theme">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option" data-value="dark"  id="db-stt-theme-dark"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option stt-segment__option--active" data-value="auto" id="db-stt-theme-auto"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option" data-value="light" id="db-stt-theme-light"></button>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Dominant Hand</span>
+              <span class="stt-row__desc">Choose between left / right-handed.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Dominant hand" id="db-stt-hand">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option stt-segment__option--active" data-value="left"  id="db-stt-hand-left"></button>
+                <button class="stt-segment__option" data-value="right" id="db-stt-hand-right" style="transform:scaleX(-1)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stt-overflow-card">
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-howto"></div>
+            <span class="stt-overflow-row__label">How to play?</span>
+            <button class="btn btn--success" id="db-stt-btn-howto">Open</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-stats"></div>
+            <span class="stt-overflow-row__label">Have you seen your stats?</span>
+            <button class="btn btn--success" id="db-stt-btn-stats">See</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-bible"></div>
+            <span class="stt-overflow-row__label">Read about Dobbelaar</span>
+            <button class="btn btn--success" id="db-stt-btn-bible">Read</button>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-settings-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--secondary" id="db-btn-reset-settings">Reset defaults</button>
+        <button class="btn btn--primary" id="db-btn-save-settings">Save and continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="sheet-overlay" id="sheet-feedback" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Would you like to help us?</h2>
+        <p class="sheet__body">We'd love to hear your feedback — it helps us make Dobbelaar even better.</p>
+      </div>
+      <div class="sheet__list-wrap" id="db-feedback-wrap">
+        <div class="form-group">
+          <label class="form-label">How many stars do you give this game?</label>
+          <div class="form-stars" id="db-stars">
+            <button class="form-star" id="db-star-1" aria-label="1 star"></button>
+            <button class="form-star" id="db-star-2" aria-label="2 stars"></button>
+            <button class="form-star" id="db-star-3" aria-label="3 stars"></button>
+            <button class="form-star" id="db-star-4" aria-label="4 stars"></button>
+            <button class="form-star" id="db-star-5" aria-label="5 stars"></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="db-feedback-tips">What did you like? Any tips?</label>
+          <textarea class="form-field form-field--textarea" id="db-feedback-tips"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="db-feedback-suggestions">Any mechanic or feature suggestions?</label>
+          <input class="form-field" type="text" id="db-feedback-suggestions" />
+        </div>
+        <div class="form-checkbox-row">
+          <button class="form-tickbox" id="db-tickbox" aria-pressed="false">
+            <div class="form-tickbox__box" id="db-tickbox-icon"></div>
+          </button>
+          <label class="form-checkbox-label">The puzzle team may contact me regarding my feedback.</label>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-feedback-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-send-feedback">Send feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win -->
+  <div class="sheet-overlay" id="sheet-win" role="dialog" aria-modal="true" data-no-dismiss>
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Congratulations!</h2>
+        <p class="sheet__body">You reached today's target! A new puzzle will be ready in <strong id="db-win-countdown">11:55:23</strong>.</p>
+      </div>
+      <div class="sheet__illustration">
+        <img src="./dobbelaar_win.svg" alt="Win illustration" style="width:100%;max-height:100%;object-fit:contain;" />
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-win-btn-share">Share the win</button>
+        <button class="btn btn--primary" id="db-win-btn-home">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lose -->
+  <div class="sheet-overlay" id="sheet-lose" role="dialog" aria-modal="true" data-no-dismiss>
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Board's full!</h2>
+        <p class="sheet__body">No more dice can be placed. You scored <strong id="db-lose-score">0</strong> points. Better luck next time!</p>
+      </div>
+      <div class="sheet__illustration">
+        <img src="./dobbelaar_lose.svg" alt="Lose illustration" style="width:100%;max-height:100%;object-fit:contain;" />
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-lose-btn-retry">Try again</button>
+        <button class="btn btn--primary" id="db-lose-btn-home">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="db-toast"></div>
+
+
+  <!-- == SCRIPTS =================================================== -->
+  <script src="../../icons.js"></script>
+  <script src="../../game-utils.js"></script>
+  <script src="./dobbelaar.js"></script>
+  <script><!-- intentionally empty — all logic in dobbelaar.js + game-utils.js -->
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "gameName": "Dobbelaar",
+  "primaryAction": "Each turn the player is give either one or two dice. The player can place them on the board by dragging the dice on the grid. Before placing, the player can also rotate a pair by tapping on it, each tap rotates it 90 degrees. Once the dice are dragged on the grid, they are fixed there. The player can also \"hold\" some dice using the parking option. This keeps the dice in a spot until the player decides to place them. There are two spots: spawner (which spawns the dice pair or singular) and parking. Parking can only hold one dice/dice pair and rotating the dice works the same by tapping. By dragging a dice from the spawner to the filled parking, the two spots exchange the content.",
+  "matchRule": "Three or more dice of the same type next to each other combine, match and merge, adding score. If the sum of similar close dice is >6, the matching dice disappear from the board. If the sum is less or equal, they get replaced by one dice of the sum. For example three 1-dice gets replaced by one 3-dice.",
+  "feedbackResponse": "When dice combine, it should have a satisfying animation and score point added animations as well.",
+  "skillExpression": "An expert tries to leave enough space without combing 3 close dice so they can get a bigger better combination. A beginner just places dice close to each other in order to get 3 of the same.",
+  "depthLayer": "New mechanics can include: time-based challenges, a maximum number of merges, a null dice-block which doesn't add anything and just fills the board etc",
+  "winConditions": [
+    "Reach Score Target",
+    "Survive the Timer",
+    "Chain Reaction Goal",
+    "Daily Challenge",
+    "reach score in given amount of merges/moves"
+  ],
+  "loseConditions": [
+    "Board Full / No Space",
+    "Timer Runs Out",
+    "No Valid Moves Left"
+  ],
+  "boardFigmaLink": "https://www.figma.com/design/8huMDXVu1viDsxzCdckOsb/2.0-PuzzelFit?node-id=2353-277507&t=fGsQPAIfu7THpj6R-4",
+  "animationMood": "calm",
+  "tutorialCount": 5,
+  "tutorialSteps": [
+    "Place your dice: You get 1 or 2 dice each turn. Drag them on an empty cell to place them on the grid.",
+    "Rotate and match: Rotate your dice by tapping on them once. Place the matching next to each other.",
+    "Merge and add to score: You score points merging three or more similar dice. If the total adds up to 6, the dice disappear from the board.",
+    "Parking spot: Rotate your piece or stash it in the parking spot to play something else first.",
+    "More pairs = higher score: Increase your score by matching all the dice on the grid."
+  ],
+  "hasHints": true,
+  "hintDetail": "",
+  "settings": [
+    "Theme (Dark / Light)",
+    "Sound Effects",
+    "Background Music",
+    "Dominant Hand"
+  ],
+  "stats": [
+    "Games Played",
+    "Current Streak",
+    "Best Score",
+    "Average Score",
+    "Win Rate",
+    "Total Time Played"
+  ],
+  "scoreBarMetrics": "Score based on how much matching each pair scores, merge counter based on how many merges are done in a session",
+  "scoreBarIcons": "for score we use the target icon, for merges we use the merges icon",
+  "generateFields": {
+    "feedback-response": false,
+    "hint-detail": true
+  },
+  "savedAt": "2026-04-01T07:59:46.774Z"
+}

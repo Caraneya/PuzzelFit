@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en" id="proto-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow Prototype — PuzzleFit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--color-background); font-family: var(--font-family-secondary); color: var(--color-text-primary); }
+
+    /* ── PROTOTYPE: SCREEN STACK ───────────────────────────────── */
+    .proto-screen {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: opacity var(--duration-slow) var(--easing-out);
+    }
+    .proto-screen.is-active { opacity: 1; pointer-events: auto; }
+    .proto-screen .home-page,
+    .proto-screen .loading-page,
+    .proto-screen .game-screen { flex: 1; min-height: 0; }
+
+    /* ── PROTOTYPE: TUTORIAL OVERLAY ───────────────────────────── */
+    .proto-tutorial { position: fixed; inset: 0; z-index: var(--z-overlay); display: none; flex-direction: column; }
+    .proto-tutorial.is-open { display: flex; }
+
+    /* ── NAV THEME BTNS (same as MasterStyleguide) ─────────────── */
+    .nav-theme-btns { display: flex; gap: var(--space-1); padding: var(--space-1) var(--space-2); }
+    .nav-theme-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--radius-xs);
+      border: none; background: transparent; color: var(--color-text-secondary); cursor: pointer;
+      transition: color var(--duration-fast), background var(--duration-fast);
+    }
+    .nav-theme-btn:hover { color: var(--color-text-primary); background: var(--color-surface); }
+    .nav-theme-btn--active { color: var(--color-accent); background: var(--color-surface); }
+
+    /* Toast uses .toast component from components.css */
+
+    /* ── PROTOTYPE BADGE ───────────────────────────────────────── */
+    .proto-badge { position: fixed; top: var(--space-2); right: var(--space-3); z-index: var(--z-toast); background: var(--color-surface-tooltip); color: var(--color-surface); font-size: 10px; font-family: var(--font-family-secondary); font-weight: var(--font-weight-semibold); padding: 3px var(--space-2); border-radius: var(--radius-full); letter-spacing: 0.05em; opacity: 0.7; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+  <div class="proto-badge">FLOW PROTOTYPE</div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SCREENS
+  ══════════════════════════════════════════════════════════════════ -->
+
+  <!-- SCREEN: HOME ────────────────────────────────────────────── -->
+  <div class="proto-screen is-active" data-screen="home" id="screen-home">
+    <div class="home-page">
+
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="fp-home-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">PuzzleFit</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" aria-label="Feedback" id="fp-home-icon-feedback" data-sheet="sheet-feedback"></button>
+            <button class="btn btn--icon" aria-label="Share" id="fp-home-icon-share"></button>
+            <button class="btn btn--icon" aria-label="Favourite" id="fp-home-icon-heart"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-body">
+        <div class="home-game-panel">
+          <div class="home-game-icon">
+            <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Game Icon</span>
+          </div>
+          <h1 class="home-game-title">PuzzleFit</h1>
+          <div class="home-game-cta">
+            <p class="home-game-date" id="fp-home-date"></p>
+            <button class="btn btn--primary" id="fp-btn-play">Play</button>
+          </div>
+        </div>
+
+        <div class="home-week">
+          <h3 class="home-week__heading">Last week</h3>
+          <div class="home-week__list">
+            <div class="home-day-row"><span class="home-day-row__name">Yesterday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Saturday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Friday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Thursday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Wednesday</span><button class="btn btn--pill">Play</button></div>
+            <div class="divider"></div>
+            <div class="home-day-row"><span class="home-day-row__name">Tuesday</span><button class="btn btn--pill">Play</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet-footer"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: LOADING ─────────────────────────────────────────── -->
+  <div class="proto-screen" data-screen="loading" id="screen-loading">
+    <div class="loading-page">
+
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="fp-loading-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">PuzzleFit</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" aria-label="Feedback" id="fp-loading-icon-feedback"></button>
+            <button class="btn btn--icon" aria-label="Share" id="fp-loading-icon-share"></button>
+            <button class="btn btn--icon" aria-label="Favourite" id="fp-loading-icon-heart"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="loading-body">
+        <div class="loading-animation">Loading animation</div>
+        <p class="loading-text">Loading engine<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCREEN: GAMEPLAY ────────────────────────────────────────── -->
+  <div class="proto-screen" data-screen="gameplay" id="screen-gameplay">
+    <div class="game-screen">
+
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" aria-label="Back" id="fp-game-icon-back"></button>
+            <span class="home-nav-bar__title">PuzzleFit</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" aria-label="Feedback" id="fp-game-icon-feedback" data-sheet="sheet-feedback"></button>
+            <button class="btn btn--icon" aria-label="Share" id="fp-game-icon-share"></button>
+            <button class="btn btn--icon" aria-label="Favourite" id="fp-game-icon-heart"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-toolbar">
+        <div class="game-toolbar__left">
+          <button class="btn btn--icon" aria-label="Info" id="fp-game-icon-info" data-sheet="sheet-info"></button>
+          <div class="game-hint-wrap" id="fp-game-hint-wrap">
+            <button class="btn btn--icon" aria-label="Hint" id="fp-game-icon-hint"></button>
+            <div class="game-hint-pointer">
+              <div class="game-hint-tooltip">
+                <p class="game-hint-tooltip__title">Hint</p>
+                <p class="game-hint-tooltip__body">This is a hint for the current puzzle. Use it wisely!</p>
+                <button class="game-hint-tooltip__close" aria-label="Close hint" id="fp-game-icon-hint-close"></button>
+              </div>
+            </div>
+          </div>
+          <button class="game-timer-group" aria-label="Pause" id="fp-timer-group">
+            <span class="game-timer" id="fp-timer-display">00:00</span>
+            <span id="fp-game-icon-pause"></span>
+          </button>
+        </div>
+        <div class="game-toolbar__right">
+          <button class="btn btn--icon" aria-label="Calendar" id="fp-game-icon-calendar" data-sheet="sheet-calendar"></button>
+          <button class="btn btn--icon" aria-label="Stats" id="fp-game-icon-stats" data-sheet="sheet-stats"></button>
+          <button class="btn btn--icon" aria-label="Settings" id="fp-game-icon-settings" data-sheet="sheet-settings"></button>
+        </div>
+      </div>
+
+      <div class="game-main">
+        <div class="game-board">Game Board</div>
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div id="fp-game-score-target"></div>
+            <span>target</span>
+          </div>
+          <div class="game-score-item">
+            <div id="fp-game-score-star"></div>
+            <span>score</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TUTORIAL OVERLAY
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="proto-tutorial" id="overlay-tutorial">
+    <div class="tutorial">
+      <div class="home-header">
+        <div class="home-nav-bar">
+          <div class="home-nav-bar__start">
+            <button class="btn btn--icon" id="fp-tut-icon-back" aria-label="Back"></button>
+            <span class="home-nav-bar__title">PuzzleFit</span>
+          </div>
+          <div class="home-nav-bar__end">
+            <button class="btn btn--icon" id="fp-tut-icon-feedback" aria-label="Feedback"></button>
+            <button class="btn btn--icon" id="fp-tut-icon-share" aria-label="Share"></button>
+            <button class="btn btn--icon" id="fp-tut-icon-heart" aria-label="Favourite"></button>
+          </div>
+        </div>
+      </div>
+      <div class="tutorial__step" id="fp-tut-step">Step 1/5</div>
+      <div class="tutorial__play-area">
+        <span class="tutorial__play-placeholder" id="fp-tut-illustration">🧩</span>
+      </div>
+      <div class="tutorial__info">
+        <div class="tutorial__instruction">
+          <span class="tutorial__title" id="fp-tut-title">Place Your Tiles</span>
+          <div class="tutorial__desc-wrap">
+            <p class="tutorial__desc" id="fp-tut-desc">Tap tiles to select them and build words or patterns on the board.</p>
+          </div>
+        </div>
+        <button class="btn btn--primary" id="fp-tut-next">Next</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       POPUPS — use .overlay + .modal from components.css
+  ══════════════════════════════════════════════════════════════════ -->
+
+  <!-- POPUP: First-time welcome -->
+  <div class="overlay" id="popup-firsttime" role="dialog" aria-modal="true" aria-labelledby="fp-welcome-title">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title" id="fp-welcome-title">Welcome to PuzzleFit!</h2>
+      <p class="modal__content">Ready to solve today's puzzle? Let's walk you through how to play.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="fp-btn-letsgo">Let's go!</button>
+        <button class="btn btn--secondary" id="fp-btn-skip-tutorial">Skip tutorial</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP: Today's goal -->
+  <div class="overlay" id="popup-goal" role="dialog" aria-modal="true" aria-labelledby="fp-goal-title">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title" id="fp-goal-title">Today's Goal</h2>
+      <p class="modal__content">Fit all 12 pieces into the board without gaps. Today's puzzle has a 3-minute target time — can you beat it?</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="fp-btn-ready-to-play">Ready to play</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP: Exit confirmation -->
+  <div class="overlay" id="popup-exit" role="dialog" aria-modal="true" aria-labelledby="fp-exit-title">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title" id="fp-exit-title">Exit game?</h2>
+      <p class="modal__content">Your current progress will be lost if you leave now.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="fp-btn-exit-confirm">Exit</button>
+        <button class="btn btn--secondary" id="fp-btn-exit-stay">Stay</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       GAME SHEETS — .sheet-overlay + .sheet from components.css
+       position:fixed override applied in <style> above
+  ══════════════════════════════════════════════════════════════════ -->
+
+  <!-- SHEET: Pause -->
+  <div class="sheet-overlay" id="sheet-pause" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Pause</h2>
+        <p class="sheet__body">The game is now paused. Continue playing to resume.</p>
+      </div>
+      <div class="sheet__illustration" style="background:var(--color-surface-alt);border-radius:var(--radius-xs);">
+        <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--primary" id="fp-btn-continue">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Instructions -->
+  <div class="sheet-overlay" id="sheet-info" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Instructions</h2>
+      </div>
+      <div class="sheet__list-wrap" id="fp-instr-wrap">
+        <div class="sheet__list">
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">1</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Select your tiles</span>
+              <span class="sheet__list-body">Tap any tile on the board to select it. Selected tiles are highlighted.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">2</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Form words or patterns</span>
+              <span class="sheet__list-body">Combine tiles to match the target on screen. Each match scores points.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">3</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Reach the target score</span>
+              <span class="sheet__list-body">Hit the target score before time runs out to complete the puzzle.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">4</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Use hints wisely</span>
+              <span class="sheet__list-body">Stuck? Tap the lightbulb for a clue. Hints are limited — use them well.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">5</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Keep your streak alive</span>
+              <span class="sheet__list-body">A new puzzle drops every day. Check your calendar and play daily.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="fp-instr-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="fp-btn-close-info">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Calendar -->
+  <div class="sheet-overlay" id="sheet-calendar" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Calendar</h2>
+      </div>
+      <div class="sheet__list-wrap" id="fp-cal-wrap">
+        <div class="cal-card">
+          <div class="cal-nav">
+            <button class="btn btn--icon" aria-label="Previous month" id="fp-cal-prev"></button>
+            <span class="cal-nav__title" id="fp-cal-title"></span>
+            <button class="btn btn--icon" aria-label="Next month" id="fp-cal-next" style="transform:scaleX(-1)"></button>
+          </div>
+          <div class="cal-month">
+            <div class="cal-weekdays">
+              <span class="cal-weekday">M</span>
+              <span class="cal-weekday">T</span>
+              <span class="cal-weekday">W</span>
+              <span class="cal-weekday">T</span>
+              <span class="cal-weekday">F</span>
+              <span class="cal-weekday">S</span>
+              <span class="cal-weekday">S</span>
+            </div>
+            <div class="divider"></div>
+            <div class="cal-grid" id="fp-cal-grid"></div>
+          </div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-info__date">
+            <span>Today,</span>
+            <strong id="fp-cal-today-label"></strong>
+          </div>
+          <div class="cal-info__sep"></div>
+          <div class="cal-info__badge">
+            <div class="cal-info__badge-icon" id="fp-cal-trophy"></div>
+            <span class="cal-info__badge-text">In progress</span>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="fp-cal-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="fp-cal-btn">Play today</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Statistics -->
+  <div class="sheet-overlay" id="sheet-stats" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Statistics</h2>
+      </div>
+      <div class="sheet__list-wrap" id="fp-stats-wrap">
+        <div class="stat-card stat-card--bare">
+          <div class="stat-gallery__grid stat-gallery__grid--4">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">12</span>
+              <span class="stat-gallery__label">Played</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">20%</span>
+              <span class="stat-gallery__label">Completed</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">3</span>
+              <span class="stat-gallery__label">Streak</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">8</span>
+              <span class="stat-gallery__label">Max streak</span>
+            </div>
+          </div>
+          <div class="stat-gallery__grid">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">2:47</span>
+              <span class="stat-gallery__label">Best time</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number">8,450</span>
+              <span class="stat-gallery__label">Top score</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-streak">
+          <span class="stat-streak__title">0 Daily streak</span>
+          <div class="stat-streak__body">
+            <div class="cal-weekdays">
+              <span class="cal-weekday">M</span>
+              <span class="cal-weekday">T</span>
+              <span class="cal-weekday">W</span>
+              <span class="cal-weekday">T</span>
+              <span class="cal-weekday">F</span>
+              <span class="cal-weekday">S</span>
+              <span class="cal-weekday">S</span>
+            </div>
+            <div class="divider"></div>
+            <div class="stat-streak__grid" id="fp-stat-streak-grid"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="fp-stats-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="fp-btn-close-stats">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Settings -->
+  <div class="sheet-overlay" id="sheet-settings" role="dialog" aria-modal="true">
+    <div class="sheet sheet--footer-dual">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Settings</h2>
+      </div>
+      <div class="sheet__list-wrap" id="fp-settings-wrap">
+        <div class="stt-card">
+          <div class="stt-row">
+            <span class="stt-row__label">Sound</span>
+            <label class="stt-toggle" aria-label="Sound on or off">
+              <input type="checkbox" id="fp-toggle-sound" checked />
+              <span class="stt-toggle__slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Theme</span>
+              <span class="stt-row__desc">Choose between dark, automatic or bright.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Theme" id="fp-stt-theme">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option" data-value="dark"  id="fp-stt-theme-dark"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option stt-segment__option--active" data-value="auto"  id="fp-stt-theme-auto"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option" data-value="light" id="fp-stt-theme-light"></button>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Dominant Hand</span>
+              <span class="stt-row__desc">Choose between left / right-handed.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Dominant hand" id="fp-stt-hand">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option stt-segment__option--active" data-value="left"  id="fp-stt-hand-left"></button>
+                <button class="stt-segment__option" data-value="right" id="fp-stt-hand-right" style="transform:scaleX(-1)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stt-overflow-card">
+          <div class="stt-overflow-row">
+            <div id="fp-stt-icon-howto"></div>
+            <span class="stt-overflow-row__label">How to play?</span>
+            <button class="btn btn--success" id="fp-stt-btn-howto">Open</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="fp-stt-icon-stats"></div>
+            <span class="stt-overflow-row__label">Have you seen your stats?</span>
+            <button class="btn btn--success" id="fp-stt-btn-stats">See</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="fp-stt-icon-debug-win"></div>
+            <span class="stt-overflow-row__label" style="color:var(--color-text-secondary);font-style:italic">Debug: Win screen</span>
+            <button class="btn btn--success" id="fp-stt-btn-debug-win">Open</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="fp-stt-icon-debug-lose"></div>
+            <span class="stt-overflow-row__label" style="color:var(--color-text-secondary);font-style:italic">Debug: Lose screen</span>
+            <button class="btn btn--success" id="fp-stt-btn-debug-lose">Open</button>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="fp-settings-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--secondary" id="fp-btn-reset-settings">Reset defaults</button>
+        <button class="btn btn--primary" id="fp-btn-save-settings">Save and continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Feedback -->
+  <div class="sheet-overlay" id="sheet-feedback" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Would you like to help us?</h2>
+        <p class="sheet__body">We would love to hear your feedback, it allows us to make the puzzles even better.</p>
+      </div>
+      <div class="sheet__list-wrap" id="fp-feedback-wrap">
+        <div class="form-group">
+          <label class="form-label">How many stars do you give this game?</label>
+          <div class="form-stars" id="fp-stars">
+            <button class="form-star" id="fp-star-1" aria-label="1 star"></button>
+            <button class="form-star" id="fp-star-2" aria-label="2 stars"></button>
+            <button class="form-star" id="fp-star-3" aria-label="3 stars"></button>
+            <button class="form-star" id="fp-star-4" aria-label="4 stars"></button>
+            <button class="form-star" id="fp-star-5" aria-label="5 stars"></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fp-feedback-tips">What did you like? Any tips?</label>
+          <textarea class="form-field form-field--textarea" id="fp-feedback-tips"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fp-feedback-words">Any word suggestions?</label>
+          <input class="form-field" type="text" id="fp-feedback-words" />
+        </div>
+        <div class="form-checkbox-row">
+          <button class="form-tickbox" id="fp-tickbox" aria-pressed="false">
+            <div class="form-tickbox__box" id="fp-tickbox-icon"></div>
+          </button>
+          <label class="form-checkbox-label" for="fp-tickbox">The puzzle team may contact me regarding my feedback.</label>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="fp-feedback-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="fp-btn-send-feedback">Send feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Win -->
+  <div class="sheet-overlay" id="sheet-win" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Congratulations!</h2>
+        <p class="sheet__body">You finished today's Challenge!<br>A new one will be ready in <strong>11:55:23</strong>.</p>
+      </div>
+      <div class="sheet__illustration">
+        <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="fp-win-btn-share">Share the win</button>
+        <button class="btn btn--primary" id="fp-win-btn-home">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHEET: Lose -->
+  <div class="sheet-overlay" id="sheet-lose" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Oh snap!</h2>
+        <p class="sheet__body" id="fp-lose-body">You lasted <strong id="fp-lose-time">00:00</strong> before time ran out. Better luck next time!</p>
+      </div>
+      <div class="sheet__illustration">
+        <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="fp-lose-btn-retry">Try again</button>
+        <button class="btn btn--primary" id="fp-lose-btn-home">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="fp-toast"></div>
+  <div class="toast toast--bottom" id="fp-goal-tooltip">
+    <span class="toast__title">Today's Goal</span>
+    <span class="toast__body">Fit all 12 pieces into the board without gaps. Target time: 3 minutes.</span>
+    <button class="toast__close" id="fp-goal-tooltip-close" aria-label="Close"></button>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       ICONS + LOGIC
+  ══════════════════════════════════════════════════════════════════ -->
+  <script src="./icons.js"></script>
+  <script src="./game-utils.js"></script>
+  <script>
+    const TUTORIAL_STEPS = [
+      { title: 'Place Your Tiles',  desc: 'Tap tiles to select them and build words or patterns on the board.',          icon: '🧩' },
+      { title: 'Build Your Score',  desc: 'Each match scores points based on tile values. Reach the target to win.',     icon: '🎯' },
+      { title: 'Beat the Clock',    desc: "You're timed. Solve the puzzle as fast as you can for a higher score.",       icon: '⏱️' },
+      { title: 'Use Hints Wisely',  desc: "Stuck? Tap the lightbulb for a clue. Hints are limited — use them well.",    icon: '💡' },
+      { title: 'Daily Challenges',  desc: 'A new puzzle drops every day. Check your calendar to keep your streak alive.', icon: '📅' },
+    ];
+
+    let tutorialStep  = 0;
+    let timerObj      = null;
+    let firstTimeUser    = !sessionStorage.getItem('fp-tutorialSeen');
+    const isFirstSession = firstTimeUser;
+
+    function startLoading() {
+      GameUtils.navigateTo('loading');
+      setTimeout(() => {
+        GameUtils.navigateTo('gameplay');
+        timerObj?.reset();
+        if (firstTimeUser) setTimeout(() => GameUtils.openPopup('popup-firsttime'), 500);
+        else setTimeout(() => GameUtils.openPopup('popup-goal'), 500);
+      }, 2000);
+    }
+
+    function showTutorialStep(n) {
+      const s = TUTORIAL_STEPS[n];
+      document.getElementById('fp-tut-step').textContent         = `Step ${n + 1}/${TUTORIAL_STEPS.length}`;
+      document.getElementById('fp-tut-title').textContent        = s.title;
+      document.getElementById('fp-tut-desc').textContent         = s.desc;
+      document.getElementById('fp-tut-illustration').textContent = s.icon;
+      document.getElementById('fp-tut-next').textContent         = n === TUTORIAL_STEPS.length - 1 ? 'Play' : 'Next';
+    }
+    function openTutorial()  { tutorialStep = 0; showTutorialStep(0); document.getElementById('overlay-tutorial').classList.add('is-open'); }
+    function closeTutorial() { document.getElementById('overlay-tutorial').classList.remove('is-open'); sessionStorage.setItem('fp-tutorialSeen','true'); firstTimeUser = false; setTimeout(() => GameUtils.openPopup('popup-goal'), 200); }
+
+    function setTheme(theme) {
+      GameUtils.setTheme(theme, 'fp-stt-theme', 'fp-theme');
+      document.querySelectorAll('[data-theme-btn]').forEach(btn =>
+        btn.classList.toggle('nav-theme-btn--active', btn.dataset.themeBtn === theme)
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // ── Icons — nav bars ──
+      Icons.render(document.getElementById('fp-home-icon-back'),        'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-home-icon-feedback'),    'feedback',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-home-icon-share'),       'share',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-home-icon-heart'),       'heartFull',   { size: 'md', color: 'error' });
+      Icons.render(document.getElementById('fp-loading-icon-back'),     'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-loading-icon-feedback'), 'feedback',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-loading-icon-share'),    'share',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-loading-icon-heart'),    'heartFull',   { size: 'md', color: 'error' });
+      Icons.render(document.getElementById('fp-game-icon-back'),        'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-feedback'),    'feedback',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-share'),       'share',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-heart'),       'heartFull',   { size: 'md', color: 'error' });
+      Icons.render(document.getElementById('fp-tut-icon-back'),         'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-tut-icon-feedback'),     'feedback',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-tut-icon-share'),        'share',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-tut-icon-heart'),        'heartFull',   { size: 'md', color: 'error' });
+      Icons.render(document.getElementById('fp-game-icon-info'),        'info',        { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-hint'),        'hint',        { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-hint-close'),  'cross',       { size: 'md' });
+      Icons.render(document.getElementById('fp-game-icon-pause'),       'pause',       { size: 'md' });
+      Icons.render(document.getElementById('fp-game-icon-calendar'),    'calendar',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-stats'),       'stats',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-icon-settings'),    'settings',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-score-target'),     'target',      { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-game-score-star'),       'star',        { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-theme-dark'),        'themeDark',      { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-theme-auto'),        'themeAutomatic', { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-theme-light'),       'themeLight',     { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-hand-left'),         'arrowLeft',      { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-hand-right'),        'arrowLeft',      { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-icon-howto'),        'question',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-icon-stats'),        'stairs',      { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-icon-debug-win'),    'trophyGold',  { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('fp-stt-icon-debug-lose'),   'refresh',     { size: 'md', color: 'primary' });
+
+      // ── Shared utilities ──
+      GameUtils.initCalendar('fp');
+      GameUtils.initFeedbackForm('fp');
+      GameUtils.initHomeDate('fp');
+      GameUtils.buildStreakGrid('fp-stat-streak-grid');
+
+      // ── Sheet scrollbars ──
+      GameUtils.initSheetScrollbar('fp-instr-wrap',    'fp-instr-thumb');
+      GameUtils.initSheetScrollbar('fp-cal-wrap',      'fp-cal-thumb');
+      GameUtils.initSheetScrollbar('fp-stats-wrap',    'fp-stats-thumb');
+      GameUtils.initSheetScrollbar('fp-settings-wrap', 'fp-settings-thumb');
+      GameUtils.initSheetScrollbar('fp-feedback-wrap', 'fp-feedback-thumb');
+
+      // ── Theme ──
+      setTheme(localStorage.getItem('fp-theme') || 'auto');
+
+      // ── Timer ──
+      timerObj = GameUtils.makeTimer(
+        document.getElementById('fp-timer-group'),
+        document.getElementById('fp-game-icon-pause'),
+        document.getElementById('fp-timer-display')
+      );
+      document.getElementById('fp-timer-group').addEventListener('click', () => {
+        if (timerObj.isRunning()) { timerObj.pause(); GameUtils.openSheet('sheet-pause'); }
+      });
+
+      document.getElementById('fp-btn-continue').addEventListener('click',   () => { GameUtils.closeSheet('sheet-pause'); timerObj.start(); });
+      document.getElementById('fp-btn-play').addEventListener('click', startLoading);
+      document.getElementById('fp-game-icon-back').addEventListener('click', () => { if (timerObj.isRunning()) timerObj.pause(); GameUtils.openPopup('popup-exit'); });
+      document.getElementById('fp-home-icon-back').addEventListener('click', () => { window.location.href = './MasterStyleguide.html'; });
+      document.getElementById('fp-btn-exit-confirm').addEventListener('click', () => { GameUtils.closePopup('popup-exit'); GameUtils.navigateTo('home'); });
+      document.getElementById('fp-btn-exit-stay').addEventListener('click',    () => { GameUtils.closePopup('popup-exit'); timerObj.start(); });
+      document.getElementById('fp-btn-letsgo').addEventListener('click',        () => { GameUtils.closePopup('popup-firsttime'); openTutorial(); });
+      document.getElementById('fp-btn-skip-tutorial').addEventListener('click', () => { GameUtils.closePopup('popup-firsttime'); sessionStorage.setItem('fp-tutorialSeen','true'); firstTimeUser = false; GameUtils.openPopup('popup-goal'); });
+      document.getElementById('fp-btn-ready-to-play').addEventListener('click', () => { GameUtils.closePopup('popup-goal'); timerObj?.start(); });
+      document.getElementById('fp-tut-next').addEventListener('click', () => {
+        if (tutorialStep < TUTORIAL_STEPS.length - 1) showTutorialStep(++tutorialStep);
+        else closeTutorial();
+      });
+
+      document.querySelectorAll('[data-sheet]').forEach(btn =>
+        btn.addEventListener('click', () => { if (timerObj?.isRunning()) timerObj.pause(); GameUtils.openSheet(btn.dataset.sheet); })
+      );
+      document.querySelectorAll('.sheet-overlay').forEach(overlay =>
+        overlay.addEventListener('click', e => { if (e.target === overlay) { GameUtils.closeSheet(overlay.id); timerObj?.start(); } })
+      );
+
+      document.getElementById('fp-btn-close-info').addEventListener('click',  () => { GameUtils.closeSheet('sheet-info');  timerObj?.start(); });
+      document.getElementById('fp-btn-close-stats').addEventListener('click', () => { GameUtils.closeSheet('sheet-stats'); timerObj?.start(); });
+
+      document.querySelectorAll('.stt-segment').forEach(group =>
+        group.addEventListener('click', e => {
+          const btn = e.target.closest('.stt-segment__option');
+          if (!btn) return;
+          group.querySelectorAll('.stt-segment__option').forEach(b => b.classList.remove('stt-segment__option--active'));
+          btn.classList.add('stt-segment__option--active');
+          if (group.id === 'fp-stt-theme') setTheme(btn.dataset.value);
+        })
+      );
+
+      document.getElementById('fp-stt-btn-howto').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); setTimeout(() => GameUtils.openSheet('sheet-info'),  100); });
+      document.getElementById('fp-stt-btn-stats').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); setTimeout(() => GameUtils.openSheet('sheet-stats'), 100); });
+
+      function openLoseSheet() {
+        document.getElementById('fp-lose-time').textContent = document.getElementById('fp-timer-display').textContent;
+        GameUtils.openSheet('sheet-lose');
+      }
+
+      document.getElementById('fp-stt-btn-debug-win').addEventListener('click',  () => { GameUtils.closeSheet('sheet-settings'); timerObj?.pause(); setTimeout(() => GameUtils.openSheet('sheet-win'),  400); });
+      document.getElementById('fp-stt-btn-debug-lose').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.pause(); setTimeout(() => openLoseSheet(), 400); });
+
+      document.getElementById('fp-win-btn-share').addEventListener('click',  () => GameUtils.showToast('fp-toast', 'Sharing…'));
+      document.getElementById('fp-win-btn-home').addEventListener('click',   () => { GameUtils.closeSheet('sheet-win');  setTimeout(() => GameUtils.navigateTo('home'), 400); });
+      document.getElementById('fp-lose-btn-retry').addEventListener('click', () => { GameUtils.closeSheet('sheet-lose'); setTimeout(() => startLoading(), 400); });
+      document.getElementById('fp-lose-btn-home').addEventListener('click',  () => { GameUtils.closeSheet('sheet-lose'); setTimeout(() => GameUtils.navigateTo('home'), 400); });
+
+      document.getElementById('fp-btn-save-settings').addEventListener('click',  () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('fp-toast', 'Settings saved!'); });
+      document.getElementById('fp-btn-reset-settings').addEventListener('click', () => GameUtils.showToast('fp-toast', 'Settings reset to defaults.'));
+      document.getElementById('fp-cal-btn').addEventListener('click', () => { GameUtils.closeSheet('sheet-calendar'); timerObj?.start(); });
+      document.getElementById('fp-btn-send-feedback').addEventListener('click', () => {
+        GameUtils.closeSheet('sheet-feedback');
+        timerObj?.start();
+        setTimeout(() => GameUtils.showToast('fp-toast', 'Thanks for your feedback! 🙌'), 300);
+      });
+
+      // ── Goal tooltip (first-time users) ──
+      (() => {
+        const goalTooltip = document.getElementById('fp-goal-tooltip');
+        const goalClose   = document.getElementById('fp-goal-tooltip-close');
+        Icons.render(goalClose, 'cross', { size: 'md' });
+        let goalTooltipTimer = null;
+        function showGoalTooltip() { goalTooltip.classList.add('toast--visible');    clearTimeout(goalTooltipTimer); goalTooltipTimer = setTimeout(hideGoalTooltip, 4000); }
+        function hideGoalTooltip() { goalTooltip.classList.remove('toast--visible'); clearTimeout(goalTooltipTimer); }
+        document.querySelectorAll('#screen-gameplay .game-score-item').forEach(item =>
+          item.addEventListener('click', e => { e.stopPropagation(); if (isFirstSession) showGoalTooltip(); })
+        );
+        goalTooltip.addEventListener('click', e => e.stopPropagation());
+        goalClose.addEventListener('click',   e => { e.stopPropagation(); hideGoalTooltip(); });
+        document.addEventListener('click', () => { if (goalTooltip.classList.contains('toast--visible')) hideGoalTooltip(); });
+      })();
+
+      // ── Hint tooltip ──
+      const hintWrap  = document.getElementById('fp-game-hint-wrap');
+      const hintBtn   = document.getElementById('fp-game-icon-hint');
+      const hintClose = document.getElementById('fp-game-icon-hint-close');
+      let hintTimer = null;
+      function openHint()  { hintWrap.classList.add('game-hint-wrap--open');    clearTimeout(hintTimer); hintTimer = setTimeout(closeHint, 5000); }
+      function closeHint() { hintWrap.classList.remove('game-hint-wrap--open'); clearTimeout(hintTimer); }
+      hintBtn?.addEventListener('click',   e => { e.stopPropagation(); hintWrap.classList.contains('game-hint-wrap--open') ? closeHint() : openHint(); });
+      hintClose?.addEventListener('click', e => { e.stopPropagation(); closeHint(); });
+      hintWrap?.addEventListener('click',  e => e.stopPropagation());
+      document.addEventListener('click', () => { if (hintWrap.classList.contains('game-hint-wrap--open')) closeHint(); });
+
+    });
+  </script>
+</body>
+</html>

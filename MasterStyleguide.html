@@ -1,0 +1,2765 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MasterStyleguide — PuzzleFit</title>
+  <link rel="stylesheet" href="./tokens.css" />
+  <link rel="stylesheet" href="./components.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-normal);
+    }
+
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-12) var(--space-6) var(--space-24);
+    }
+
+    /* HERO */
+    .hero { margin-bottom: var(--space-12); }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      font-size: var(--font-size-small); font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-accent); background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-accent);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-4); margin-bottom: var(--space-5);
+    }
+    .hero-title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h1); font-weight: var(--font-weight-semibold);
+      line-height: var(--line-height-tight); letter-spacing: var(--letter-spacing-tight);
+      color: var(--color-text-primary); margin-bottom: var(--space-3);
+    }
+    .hero-subtitle { font-size: var(--font-size-body); color: var(--color-text-secondary); }
+
+    /* PIPELINE */
+    .pipeline-wrap {
+      margin: var(--space-8) 0 var(--space-12);
+      display: flex; flex-direction: column; gap: var(--space-3);
+    }
+    .pipeline-row {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .pipeline-row::-webkit-scrollbar { display: none; }
+    .pipeline-track-label {
+      font-size: var(--font-size-small); font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-text-tertiary); white-space: nowrap;
+      min-width: 90px; padding-right: var(--space-3); flex-shrink: 0;
+    }
+    .pipeline-step {
+      display: flex; align-items: center; gap: var(--space-2);
+      font-size: var(--font-size-small); font-weight: var(--font-weight-semibold);
+      padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm);
+      white-space: nowrap; color: var(--color-text-secondary); text-decoration: none;
+    }
+    a.pipeline-step:hover { background-color: var(--color-surface); }
+    .pipeline-step--done { color: var(--color-success); }
+    .pipeline-step--active {
+      background-color: var(--color-accent);
+      color: var(--color-primary);
+      border: var(--stroke-thin) solid var(--color-accent);
+    }
+    .pipeline-step--next {
+      color: var(--color-accent); background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-accent);
+    }
+    .pipeline-arrow {
+      color: var(--color-text-secondary); font-size: var(--font-size-small);
+      padding: 0 var(--space-1); flex-shrink: 0;
+    }
+
+    /* SECTION CARDS */
+    .section-card {
+      background-color: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm); padding: var(--space-8);
+      margin-bottom: var(--space-4);
+    }
+    .section-header { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); }
+    .section-badge {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background-color: var(--color-surface-alt); border: var(--stroke-thin) solid var(--color-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--font-size-small); font-weight: var(--font-weight-bold);
+      color: var(--color-accent); flex-shrink: 0;
+    }
+    .section-title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h3); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    /* COLOR SWATCHES */
+    .swatch-group { margin-bottom: var(--space-6); }
+    .swatch-group-label {
+      font-size: var(--font-size-small); font-weight: var(--font-weight-bold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-text-secondary); margin-bottom: var(--space-3);
+    }
+    .swatch-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+    .swatch { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); min-width: 72px; }
+    .swatch-dot {
+      width: 56px; height: 56px; border-radius: var(--radius-md);
+      border: var(--stroke-thin) solid rgba(0,0,0,0.08); box-shadow: var(--shadow-sm);
+    }
+    .swatch-name { font-size: 10px; font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); text-align: center; }
+    .swatch-hex { font-size: 10px; font-family: var(--font-family-secondary); color: var(--color-text-tertiary); }
+
+    /* TYPOGRAPHY DEMO */
+    .type-row {
+      display: flex; align-items: baseline; gap: var(--space-6);
+      padding: var(--space-4) 0; border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+    }
+    .type-row:last-child { border-bottom: none; }
+    .type-meta { min-width: 180px; flex-shrink: 0; }
+    .type-token { font-size: 10px; font-weight: var(--font-weight-bold); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-accent); margin-bottom: 2px; }
+    .type-specs { font-size: 10px; color: var(--color-text-secondary); font-family: var(--font-family-secondary); }
+    .type-sample { flex: 1; color: var(--color-text-primary); }
+
+    /* SPACING BARS */
+    .space-grid { display: flex; flex-direction: column; gap: var(--space-2); }
+    .space-row { display: flex; align-items: center; gap: var(--space-4); }
+    .space-bar-wrap { flex: 1; }
+    .space-bar { height: 20px; background: var(--gradient-accent); border-radius: var(--radius-sm); }
+    .space-label { min-width: 80px; font-size: 10px; font-weight: var(--font-weight-bold); color: var(--color-accent); font-family: var(--font-family-secondary); }
+    .space-value { min-width: 48px; font-size: 10px; color: var(--color-text-secondary); font-family: var(--font-family-secondary); }
+
+    /* RADIUS DEMO */
+    .radius-grid { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+    .radius-item { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+    .radius-box {
+      width: 64px; height: 64px; background-color: var(--color-primary);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+    }
+    .radius-label { font-size: 10px; font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); text-align: center; }
+    .radius-val { font-size: 10px; color: var(--color-accent); font-family: var(--font-family-secondary); }
+
+    /* SHADOW DEMO */
+    .shadow-grid { display: flex; flex-wrap: wrap; gap: var(--space-6); }
+    .shadow-card {
+      background-color: var(--color-surface);
+      border-radius: var(--radius-md); padding: var(--space-5) var(--space-6);
+      min-width: 120px; text-align: center;
+    }
+    .shadow-token { font-size: 10px; font-weight: var(--font-weight-bold); color: var(--color-accent); margin-bottom: var(--space-1); }
+    .shadow-desc { font-size: 10px; color: var(--color-text-secondary); }
+
+    /* GRADIENT DEMO */
+    .gradient-grid { display: flex; flex-direction: column; gap: var(--space-3); }
+    .gradient-row { border-radius: var(--radius-md); height: 56px; display: flex; align-items: center; padding: 0 var(--space-4); }
+    .gradient-label { font-size: var(--font-size-small); font-weight: var(--font-weight-semibold); color: var(--color-text-on-primary); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+
+    /* DICE COLORS */
+    .dice-grid { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .die-swatch {
+      width: 64px; height: 64px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-md); position: relative;
+    }
+    .die-face-num {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h2); font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary); mix-blend-mode: multiply;
+    }
+    .die-label { font-size: 10px; color: var(--color-text-secondary); text-align: center; margin-top: var(--space-1); }
+
+    /* ANIMATION DEMO */
+    .anim-grid { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+    .anim-box {
+      width: 80px; height: 48px; background: var(--gradient-primary);
+      border-radius: var(--radius-md); display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+    }
+    .anim-box:hover { animation: var(--anim-name, none); }
+    .anim-label { font-size: 10px; color: var(--color-text-secondary); text-align: center; margin-top: var(--space-1); }
+    .anim-item { display: flex; flex-direction: column; align-items: center; }
+
+    @keyframes demo-bounce {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    .anim-box:hover { animation: demo-bounce 0.4s ease; }
+
+    /* TOKEN TABLE */
+    .token-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-small); }
+    .token-table th {
+      text-align: left; font-size: 10px; font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-text-secondary); padding: var(--space-2) var(--space-3);
+      border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+    }
+    .token-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+      color: var(--color-text-secondary); vertical-align: middle;
+    }
+    .token-table tr:last-child td { border-bottom: none; }
+    .token-name { font-family: var(--font-family-secondary); color: var(--color-accent); font-weight: var(--font-weight-semibold); }
+    .token-val  { font-family: var(--font-family-secondary); color: var(--color-success); }
+    .token-cat  { font-size: 10px; color: var(--color-text-tertiary); }
+    .color-chip { width: 20px; height: 20px; border-radius: var(--radius-xs); display: inline-block; vertical-align: middle; border: var(--stroke-thin) solid rgba(0,0,0,0.1); margin-right: var(--space-2); }
+
+    /* FOOTER */
+    .page-footer {
+      margin-top: var(--space-16); padding-top: var(--space-6);
+      border-top: var(--stroke-thin) solid var(--color-surface-alt);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: var(--space-3);
+    }
+    .footer-pipeline { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+    .footer-step {
+      font-size: var(--font-size-small); font-weight: var(--font-weight-semibold);
+      padding: var(--space-1) var(--space-3); border-radius: var(--radius-full);
+      border: var(--stroke-thin) solid var(--color-surface-alt); color: var(--color-text-secondary);
+    }
+    .footer-step--done    { color: var(--color-success); border-color: var(--color-success); }
+    .footer-step--current { color: var(--color-accent);  border-color: var(--color-accent); }
+    .footer-meta { font-size: var(--font-size-small); color: var(--color-text-secondary); }
+
+    /* ── COMPONENTS SECTION STYLES ─────────────────────────── */
+    .section { margin-bottom: var(--space-16); }
+    .section .section-header {
+      display: flex; align-items: center; gap: var(--space-3);
+      margin-bottom: var(--space-8);
+      padding-bottom: var(--space-4);
+      border-bottom: var(--stroke-thin) solid var(--color-border);
+    }
+    .section-number {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; flex-shrink: 0;
+      background-color: var(--color-surface-alt);
+      border: var(--stroke-thin) solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-small); font-weight: var(--font-weight-bold);
+      color: var(--color-accent);
+    }
+    .section .section-title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h3); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .component-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-5); }
+    .component-card { background: var(--color-surface); border-radius: var(--radius-sm); border: var(--stroke-thin) solid var(--color-border); overflow: hidden; }
+    .component-preview { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-4); padding: var(--space-8) var(--space-6); background: var(--color-background); min-height: 100px; }
+    .component-preview--dark { background: var(--color-primary); }
+    .component-meta { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: var(--stroke-thin) solid var(--color-border); }
+    .component-name { font-family: var(--font-family-secondary); font-size: var(--font-size-small); font-weight: var(--font-weight-bold); color: var(--color-text-primary); }
+    .component-source { font-size: var(--font-size-small); color: var(--color-text-secondary); }
+    .component-code { padding: var(--space-3) var(--space-4); background: var(--color-surface-alt); font-family: monospace; font-size: var(--font-size-small); color: var(--color-text-secondary); overflow-x: auto; white-space: pre; line-height: var(--line-height-loose); }
+    .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: var(--space-3); }
+    .icon-card { background: var(--color-surface); border-radius: var(--radius-sm); border: var(--stroke-thin) solid var(--color-border); padding: var(--space-4) var(--space-3) var(--space-2); display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+    .icon-preview { display: flex; align-items: center; justify-content: center; height: 40px; color: var(--color-primary); }
+    .icon-label { font-family: monospace; font-size: 10px; color: var(--color-text-secondary); text-align: center; word-break: break-all; }
+    .icon-subsection { font-family: var(--font-family-primary); font-size: var(--font-size-h4); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin: var(--space-6) 0 var(--space-3); padding-bottom: var(--space-2); border-bottom: var(--stroke-thin) solid var(--color-border); }
+    .icon-color-bg { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--radius-xs); }
+    .icon-color-bg--primary { background: var(--color-background); }
+    .icon-color-bg--on-primary { background: var(--color-primary); border-radius: var(--radius-xs); }
+    .divider-demo { padding: var(--space-4) 0; }
+    .states-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+    .state-label { font-size: var(--font-size-small); color: var(--color-text-secondary); width: 100%; margin-top: var(--space-2); }
+
+    /* UTILS — scoped to styleguide so they don't bleed into component sections */
+    .sg-content .divider { height: var(--stroke-thin); background-color: var(--color-surface-alt); margin: var(--space-5) 0; }
+    .sg-content p { color: var(--color-text-secondary); font-size: var(--font-size-body); line-height: var(--line-height-normal); margin-bottom: var(--space-3); }
+    .sg-content code {
+      font-family: var(--font-family-secondary); font-size: var(--font-size-small);
+      background-color: var(--color-surface-alt); color: var(--color-accent);
+      padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs);
+    }
+
+    @media (max-width: 600px) {
+      .page-wrapper { padding: var(--space-6) var(--space-4) var(--space-16); }
+      .hero-title   { font-size: var(--font-size-h2); }
+      .section-card { padding: var(--space-5); }
+      .type-row     { flex-direction: column; gap: var(--space-2); }
+      .type-meta    { min-width: unset; }
+    }
+
+    /* ── PAGE LAYOUT ──────────────────────────────────────────── */
+    .page-layout { display: flex; gap: var(--space-8); align-items: flex-start; }
+    .page-main   { flex: 1; min-width: 0; }
+    .page-nav {
+      width: 184px; flex-shrink: 0;
+      position: sticky; top: var(--space-8);
+      max-height: calc(100vh - var(--space-16));
+      overflow-y: auto; scrollbar-width: none;
+      padding-bottom: var(--space-8);
+    }
+    .page-nav::-webkit-scrollbar { display: none; }
+    .nav-group-label {
+      font-size: 10px; font-weight: var(--font-weight-bold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      padding: var(--space-2) var(--space-2) var(--space-1);
+      margin-top: var(--space-4);
+    }
+    .nav-group-label:first-child { margin-top: 0; }
+    .nav-link {
+      display: block; font-size: var(--font-size-small);
+      color: var(--color-text-secondary); text-decoration: none;
+      padding: var(--space-1) var(--space-2); border-radius: var(--radius-xs);
+      border-left: 2px solid transparent; line-height: var(--line-height-normal);
+    }
+    .nav-link:hover { color: var(--color-text-primary); background: var(--color-surface); }
+    .nav-link--active {
+      color: var(--color-accent); border-left-color: var(--color-accent);
+      background: var(--color-surface);
+    }
+
+    /* ── THEME TOGGLE ────────────────────────────────────────── */
+    .nav-theme-btns {
+      display: flex; gap: var(--space-1); padding: var(--space-1) var(--space-2);
+    }
+    .nav-theme-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: var(--radius-xs);
+      border: none; background: transparent; cursor: pointer;
+      color: var(--color-text-secondary);
+      transition: color var(--duration-fast), background var(--duration-fast);
+    }
+    .nav-theme-btn:hover { color: var(--color-text-primary); background: var(--color-surface); }
+    .nav-theme-btn--active { color: var(--color-accent); background: var(--color-surface); }
+
+    /* ── POPUP SHEETS GRID ───────────────────────────────────── */
+    .popup-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6);
+    }
+    @media (max-width: 900px) {
+      .page-layout  { flex-direction: column; }
+      .page-nav     { position: static; width: 100%; max-height: none; }
+      .popup-grid   { grid-template-columns: 1fr; }
+    }
+
+    /* ── SHEET PREVIEW FIX ──────────────────────────────────────
+       .sheet is translateY(100%) by default; previews have no
+       .sheet-overlay.is-open parent, so force them visible here. */
+    .component-card .sheet { transform: translateY(0); }
+
+    /* ── CLAUDE COMMANDS TABLE ──────────────────────────────── */
+    .commands-table { width: 100%; border-collapse: collapse; font-size: var(--font-size-small); }
+    .commands-table th {
+      text-align: left; font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold); letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase; color: var(--color-text-secondary);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: var(--stroke-thin) solid var(--color-border);
+    }
+    .commands-table td {
+      padding: var(--space-3); border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+      color: var(--color-text-secondary); vertical-align: top;
+    }
+    .commands-table tr:last-child td { border-bottom: none; }
+    .commands-table code {
+      font-family: var(--font-family-secondary);
+      font-size: var(--font-size-small); font-weight: var(--font-weight-semibold);
+      color: var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+      padding: 2px var(--space-2); border-radius: var(--radius-xs);
+    }
+    .cmd-phase {
+      display: inline-block; font-size: 10px; font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;
+      padding: 2px var(--space-2); border-radius: var(--radius-full);
+      background: var(--color-surface-alt); color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    .cmd-phase--design  { background: color-mix(in srgb, var(--color-plum) 15%, transparent);    color: var(--color-plum); }
+    .cmd-phase--build   { background: color-mix(in srgb, var(--color-accent) 15%, transparent);  color: var(--color-success); }
+    .cmd-phase--qa      { background: color-mix(in srgb, var(--color-warning) 15%, transparent); color: var(--color-warning); }
+    .cmd-phase--utility { background: color-mix(in srgb, var(--color-blue) 15%, transparent);    color: var(--color-blue); }
+    .cmd-phase--session { background: color-mix(in srgb, var(--color-error) 15%, transparent);   color: var(--color-error); }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+<div class="page-layout">
+<div class="page-main">
+
+  <div class="sg-content">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">🎨 MasterStyleguide · PuzzleFit</div>
+    <h1 class="hero-title">MasterStyleguide</h1>
+    <p class="hero-subtitle">Single visual source of truth for all PuzzleFit games. All games link to <code>tokens.css</code> — never define values locally.</p>
+  </div>
+
+  <!-- PIPELINE -->
+  <div class="pipeline-wrap">
+    <div class="pipeline-row">
+      <span class="pipeline-track-label">Foundation</span>
+      <a class="pipeline-step" href="./GamePage.html">GamePage</a>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step pipeline-step--active">MasterStyleguide</div>
+      <span class="pipeline-arrow">→</span>
+      <a class="pipeline-step" href="./flow-prototype.html">FlowPrototype</a>
+    </div>
+  </div>
+
+  <!-- 1. COLOR PALETTE -->
+  <div class="section-card" id="sec-colors">
+    <div class="section-header">
+      <div class="section-badge">1</div>
+      <div class="section-title">Color Palette</div>
+    </div>
+
+    <div class="swatch-group">
+      <div class="swatch-group-label">Brand</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-dot" style="background:#004046"></div><div class="swatch-name">primary</div><div class="swatch-hex">#004046</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#00565E"></div><div class="swatch-name">primary-dark</div><div class="swatch-hex">#00565E</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#49DE71"></div><div class="swatch-name">primary-bright</div><div class="swatch-hex">#49DE71</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#C4DFDF"></div><div class="swatch-name">secondary</div><div class="swatch-hex">#C4DFDF</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#49DE71"></div><div class="swatch-name">accent</div><div class="swatch-hex">#49DE71</div></div>
+      </div>
+    </div>
+
+    <div class="swatch-group">
+      <div class="swatch-group-label">Semantic</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-dot" style="background:#34C759"></div><div class="swatch-name">success</div><div class="swatch-hex">#34C759</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FF9000"></div><div class="swatch-name">warning</div><div class="swatch-hex">#FF9000</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F26837"></div><div class="swatch-name">error</div><div class="swatch-hex">#F26837</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#BAE1F4"></div><div class="swatch-name">info</div><div class="swatch-hex">#BAE1F4</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#61BAE6"></div><div class="swatch-name">blue</div><div class="swatch-hex">#61BAE6</div></div>
+      </div>
+    </div>
+
+    <div class="swatch-group">
+      <div class="swatch-group-label">Surfaces (Light Mode)</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-dot" style="background:#F5F1ED"></div><div class="swatch-name">background</div><div class="swatch-hex">#F5F1ED</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FFFFFF"></div><div class="swatch-name">surface</div><div class="swatch-hex">#FFFFFF</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#EAE6E2"></div><div class="swatch-name">surface-alt</div><div class="swatch-hex">#EAE6E2</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#141414"></div><div class="swatch-name">text-primary</div><div class="swatch-hex">#141414</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#737373"></div><div class="swatch-name">text-secondary</div><div class="swatch-hex">#737373</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#CCCCCC"></div><div class="swatch-name">text-tertiary</div><div class="swatch-hex">#CCCCCC</div></div>
+      </div>
+    </div>
+
+    <div class="swatch-group">
+      <div class="swatch-group-label">Surfaces (Dark Mode)</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-dot" style="background:#1C1C1E"></div><div class="swatch-name">background</div><div class="swatch-hex">#1C1C1E</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#313133"></div><div class="swatch-name">surface</div><div class="swatch-hex">#313133</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#333331"></div><div class="swatch-name">surface-alt</div><div class="swatch-hex">#333331</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F0FEFF"></div><div class="swatch-name">text-primary</div><div class="swatch-hex">#F0FEFF</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#D1D1D1"></div><div class="swatch-name">text-secondary</div><div class="swatch-hex">#D1D1D1</div></div>
+      </div>
+    </div>
+
+    <div class="swatch-group">
+      <div class="swatch-group-label">Dice Face Colors (face 1–6)</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-dot" style="background:#34C759"></div><div class="swatch-name">die-1 Success</div><div class="swatch-hex">#34C759</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#61BAE6"></div><div class="swatch-name">die-2 Blue</div><div class="swatch-hex">#61BAE6</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#FF9000"></div><div class="swatch-name">die-3 Warning</div><div class="swatch-hex">#FF9000</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#F26837"></div><div class="swatch-name">die-4 Error</div><div class="swatch-hex">#F26837</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#A293F6"></div><div class="swatch-name">die-5 Plum</div><div class="swatch-hex">#A293F6</div></div>
+        <div class="swatch"><div class="swatch-dot" style="background:#A293F6"></div><div class="swatch-name">die-6 Plum</div><div class="swatch-hex">#A293F6</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TYPOGRAPHY -->
+  <div class="section-card" id="sec-typography">
+    <div class="section-header">
+      <div class="section-badge">2</div>
+      <div class="section-title">Typography</div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-h1</div><div class="type-specs">Funnel Display SemiBold · 40px / 52 · 2.5rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-primary);font-size:var(--font-size-h1);font-weight:var(--font-weight-semibold);line-height:var(--line-height-tight);">Game Title</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-h2</div><div class="type-specs">Funnel Display SemiBold · 24px / 28 · 1.5rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-primary);font-size:var(--font-size-h2);font-weight:var(--font-weight-semibold);">Section Heading</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-h3</div><div class="type-specs">Funnel Display SemiBold · 20px / 28 · 1.25rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-primary);font-size:var(--font-size-h3);font-weight:var(--font-weight-semibold);">Sub Heading</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-h4</div><div class="type-specs">SF Pro Bold · 16px / 20 · 1rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-h4);font-weight:var(--font-weight-bold);">Card Title / Heading4</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-ui</div><div class="type-specs">SF Pro Regular · 18px / 24 · 1.125rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-ui);">UI Text — Score, HUD labels</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-subtitle</div><div class="type-specs">SF Pro Regular · 16px / 20 · 1rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-subtitle);">SubtitleBig — Supporting text</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-body</div><div class="type-specs">SF Pro Regular · 14px / 20 · 0.875rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-body);">Paragraph body text — descriptions, tooltips</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-button</div><div class="type-specs">SF Pro Bold · 14px / 18 · 0.875rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-button);font-weight:var(--font-weight-bold);">BUTTON LABEL</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">--font-size-small</div><div class="type-specs">SF Pro Regular · 12px / 14 · 0.75rem</div></div>
+      <div class="type-sample" style="font-family:var(--font-family-secondary);font-size:var(--font-size-small);">SubtitleSmall — captions, badges, timestamps</div>
+    </div>
+  </div>
+
+  <!-- 3. SPACING -->
+  <div class="section-card" id="sec-spacing">
+    <div class="section-header">
+      <div class="section-badge">3</div>
+      <div class="section-title">Spacing Scale (4px grid)</div>
+    </div>
+    <div class="space-grid">
+      <div class="space-row"><div class="space-label">--space--3</div><div class="space-bar-wrap"><div class="space-bar" style="width:0px"></div></div><div class="space-value">-12px</div></div>
+      <div class="space-row"><div class="space-label">--space-1</div><div class="space-bar-wrap"><div class="space-bar" style="width:4px"></div></div><div class="space-value">4px</div></div>
+      <div class="space-row"><div class="space-label">--space-2</div><div class="space-bar-wrap"><div class="space-bar" style="width:8px"></div></div><div class="space-value">8px</div></div>
+      <div class="space-row"><div class="space-label">--space-3</div><div class="space-bar-wrap"><div class="space-bar" style="width:12px"></div></div><div class="space-value">12px</div></div>
+      <div class="space-row"><div class="space-label">--space-4</div><div class="space-bar-wrap"><div class="space-bar" style="width:16px"></div></div><div class="space-value">16px</div></div>
+      <div class="space-row"><div class="space-label">--space-5</div><div class="space-bar-wrap"><div class="space-bar" style="width:20px"></div></div><div class="space-value">20px</div></div>
+      <div class="space-row"><div class="space-label">--space-6</div><div class="space-bar-wrap"><div class="space-bar" style="width:24px"></div></div><div class="space-value">24px</div></div>
+      <div class="space-row"><div class="space-label">--space-8</div><div class="space-bar-wrap"><div class="space-bar" style="width:32px"></div></div><div class="space-value">32px</div></div>
+      <div class="space-row"><div class="space-label">--space-10</div><div class="space-bar-wrap"><div class="space-bar" style="width:40px"></div></div><div class="space-value">40px</div></div>
+      <div class="space-row"><div class="space-label">--space-12</div><div class="space-bar-wrap"><div class="space-bar" style="width:48px"></div></div><div class="space-value">48px</div></div>
+      <div class="space-row"><div class="space-label">--space-15</div><div class="space-bar-wrap"><div class="space-bar" style="width:60px"></div></div><div class="space-value">60px</div></div>
+      <div class="space-row"><div class="space-label">--space-16</div><div class="space-bar-wrap"><div class="space-bar" style="width:64px"></div></div><div class="space-value">64px</div></div>
+      <div class="space-row"><div class="space-label">--space-20</div><div class="space-bar-wrap"><div class="space-bar" style="width:80px"></div></div><div class="space-value">80px</div></div>
+      <div class="space-row"><div class="space-label">--space-24</div><div class="space-bar-wrap"><div class="space-bar" style="width:96px"></div></div><div class="space-value">96px</div></div>
+    </div>
+  </div>
+
+  <!-- 6. GRADIENTS -->
+  <div class="section-card" id="sec-gradients">
+    <div class="section-header">
+      <div class="section-badge">6</div>
+      <div class="section-title">Gradients</div>
+    </div>
+    <div class="gradient-grid">
+      <div class="gradient-row" style="background:linear-gradient(135deg,#004046 0%,#00565E 100%)"><div class="gradient-label">--gradient-primary</div></div>
+      <div class="gradient-row" style="background:linear-gradient(135deg,#49DE71 0%,#34C759 100%)"><div class="gradient-label" style="color:#004046">--gradient-accent</div></div>
+      <div class="gradient-row" style="background:linear-gradient(180deg,#F5F1ED 0%,#EAE6E2 100%)"><div class="gradient-label" style="color:#004046">--gradient-background</div></div>
+      <div class="gradient-row" style="background:linear-gradient(135deg,#FFFFFF 0%,#F5F1ED 100%)"><div class="gradient-label" style="color:#004046">--gradient-surface</div></div>
+      <div class="gradient-row" style="background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0.6) 100%)"><div class="gradient-label">--gradient-overlay</div></div>
+    </div>
+  </div>
+
+  <!-- 7. DICE FACE COLORS -->
+  <div class="section-card" id="sec-dice">
+    <div class="section-header">
+      <div class="section-badge">7</div>
+      <div class="section-title">Dice Face Colors</div>
+    </div>
+    <p>Each die face value (1–6) maps to a distinct color token used for pip rendering and board highlights.</p>
+    <div class="dice-grid">
+      <div><div class="die-swatch" style="background:#34C759"><span class="die-face-num">1</span></div><div class="die-label">--color-die-1<br>success</div></div>
+      <div><div class="die-swatch" style="background:#61BAE6"><span class="die-face-num">2</span></div><div class="die-label">--color-die-2<br>blue</div></div>
+      <div><div class="die-swatch" style="background:#FF9000"><span class="die-face-num">3</span></div><div class="die-label">--color-die-3<br>warning</div></div>
+      <div><div class="die-swatch" style="background:#F26837"><span class="die-face-num">4</span></div><div class="die-label">--color-die-4<br>error</div></div>
+      <div><div class="die-swatch" style="background:#A293F6"><span class="die-face-num">5</span></div><div class="die-label">--color-die-5<br>plum</div></div>
+      <div><div class="die-swatch" style="background:#A293F6"><span class="die-face-num">6</span></div><div class="die-label">--color-die-6<br>#A293F6</div></div>
+    </div>
+  </div>
+
+  <!-- 8. ANIMATION -->
+  <div class="section-card" id="sec-animation">
+    <div class="section-header">
+      <div class="section-badge">8</div>
+      <div class="section-title">Animation Tokens</div>
+    </div>
+    <p style="margin-bottom:var(--space-5)">Hover any box to trigger the easing demo.</p>
+    <div class="anim-grid">
+      <div class="anim-item"><div class="anim-box" style="transition:transform var(--duration-instant) var(--easing-sharp)"><span style="color:var(--color-text-on-primary);font-size:10px;">100ms</span></div><div class="anim-label">instant<br>sharp</div></div>
+      <div class="anim-item"><div class="anim-box" style="transition:transform var(--duration-fast) var(--easing-default)"><span style="color:var(--color-text-on-primary);font-size:10px;">150ms</span></div><div class="anim-label">fast<br>default</div></div>
+      <div class="anim-item"><div class="anim-box" style="transition:transform var(--duration-normal) var(--easing-default)"><span style="color:var(--color-text-on-primary);font-size:10px;">250ms</span></div><div class="anim-label">normal<br>default</div></div>
+      <div class="anim-item"><div class="anim-box" style="transition:transform var(--duration-slow) var(--easing-bounce)"><span style="color:var(--color-text-on-primary);font-size:10px;">400ms</span></div><div class="anim-label">slow<br>bounce</div></div>
+      <div class="anim-item"><div class="anim-box" style="transition:transform var(--duration-xslow) var(--easing-out)"><span style="color:var(--color-text-on-primary);font-size:10px;">600ms</span></div><div class="anim-label">xslow<br>out</div></div>
+    </div>
+  </div>
+
+  <!-- 9. FULL TOKEN TABLE -->
+  <div class="section-card" id="sec-tokens">
+    <div class="section-header">
+      <div class="section-badge">9</div>
+      <div class="section-title">Full Token Reference</div>
+    </div>
+    <table class="token-table">
+      <thead><tr><th>Token</th><th>Value</th><th>Category</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code class="token-name">--color-primary</code></td><td><span class="color-chip" style="background:#004046"></span><span class="token-val">#004046</span></td><td class="token-cat">Color</td><td>Buttons, nav, key UI</td></tr>
+        <tr><td><code class="token-name">--color-primary-dark</code></td><td><span class="color-chip" style="background:#00565E"></span><span class="token-val">#00565E</span></td><td class="token-cat">Color</td><td>Hover/active states</td></tr>
+        <tr><td><code class="token-name">--color-primary-bright</code></td><td><span class="color-chip" style="background:#49DE71"></span><span class="token-val">#49DE71</span></td><td class="token-cat">Color</td><td>CTA, highlights</td></tr>
+        <tr><td><code class="token-name">--color-secondary</code></td><td><span class="color-chip" style="background:#C4DFDF"></span><span class="token-val">#C4DFDF</span></td><td class="token-cat">Color</td><td>Borders, secondary UI</td></tr>
+        <tr><td><code class="token-name">--color-accent</code></td><td><span class="color-chip" style="background:#49DE71"></span><span class="token-val">#49DE71</span></td><td class="token-cat">Color</td><td>Accents, tokens, badges</td></tr>
+        <tr><td><code class="token-name">--color-background</code></td><td><span class="color-chip" style="background:#F5F1ED"></span><span class="token-val">#F5F1ED</span></td><td class="token-cat">Color</td><td>Page background</td></tr>
+        <tr><td><code class="token-name">--color-surface</code></td><td><span class="color-chip" style="background:#FFFFFF"></span><span class="token-val">#FFFFFF</span></td><td class="token-cat">Color</td><td>Cards, modals, panels</td></tr>
+        <tr><td><code class="token-name">--color-surface-alt</code></td><td><span class="color-chip" style="background:#EAE6E2"></span><span class="token-val">#EAE6E2</span></td><td class="token-cat">Color</td><td>Dividers, inputs, code bg</td></tr>
+        <tr><td><code class="token-name">--color-success</code></td><td><span class="color-chip" style="background:#34C759"></span><span class="token-val">#34C759</span></td><td class="token-cat">Color</td><td>Success states, match</td></tr>
+        <tr><td><code class="token-name">--color-warning</code></td><td><span class="color-chip" style="background:#FF9000"></span><span class="token-val">#FF9000</span></td><td class="token-cat">Color</td><td>Warnings, timer low</td></tr>
+        <tr><td><code class="token-name">--color-error</code></td><td><span class="color-chip" style="background:#F26837"></span><span class="token-val">#F26837</span></td><td class="token-cat">Color</td><td>Errors, game over</td></tr>
+        <tr><td><code class="token-name">--color-blue</code></td><td><span class="color-chip" style="background:#61BAE6"></span><span class="token-val">#61BAE6</span></td><td class="token-cat">Color</td><td>Die face 2, accents</td></tr>
+        <tr><td><code class="token-name">--color-text-primary</code></td><td><span class="color-chip" style="background:#004046"></span><span class="token-val">#141414</span></td><td class="token-cat">Color</td><td>Main text</td></tr>
+        <tr><td><code class="token-name">--color-text-secondary</code></td><td><span class="color-chip" style="background:#737373"></span><span class="token-val">#737373</span></td><td class="token-cat">Color</td><td>Supporting text</td></tr>
+        <tr><td><code class="token-name">--color-text-on-primary</code></td><td><span class="color-chip" style="background:#F5F1ED"></span><span class="token-val">#F5F1ED</span></td><td class="token-cat">Color</td><td>Text on dark buttons</td></tr>
+        <tr><td><code class="token-name">--color-die-1</code></td><td><span class="color-chip" style="background:#34C759"></span><span class="token-val">var(--color-success)</span></td><td class="token-cat">Dice</td><td>Face value 1</td></tr>
+        <tr><td><code class="token-name">--color-die-2</code></td><td><span class="color-chip" style="background:#61BAE6"></span><span class="token-val">var(--color-blue)</span></td><td class="token-cat">Dice</td><td>Face value 2</td></tr>
+        <tr><td><code class="token-name">--color-die-3</code></td><td><span class="color-chip" style="background:#FF9000"></span><span class="token-val">var(--color-warning)</span></td><td class="token-cat">Dice</td><td>Face value 3</td></tr>
+        <tr><td><code class="token-name">--color-die-4</code></td><td><span class="color-chip" style="background:#F26837"></span><span class="token-val">var(--color-error)</span></td><td class="token-cat">Dice</td><td>Face value 4</td></tr>
+        <tr><td><code class="token-name">--color-die-5</code></td><td><span class="color-chip" style="background:#A293F6"></span><span class="token-val">var(--color-plum)</span></td><td class="token-cat">Dice</td><td>Face value 5</td></tr>
+        <tr><td><code class="token-name">--color-die-6</code></td><td><span class="color-chip" style="background:#A293F6"></span><span class="token-val">#A293F6</span></td><td class="token-cat">Dice</td><td>Face value 6</td></tr>
+        <tr><td><code class="token-name">--font-family-primary</code></td><td><span class="token-val">'Funnel Display'</span></td><td class="token-cat">Type</td><td>Headings, game titles</td></tr>
+        <tr><td><code class="token-name">--font-family-secondary</code></td><td><span class="token-val">'SF Pro Display'</span></td><td class="token-cat">Type</td><td>Body, UI, buttons</td></tr>
+        <tr><td><code class="token-name">--font-size-h1</code></td><td><span class="token-val">2.5rem (40px)</span></td><td class="token-cat">Type</td><td>Game/page titles</td></tr>
+        <tr><td><code class="token-name">--font-size-h2</code></td><td><span class="token-val">1.5rem (24px)</span></td><td class="token-cat">Type</td><td>Section headings</td></tr>
+        <tr><td><code class="token-name">--font-size-h3</code></td><td><span class="token-val">1.25rem (20px)</span></td><td class="token-cat">Type</td><td>Card headings</td></tr>
+        <tr><td><code class="token-name">--font-size-body</code></td><td><span class="token-val">0.875rem (14px)</span></td><td class="token-cat">Type</td><td>Body text</td></tr>
+        <tr><td><code class="token-name">--font-size-button</code></td><td><span class="token-val">0.875rem (14px)</span></td><td class="token-cat">Type</td><td>Button labels</td></tr>
+        <tr><td><code class="token-name">--font-size-small</code></td><td><span class="token-val">0.75rem (12px)</span></td><td class="token-cat">Type</td><td>Captions, badges</td></tr>
+        <tr><td><code class="token-name">--radius-full</code></td><td><span class="token-val">9999px</span></td><td class="token-cat">Radius</td><td>Pills, badges, toggles</td></tr>
+        <tr><td><code class="token-name">--duration-normal</code></td><td><span class="token-val">250ms</span></td><td class="token-cat">Animation</td><td>Standard transitions</td></tr>
+        <tr><td><code class="token-name">--easing-bounce</code></td><td><span class="token-val">cubic-bezier(0.34,1.56,0.64,1)</span></td><td class="token-cat">Animation</td><td>Dice placement, merge</td></tr>
+        <tr><td><code class="token-name">--min-touch-target</code></td><td><span class="token-val">44px</span></td><td class="token-cat">Layout</td><td>All interactive elements</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-pipeline">
+      <span class="footer-step">GamePage</span>
+      <span>→</span>
+      <span class="footer-step footer-step--done">✅ MasterStyleguide</span>
+      <span>→</span>
+      <a class="footer-step footer-step--current" href="./flow-prototype.html">FlowPrototype</a>
+      <span>→</span>
+      <span class="footer-step">GameBuild</span>
+      <span>→</span>
+      <span class="footer-step">Validation</span>
+      <span>→</span>
+      <span class="footer-step">QATesting</span>
+    </div>
+    <div class="footer-meta">Generated 2026-03-24 · Source: Figma Stylesheet</div>
+  </div>
+  </div><!-- /sg-content -->
+
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- COMPONENT LIBRARY                                      -->
+  <!-- ══════════════════════════════════════════════════════ -->
+    <!-- ── SECTION 1: BUTTONS ─────────────────────────── -->
+    <section class="section" id="sec-buttons">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2 class="section-title">Buttons</h2>
+      </div>
+
+      <div class="component-grid">
+
+        <!-- Primary -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--primary">Play</button>
+              <button class="btn btn--primary" disabled>Disabled</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--primary</span>
+            <span class="component-source">Figma: Button / Primary</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--primary"&gt;Play&lt;/button&gt;</pre>
+        </div>
+
+        <!-- Secondary -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--secondary">Continue</button>
+              <button class="btn btn--secondary" disabled>Disabled</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--secondary</span>
+            <span class="component-source">Figma: Button / Secondary</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--secondary"&gt;Continue&lt;/button&gt;</pre>
+        </div>
+
+        <!-- Ghost -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--ghost">Cancel</button>
+              <button class="btn btn--ghost" disabled>Disabled</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--ghost</span>
+            <span class="component-source">Figma: Button / Ghost</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--ghost"&gt;Cancel&lt;/button&gt;</pre>
+        </div>
+
+        <!-- Destructive -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--destructive">Delete</button>
+              <button class="btn btn--destructive" disabled>Disabled</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--destructive</span>
+            <span class="component-source">Figma: Button / Destructive</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--destructive"&gt;Delete&lt;/button&gt;</pre>
+        </div>
+
+        <!-- Success -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--success">Open</button>
+              <button class="btn btn--success">See</button>
+              <button class="btn btn--success" disabled>Disabled</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--success</span>
+            <span class="component-source">Figma: Button / FixedGreen</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--success"&gt;Open&lt;/button&gt;</pre>
+        </div>
+
+        <!-- Icon-only -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--icon" aria-label="Back" id="demo-icon-btn-back"></button>
+              <button class="btn btn--icon" aria-label="Feedback" id="demo-icon-btn-feedback"></button>
+              <button class="btn btn--icon" aria-label="Share" id="demo-icon-btn-share"></button>
+              <button class="btn btn--icon" aria-label="Favourite" id="demo-icon-btn-heart"></button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--icon</span>
+            <span class="component-source">Figma: Button / Icon</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--icon" aria-label="Back"&gt;
+  &lt;span id="my-icon"&gt;&lt;/span&gt;
+&lt;/button&gt;
+Icons.render(el, 'chevronLeft', { size: 'md', color: 'primary' });</pre>
+        </div>
+
+        <!-- Small Pill -->
+        <div class="component-card">
+          <div class="component-preview">
+            <div class="states-row">
+              <button class="btn btn--pill">Play</button>
+              <button class="btn btn--pill" disabled>Played</button>
+            </div>
+          </div>
+          <div class="component-meta">
+            <span class="component-name">.btn--pill</span>
+            <span class="component-source">Figma: SmallPillButton</span>
+          </div>
+          <pre class="component-code">&lt;button class="btn btn--pill"&gt;Play&lt;/button&gt;</pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION 2: ICONS ───────────────────────────── -->
+    <section class="section" id="sec-icons">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2 class="section-title">Icons</h2>
+      </div>
+
+      <h3 class="icon-subsection">Navigation &amp; UI (original set)</h3>
+      <div class="icon-grid" id="icon-grid-nav"></div>
+
+      <h3 class="icon-subsection">20×20 Standard Icons (Figma IconSet20X)</h3>
+      <div class="icon-grid" id="icon-grid-20"></div>
+
+      <h3 class="icon-subsection">28×28 Gameplay Icons (Figma Gameplay28X)</h3>
+      <div class="icon-grid" id="icon-grid-28"></div>
+
+      <h3 class="icon-subsection">14×14 Small Icons (Figma Small14X)</h3>
+      <div class="icon-grid" id="icon-grid-14"></div>
+
+    </section>
+
+    <!-- ── SECTION 3: DIVIDER ─────────────────────────── -->
+    <section class="section" id="sec-divider">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2 class="section-title">Divider</h2>
+      </div>
+      <div class="component-card">
+        <div class="component-preview">
+          <div style="width:100%;display:flex;flex-direction:column;gap:var(--space-4);">
+            <span style="font-size:var(--font-size-small);color:var(--color-text-secondary)">Above</span>
+            <div class="divider"></div>
+            <span style="font-size:var(--font-size-small);color:var(--color-text-secondary)">Below</span>
+          </div>
+        </div>
+        <div class="component-meta">
+          <span class="component-name">.divider</span>
+          <span class="component-source">Figma: Divider</span>
+        </div>
+        <pre class="component-code">&lt;div class="divider" aria-hidden="true"&gt;&lt;/div&gt;</pre>
+      </div>
+    </section>
+
+    <!-- ── SECTION 4: MODAL ───────────────────────────── -->
+    <section class="section" id="sec-modal">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2 class="section-title">Modal</h2>
+      </div>
+      <div class="component-grid">
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.overlay + .modal</span>
+            <span class="component-source">Figma: Popup / Modal</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="overlay is-open" style="position:absolute;">
+              <div class="modal">
+                <h2 class="modal__title">Paused</h2>
+                <p class="modal__content">Your progress is saved. Continue when you're ready.</p>
+                <div class="modal__actions">
+                  <button class="btn btn--primary">Resume</button>
+                  <button class="btn btn--secondary">Home</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="overlay" role="dialog" aria-modal="true"&gt;
+  &lt;div class="modal"&gt;
+    &lt;h2 class="modal__title"&gt;Title&lt;/h2&gt;
+    &lt;p class="modal__content"&gt;...&lt;/p&gt;
+    &lt;div class="modal__actions"&gt;
+      &lt;button class="btn btn--primary"&gt;OK&lt;/button&gt;
+      &lt;button class="btn btn--secondary"&gt;Cancel&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.overlay + .modal</span>
+            <span class="component-source">Single action</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="overlay is-open" style="position:absolute;">
+              <div class="modal">
+                <h2 class="modal__title">Welcome back!</h2>
+                <p class="modal__content">Ready to tackle today's puzzle? Your streak is on the line.</p>
+                <div class="modal__actions">
+                  <button class="btn btn--primary">Let's go</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="overlay" role="dialog" aria-modal="true"&gt;
+  &lt;div class="modal"&gt;
+    &lt;h2 class="modal__title"&gt;Title&lt;/h2&gt;
+    &lt;p class="modal__content"&gt;...&lt;/p&gt;
+    &lt;div class="modal__actions"&gt;
+      &lt;button class="btn btn--primary"&gt;OK&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION 5: FULL SCREENS ──────────────────────────── -->
+    <section class="section" id="sec-full-screens">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <h2 class="section-title">Full Screens</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        Screens that occupy the full display — no overlay or sheet wrapper. The tutorial walks new players through gameplay mechanics one step at a time.
+      </p>
+
+      <div class="component-grid">
+        <!-- Home Page -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.home-page</span>
+            <span class="component-source">Home / Landing</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="home-page">
+
+              <!-- Header -->
+              <div class="home-header">
+                <div class="home-nav-bar">
+                  <div class="home-nav-bar__start">
+                    <button class="btn btn--icon" id="home-icon-back" aria-label="Back"></button>
+                    <span class="home-nav-bar__title">GameName</span>
+                  </div>
+                  <div class="home-nav-bar__end">
+                    <button class="btn btn--icon" id="home-icon-feedback" aria-label="Feedback"></button>
+                    <button class="btn btn--icon" id="home-icon-share" aria-label="Share"></button>
+                    <button class="btn btn--icon" id="home-icon-heart" aria-label="Favourite"></button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Body -->
+              <div class="home-body">
+
+                <!-- Game panel -->
+                <div class="home-game-panel">
+                  <div class="home-game-icon">
+                    <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Game Icon</span>
+                  </div>
+                  <h1 class="home-game-title">GameTitle</h1>
+                  <div class="home-game-cta">
+                    <p class="home-game-date" id="home-game-date">Today, dd Month</p>
+                    <button class="btn btn--primary">Play</button>
+                  </div>
+                </div>
+
+                <!-- Last week -->
+                <div class="home-week">
+                  <h3 class="home-week__heading">Last week</h3>
+                  <div class="home-week__list">
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Yesterday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Saturday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Friday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Thursday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Wednesday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Tuesday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="home-day-row">
+                      <span class="home-day-row__name">Monday</span>
+                      <button class="btn btn--pill">Play</button>
+                    </div>
+                  </div><!-- /home-week__list -->
+                </div><!-- /home-week -->
+
+              </div><!-- /home-body -->
+              <div class="sheet-footer"></div>
+
+            </div><!-- /home-page -->
+          </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.loading-page</span>
+            <span class="component-source">Loading / Engine init</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="loading-page">
+
+              <div class="home-header">
+                <div class="home-nav-bar">
+                  <div class="home-nav-bar__start">
+                    <button class="btn btn--icon" id="loading-icon-back" aria-label="Back"></button>
+                    <span class="home-nav-bar__title">GameName</span>
+                  </div>
+                  <div class="home-nav-bar__end">
+                    <button class="btn btn--icon" id="loading-icon-feedback" aria-label="Feedback"></button>
+                    <button class="btn btn--icon" id="loading-icon-share" aria-label="Share"></button>
+                    <button class="btn btn--icon" id="loading-icon-heart" aria-label="Favourite"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="loading-body">
+                <div class="loading-animation">Loading animation</div>
+                <p class="loading-text">Loading engine<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+              </div>
+
+            </div><!-- /loading-page -->
+          </div>
+        </div>
+
+        <!-- Tutorial -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.tutorial</span>
+            <span class="component-source">First-time user / Step</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="tutorial">
+              <div class="home-header">
+                <div class="home-nav-bar">
+                  <div class="home-nav-bar__start">
+                    <button class="btn btn--icon" id="tut-icon-back" aria-label="Back"></button>
+                    <span class="home-nav-bar__title">GameName</span>
+                  </div>
+                  <div class="home-nav-bar__end">
+                    <button class="btn btn--icon" id="tut-icon-feedback" aria-label="Feedback"></button>
+                    <button class="btn btn--icon" id="tut-icon-share" aria-label="Share"></button>
+                    <button class="btn btn--icon" id="tut-icon-heart" aria-label="Favourite"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="tutorial__step" id="tut-step">Step 1/5</div>
+              <div class="tutorial__play-area">
+                <span class="tutorial__play-placeholder">Gameplay Goes in Here</span>
+              </div>
+              <div class="tutorial__info">
+                <div class="tutorial__instruction">
+                  <span class="tutorial__title" id="tut-title">Instruction Title</span>
+                  <div class="tutorial__desc-wrap">
+                    <p class="tutorial__desc" id="tut-desc">A short description of the step the player has to take to play the game.</p>
+                  </div>
+                </div>
+                <button class="btn btn--primary" id="tut-btn">Next</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION 6: GAMEPLAY SCREENS ──────────────────────── -->
+    <section class="section" id="sec-gameplay-screens">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <h2 class="section-title">Gameplay Screens</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        The active game view. The first variant below shows the <strong>no-hint state</strong> — the board is visible and the player is solving without assistance. Hint states will be added progressively.
+      </p>
+
+      <div class="component-grid">
+        <!-- Gameplay: No Hints -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.game-screen</span>
+            <span class="component-source">Gameplay / No hints</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="game-screen">
+
+              <div class="home-header">
+                <div class="home-nav-bar">
+                  <div class="home-nav-bar__start">
+                    <div id="game-icon-back"></div>
+                    <span class="home-nav-bar__title">GameName</span>
+                  </div>
+                  <div class="home-nav-bar__end">
+                    <button class="btn btn--icon" id="game-icon-feedback" aria-label="Feedback"></button>
+                    <button class="btn btn--icon" id="game-icon-share" aria-label="Share"></button>
+                    <button class="btn btn--icon" id="game-icon-heart" aria-label="Favourite"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="game-toolbar">
+                <div class="game-toolbar__left">
+                  <button class="btn btn--icon" aria-label="Info" id="game-icon-info"></button>
+                  <button class="game-timer-group" aria-label="Pause">
+                    <span class="game-timer">00:00</span>
+                    <span id="game-icon-pause"></span>
+                  </button>
+                </div>
+                <div class="game-toolbar__right">
+                  <button class="btn btn--icon" aria-label="Calendar" id="game-icon-calendar"></button>
+                  <button class="btn btn--icon" aria-label="Stats" id="game-icon-stats"></button>
+                  <button class="btn btn--icon" aria-label="Settings" id="game-icon-settings"></button>
+                </div>
+              </div>
+
+              <div class="game-main">
+                <div class="game-board">Game Board</div>
+                <div class="game-score-bar">
+                  <div class="game-score-item">
+                    <div id="game-score-target"></div>
+                    <span>score</span>
+                  </div>
+                  <div class="game-score-item">
+                    <div id="game-score-trophy"></div>
+                    <span>score</span>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /game-screen -->
+          </div>
+        </div>
+
+        <!-- Gameplay: With Hint -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.game-screen + .game-hint-tooltip</span>
+            <span class="component-source">Gameplay / With hint</span>
+          </div>
+          <div style="position:relative;height:640px;overflow:hidden;border-radius:0 0 var(--radius-sm) var(--radius-sm);">
+            <div class="game-screen">
+
+              <div class="home-header">
+                <div class="home-nav-bar">
+                  <div class="home-nav-bar__start">
+                    <div id="game-hint-icon-back"></div>
+                    <span class="home-nav-bar__title">GameName</span>
+                  </div>
+                  <div class="home-nav-bar__end">
+                    <button class="btn btn--icon" id="game-hint-icon-feedback" aria-label="Feedback"></button>
+                    <button class="btn btn--icon" id="game-hint-icon-share" aria-label="Share"></button>
+                    <button class="btn btn--icon" id="game-hint-icon-heart" aria-label="Favourite"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="game-toolbar">
+                <div class="game-toolbar__left">
+                  <button class="btn btn--icon" aria-label="Info" id="game-hint-icon-info"></button>
+                  <div class="game-hint-wrap game-hint-wrap--open" id="game-hint-wrap">
+                    <button class="btn btn--icon" aria-label="Hint" id="game-hint-icon-hint"></button>
+                    <div class="game-hint-pointer">
+                      <div class="game-hint-tooltip">
+                        <p class="game-hint-tooltip__title">HintTitle</p>
+                        <p class="game-hint-tooltip__body">This is a pop-up example for a hint. It is in the top of the page.</p>
+                        <button class="game-hint-tooltip__close" aria-label="Close hint" id="game-hint-icon-close"></button>
+                      </div>
+                    </div>
+                  </div>
+                  <button class="game-timer-group" aria-label="Pause">
+                    <span class="game-timer">00:00</span>
+                    <span id="game-hint-icon-pause"></span>
+                  </button>
+                </div>
+                <div class="game-toolbar__right">
+                  <button class="btn btn--icon" aria-label="Calendar" id="game-hint-icon-calendar"></button>
+                  <button class="btn btn--icon" aria-label="Stats" id="game-hint-icon-stats"></button>
+                  <button class="btn btn--icon" aria-label="Settings" id="game-hint-icon-settings"></button>
+                </div>
+              </div>
+
+              <div class="game-main">
+                <div class="game-board">Game Board</div>
+                <div class="game-score-bar">
+                  <div class="game-score-item">
+                    <div id="game-hint-score-target"></div>
+                    <span>score</span>
+                  </div>
+                  <div class="game-score-item">
+                    <div id="game-hint-score-star"></div>
+                    <span>score</span>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /game-screen -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION 7: GAME SHEETS ────────────────────────────── -->
+    <section class="section" id="sec-game-sheets">
+      <div class="section-header">
+        <div class="section-number">7</div>
+        <h2 class="section-title">Game Sheets</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        Bottom-sheet overlay used for <strong>Pause</strong>, <strong>Congratulations</strong>, and <strong>Game Over</strong>.
+        Place <code>.sheet-overlay</code> as a direct child of <code>.game-root</code>.
+        The illustration zone grows to fill available space; games supply their own artwork.
+      </p>
+
+      <div class="component-grid">
+
+        <!-- Single-action variant: Pause / Game Over -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — single action</span>
+            <span class="component-source">Pause · Game Over</span>
+          </div>
+          <!-- Preview: dark scrim + sheet -->
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Pause</h2>
+                <p  class="sheet__body">The game is now paused, continue playing to resume it.</p>
+              </div>
+              <div class="sheet__illustration"
+                   style="background:var(--color-surface-alt);border-radius:var(--radius-xs);">
+                <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+              </div>
+              <div class="sheet__actions">
+                <button class="btn btn--primary">Continue playing</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Pause&lt;/h2&gt;
+      &lt;p class="sheet__body"&gt;…&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__illustration"&gt;
+      &lt;img src="…" alt="" /&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__actions"&gt;
+      &lt;button class="btn btn--primary"&gt;Continue playing&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- Dual-action variant: Congratulations -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — dual action</span>
+            <span class="component-source">Congratulations</span>
+          </div>
+          <!-- Preview: dark scrim + sheet -->
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Congratulations!</h2>
+                <p  class="sheet__body">You finished today's Challenge!<br>A new one will be ready in <strong>11:55:23</strong>.</p>
+              </div>
+              <div class="sheet__illustration"
+                   style="background:var(--color-surface-alt);border-radius:var(--radius-xs);">
+                <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+              </div>
+              <div class="sheet__actions">
+                <button class="btn btn--secondary">Share the win</button>
+                <button class="btn btn--primary">Explore challenges</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Congratulations!&lt;/h2&gt;
+      &lt;p class="sheet__body"&gt;…&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__illustration"&gt;
+      &lt;img src="…" alt="" /&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__actions"&gt;
+      &lt;button class="btn btn--secondary"&gt;Share the win&lt;/button&gt;
+      &lt;button class="btn btn--primary"&gt;Explore challenges&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- Single-action variant: Game Over -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — single action</span>
+            <span class="component-source">Game Over</span>
+          </div>
+          <!-- Preview: dark scrim + sheet -->
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Oh snap!</h2>
+                <p class="sheet__body">Losing condition is written here, such as no more time remaining!</p>
+              </div>
+              <div class="sheet__illustration"
+                   style="background:var(--color-surface-alt);border-radius:var(--radius-xs);">
+                <span style="color:var(--color-text-tertiary);font-size:var(--font-size-small);">Illustration</span>
+              </div>
+              <div class="sheet__actions">
+                <button class="btn btn--primary">Play again</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Oh snap!&lt;/h2&gt;
+      &lt;p class="sheet__body"&gt;Losing condition is written here, such as no more time remaining!&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__illustration"&gt;
+      &lt;img src="…" alt="" /&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__actions"&gt;
+      &lt;button class="btn btn--primary"&gt;Play again&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── SECTION 7: POP-UP SHEETS ──────────────────────────── -->
+    <section class="section" id="sec-popup-sheets">
+      <div class="section-header">
+        <div class="section-number">8</div>
+        <h2 class="section-title">Pop-up Sheets</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        Full-page overlay sheets triggered from gameplay. Each uses <code>.sheet-overlay</code> + <code>.sheet</code> with a scrollable <code>.sheet__list-wrap</code>, custom scrollbar, and sticky <code>.sheet-footer</code>.
+      </p>
+
+      <div class="popup-grid">
+
+        <!-- ── Instructions ─────────────────────────────────── -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — list variant</span>
+            <span class="component-source">Instructions</span>
+          </div>
+          <!-- Preview -->
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Instructions</h2>
+              </div>
+              <div class="sheet__list-wrap">
+                <div class="sheet__list">
+                  <div class="sheet__list-item">
+                    <span class="sheet__list-badge">1</span>
+                    <div class="sheet__list-text">
+                      <span class="sheet__list-title">Step 1</span>
+                      <span class="sheet__list-body">This is a short description of the first step the player has to take.</span>
+                    </div>
+                  </div>
+                  <div class="sheet__list-item">
+                    <span class="sheet__list-badge">2</span>
+                    <div class="sheet__list-text">
+                      <span class="sheet__list-title">Step 2</span>
+                      <span class="sheet__list-body">This is a short description of the second step the player has to take.</span>
+                    </div>
+                  </div>
+                  <div class="sheet__list-item">
+                    <span class="sheet__list-badge">3</span>
+                    <div class="sheet__list-text">
+                      <span class="sheet__list-title">Step 3</span>
+                      <span class="sheet__list-body">This is a short description of the third step the player has to take.</span>
+                    </div>
+                  </div>
+                  <div class="sheet__list-item">
+                    <span class="sheet__list-badge">4</span>
+                    <div class="sheet__list-text">
+                      <span class="sheet__list-title">Step 4</span>
+                      <span class="sheet__list-body">Tap the dice to rotate it and drag it to the board.</span>
+                    </div>
+                  </div>
+                  <div class="sheet__list-item">
+                    <span class="sheet__list-badge">5</span>
+                    <div class="sheet__list-text">
+                      <span class="sheet__list-title">Step 5</span>
+                      <span class="sheet__list-body">Merge dice of the same value to score points.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb"></div></div>
+              <div class="sheet-footer">
+                <button class="btn btn--primary">Continue playing</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Instructions&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__list-wrap"&gt;
+      &lt;div class="sheet__list"&gt;
+        &lt;div class="sheet__list-item"&gt;
+          &lt;span class="sheet__list-badge"&gt;1&lt;/span&gt;
+          &lt;div class="sheet__list-text"&gt;
+            &lt;span class="sheet__list-title"&gt;Step title&lt;/span&gt;
+            &lt;span class="sheet__list-body"&gt;Step description.&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;!-- repeat .sheet__list-item for each step (3–10 total) --&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__scrollbar"&gt;&lt;div class="sheet__scrollbar-thumb"&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class="sheet-footer"&gt;
+      &lt;button class="btn btn--primary"&gt;Continue playing&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- ── Calendar ──────────────────────────────────────── -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — calendar variant</span>
+            <span class="component-source">Calendar</span>
+          </div>
+          <!-- Preview -->
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Calendar</h2>
+              </div>
+              <div class="sheet__list-wrap">
+                <div class="cal-card">
+                  <!-- Nav -->
+                  <div class="cal-nav">
+                    <button class="btn btn--icon" aria-label="Previous month" id="demo-cal-prev"></button>
+                    <span class="cal-nav__title" id="demo-cal-title">April 2026</span>
+                    <button class="btn btn--icon" aria-label="Next month" id="demo-cal-next" style="transform: scaleX(-1);"></button>
+                  </div>
+                  <div class="cal-month">
+                    <!-- Weekday headers -->
+                    <div class="cal-weekdays">
+                      <span class="cal-weekday">M</span>
+                      <span class="cal-weekday">T</span>
+                      <span class="cal-weekday">W</span>
+                      <span class="cal-weekday">T</span>
+                      <span class="cal-weekday">F</span>
+                      <span class="cal-weekday">S</span>
+                      <span class="cal-weekday">S</span>
+                    </div>
+                    <div class="divider"></div>
+                    <!-- Day grid — populated by JS -->
+                    <div class="cal-grid" id="demo-cal-grid"></div>
+                  </div>
+                </div>
+                <!-- Today summary row -->
+                <div class="cal-info">
+                  <div class="cal-info__date">
+                    <span>Today,</span>
+                    <strong id="demo-cal-today-label"></strong>
+                  </div>
+                  <div class="cal-info__sep"></div>
+                  <div class="cal-info__badge">
+                    <div class="cal-info__badge-icon" id="demo-cal-trophy"></div>
+                    <span class="cal-info__badge-text">In progress</span>
+                  </div>
+                </div>
+              </div>
+              <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb"></div></div>
+              <div class="sheet-footer">
+                <button class="btn btn--primary" id="demo-cal-btn">Play today</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Calendar&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__list-wrap"&gt;
+      &lt;div class="cal-card"&gt;
+        &lt;div class="cal-nav"&gt;
+          &lt;button class="btn btn--icon" aria-label="Previous month"&gt;&lt;!-- icon --&gt;&lt;/button&gt;
+          &lt;span class="cal-nav__title"&gt;Month Year&lt;/span&gt;
+          &lt;button class="btn btn--icon" aria-label="Next month"&gt;&lt;!-- icon --&gt;&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="cal-month"&gt;
+          &lt;div class="cal-weekdays"&gt;&lt;!-- M T W T F S S --&gt;&lt;/div&gt;
+          &lt;div class="divider"&gt;&lt;/div&gt;
+          &lt;div class="cal-grid"&gt;&lt;!-- populated by JS --&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="cal-info"&gt;
+        &lt;div class="cal-info__date"&gt;&lt;span&gt;Today,&lt;/span&gt;&lt;strong&gt;22nd April&lt;/strong&gt;&lt;/div&gt;
+        &lt;div class="cal-info__sep"&gt;&lt;/div&gt;
+        &lt;div class="cal-info__badge"&gt;
+          &lt;div class="cal-info__badge-icon"&gt;&lt;!-- trophy icon --&gt;&lt;/div&gt;
+          &lt;span class="cal-info__badge-text"&gt;In progress&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet-footer"&gt;
+      &lt;button class="btn btn--primary"&gt;Play today&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- ── Settings ──────────────────────────────────────── -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — settings variant</span>
+            <span class="component-source">Settings</span>
+          </div>
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet sheet--footer-dual">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Settings</h2>
+              </div>
+              <div class="sheet__list-wrap">
+
+                <!-- Main settings card -->
+                <div class="stt-card">
+                  <!-- Music toggle (ON) -->
+                  <div class="stt-row">
+                    <span class="stt-row__label">Music</span>
+                    <label class="stt-toggle">
+                      <input type="checkbox" checked />
+                      <span class="stt-toggle__slider"></span>
+                    </label>
+                  </div>
+                  <div class="divider"></div>
+                  <!-- Sound toggle (OFF) -->
+                  <div class="stt-row">
+                    <span class="stt-row__label">Sound</span>
+                    <label class="stt-toggle">
+                      <input type="checkbox" />
+                      <span class="stt-toggle__slider"></span>
+                    </label>
+                  </div>
+                  <div class="divider"></div>
+                  <!-- Theme segmented (3 options) -->
+                  <div class="stt-row">
+                    <div class="stt-row__label-wrap">
+                      <span class="stt-row__label">Theme</span>
+                      <span class="stt-row__desc">Choose between dark, automatic or bright.</span>
+                    </div>
+                    <div class="stt-segment" role="group" aria-label="Theme" id="stt-theme">
+                      <div class="stt-segment-wrap">
+                        <button class="stt-segment__option" data-value="dark" id="stt-theme-dark"></button>
+                        <div class="stt-segment__divider"></div>
+                        <button class="stt-segment__option stt-segment__option--active" data-value="auto" id="stt-theme-auto"></button>
+                        <div class="stt-segment__divider"></div>
+                        <button class="stt-segment__option" data-value="light" id="stt-theme-light"></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="divider"></div>
+                  <!-- Dominant hand segmented (2 options) -->
+                  <div class="stt-row">
+                    <div class="stt-row__label-wrap">
+                      <span class="stt-row__label">Dominant Hand</span>
+                      <span class="stt-row__desc">Choose between left/ right-handed.</span>
+                    </div>
+                    <div class="stt-segment" role="group" aria-label="Dominant hand" id="stt-hand">
+                      <div class="stt-segment-wrap">
+                        <button class="stt-segment__option stt-segment__option--active" data-value="left" id="stt-hand-left"></button>
+                        <button class="stt-segment__option" data-value="right" id="stt-hand-right" style="transform: scaleX(-1);"></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Overflow / link card -->
+                <div class="stt-overflow-card">
+                  <div class="stt-overflow-row">
+                    <div id="stt-icon-howto"></div>
+                    <span class="stt-overflow-row__label">How to play?</span>
+                    <button class="btn btn--success">Open</button>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stt-overflow-row">
+                    <div id="stt-icon-stats"></div>
+                    <span class="stt-overflow-row__label">Have you seen your stats?</span>
+                    <button class="btn btn--success">See</button>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stt-overflow-row">
+                    <div id="stt-icon-close"></div>
+                    <span class="stt-overflow-row__label">Close this window?</span>
+                    <button class="btn btn--success">No</button>
+                  </div>
+                </div>
+
+              </div>
+              <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb"></div></div>
+              <div class="sheet-footer">
+                <button class="btn btn--secondary">Reset defaults</button>
+                <button class="btn btn--primary">Save and continue</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Settings&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__list-wrap"&gt;
+      &lt;div class="stt-card"&gt;
+        &lt;!-- toggle row --&gt;
+        &lt;div class="stt-row"&gt;
+          &lt;span class="stt-row__label"&gt;Music&lt;/span&gt;
+          &lt;label class="stt-toggle"&gt;
+            &lt;input type="checkbox" checked /&gt;
+            &lt;span class="stt-toggle__slider"&gt;&lt;/span&gt;
+          &lt;/label&gt;
+        &lt;/div&gt;
+        &lt;div class="divider"&gt;&lt;/div&gt;
+        &lt;!-- segmented row --&gt;
+        &lt;div class="stt-row"&gt;
+          &lt;div class="stt-row__label-wrap"&gt;
+            &lt;span class="stt-row__label"&gt;Theme&lt;/span&gt;
+            &lt;span class="stt-row__desc"&gt;Choose between dark, automatic or bright.&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class="stt-segment" role="group"&gt;
+            &lt;button class="stt-segment__option" data-value="dark"&gt;&lt;!-- icon --&gt;&lt;/button&gt;
+            &lt;button class="stt-segment__option stt-segment__option--active" data-value="auto"&gt;A&lt;/button&gt;
+            &lt;button class="stt-segment__option" data-value="light"&gt;&lt;!-- icon --&gt;&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="stt-overflow-card"&gt;
+        &lt;div class="stt-overflow-row"&gt;
+          &lt;div&gt;&lt;!-- icon --&gt;&lt;/div&gt;
+          &lt;span class="stt-overflow-row__label"&gt;How to play?&lt;/span&gt;
+          &lt;button class="btn btn--success"&gt;Open&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__actions"&gt;
+      &lt;button class="btn btn--secondary"&gt;Reset defaults&lt;/button&gt;
+      &lt;button class="btn btn--primary"&gt;Save and continue&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- ── Statistics ───────────────────────────────────── -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — statistics variant</span>
+            <span class="component-source">Statistics</span>
+          </div>
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Statistics</h2>
+              </div>
+              <div class="sheet__list-wrap">
+
+                <!-- Gallery -->
+                <div class="stat-card stat-card--bare">
+                  <div class="stat-gallery__grid stat-gallery__grid--4">
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">12</span>
+                      <span class="stat-gallery__label">Played</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">20%</span>
+                      <span class="stat-gallery__label">Completed</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">8</span>
+                      <span class="stat-gallery__label">Current streak</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">14</span>
+                      <span class="stat-gallery__label">Max Streak</span>
+                    </div>
+                  </div>
+                  <div class="stat-gallery__grid">
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">3</span>
+                      <span class="stat-gallery__label">Perfect games played</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">3</span>
+                      <span class="stat-gallery__label">Games won in a row</span>
+                    </div>
+                  </div>
+                  <div class="stat-gallery__grid stat-gallery__grid--3">
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">12</span>
+                      <span class="stat-gallery__label">Played</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">12</span>
+                      <span class="stat-gallery__label">Played</span>
+                    </div>
+                    <div class="stat-gallery__tile">
+                      <span class="stat-gallery__number">12</span>
+                      <span class="stat-gallery__label">Played</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Unlocked levels -->
+                <div class="stat-card stat-card--divided">
+                  <div class="stat-levels__row">
+                    <span class="stat-levels__name">LevelName</span>
+                    <div class="stat-levels__track"><div class="stat-levels__fill" style="width:20%"></div></div>
+                    <div class="stat-levels__target"><div id="stat-lvl-icon-1"></div><span class="stat-levels__fraction">1/5</span></div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-levels__row">
+                    <span class="stat-levels__name">LevelName</span>
+                    <div class="stat-levels__track"><div class="stat-levels__fill" style="width:60%"></div></div>
+                    <div class="stat-levels__target"><div id="stat-lvl-icon-2"></div><span class="stat-levels__fraction">3/5</span></div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-levels__row">
+                    <span class="stat-levels__name">LevelName</span>
+                    <div class="stat-levels__track"><div class="stat-levels__fill" style="width:80%"></div></div>
+                    <div class="stat-levels__target"><div id="stat-lvl-icon-3"></div><span class="stat-levels__fraction">4/5</span></div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-levels__row">
+                    <span class="stat-levels__name">LevelName</span>
+                    <div class="stat-levels__track"><div class="stat-levels__fill" style="width:40%"></div></div>
+                    <div class="stat-levels__target"><div id="stat-lvl-icon-4"></div><span class="stat-levels__fraction">2/5</span></div>
+                  </div>
+                </div>
+
+                <!-- Progress bars -->
+                <div class="stat-card">
+                  <div class="stat-progress__row">
+                    <div class="stat-progress__icon-group">
+                      <div id="stat-prog-icon-1"></div>
+                      <span class="stat-progress__fraction">1/5</span>
+                    </div>
+                    <div class="stat-progress__scores">
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--green">+10</span>
+                        <span class="stat-progress__sub">out of 50</span>
+                      </div>
+                      <div class="stat-progress__scores-divider"></div>
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--dark">45km</span>
+                        <span class="stat-progress__sub">from start</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stat-progress__row">
+                    <div class="stat-progress__icon-group">
+                      <div id="stat-prog-icon-2"></div>
+                      <span class="stat-progress__fraction">2/5</span>
+                    </div>
+                    <div class="stat-progress__scores">
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--green">+10</span>
+                        <span class="stat-progress__sub">out of 50</span>
+                      </div>
+                      <div class="stat-progress__scores-divider"></div>
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--dark">45km</span>
+                        <span class="stat-progress__sub">from start</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stat-progress__row">
+                    <div class="stat-progress__icon-group">
+                      <div id="stat-prog-icon-3"></div>
+                      <span class="stat-progress__fraction">3/5</span>
+                    </div>
+                    <div class="stat-progress__scores">
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--green">+10</span>
+                        <span class="stat-progress__sub">out of 50</span>
+                      </div>
+                      <div class="stat-progress__scores-divider"></div>
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--dark">45km</span>
+                        <span class="stat-progress__sub">from start</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stat-progress__row">
+                    <div class="stat-progress__icon-group">
+                      <div id="stat-prog-icon-4"></div>
+                      <span class="stat-progress__fraction">4/5</span>
+                    </div>
+                    <div class="stat-progress__scores">
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--green">+10</span>
+                        <span class="stat-progress__sub">out of 50</span>
+                      </div>
+                      <div class="stat-progress__scores-divider"></div>
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--dark">45km</span>
+                        <span class="stat-progress__sub">from start</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="stat-progress__totals">
+                    <div class="stat-progress__totals-inner">
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--green">102</span>
+                        <span class="stat-progress__sub">total</span>
+                      </div>
+                      <div class="stat-progress__scores-divider"></div>
+                      <div class="stat-progress__col">
+                        <span class="stat-progress__main--dark">268km</span>
+                        <span class="stat-progress__sub">total</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Added goals (leaderboard) -->
+                <div class="stat-card stat-card--no-gap stat-card--divided stat-card--flush">
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:var(--color-border)"></div>
+                    <span class="stat-goals__name">Beginner Duck</span>
+                    <span class="stat-goals__score">120</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:#6daf57"></div>
+                    <span class="stat-goals__name">Known Wizard</span>
+                    <span class="stat-goals__score">420</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:var(--color-border)"></div>
+                    <span class="stat-goals__name">Nerd Sheep</span>
+                    <span class="stat-goals__score">41</span>
+                  </div>
+                  <div class="divider"></div>
+                  <!-- Highlighted "you are here" row -->
+                  <div class="stat-goals__row stat-goals__row--highlighted">
+                    <div class="stat-goals__row-top">
+                      <div class="stat-goals__dot" style="background:var(--color-text-on-primary)"></div>
+                      <div class="stat-goals__row-info">
+                        <span class="stat-goals__name">Preset Luck</span>
+                        <span class="stat-goals__note">You are now 20 points behind.</span>
+                      </div>
+                    </div>
+                    <span class="stat-goals__score">243</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:var(--color-border)"></div>
+                    <span class="stat-goals__name">Junior Magician</span>
+                    <span class="stat-goals__score">129</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:var(--color-border)"></div>
+                    <span class="stat-goals__name">Out of Ideas</span>
+                    <span class="stat-goals__score">0</span>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="stat-goals__row">
+                    <div class="stat-goals__dot" style="background:#6daf57"></div>
+                    <span class="stat-goals__name">Moonlight Reader</span>
+                    <span class="stat-goals__score">340</span>
+                  </div>
+                </div>
+
+                <!-- Daily streak (mandatory) -->
+                <div class="stat-streak">
+                  <span class="stat-streak__title">Daily streak</span>
+                  <div class="stat-streak__body">
+                    <div class="cal-weekdays">
+                      <span class="cal-weekday">M</span>
+                      <span class="cal-weekday">T</span>
+                      <span class="cal-weekday">W</span>
+                      <span class="cal-weekday">T</span>
+                      <span class="cal-weekday">F</span>
+                      <span class="cal-weekday">S</span>
+                      <span class="cal-weekday">S</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="stat-streak__grid" id="stat-streak-grid"></div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb"></div></div>
+              <div class="sheet-footer">
+                <button class="btn btn--primary">Continue playing</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Statistics&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__list-wrap"&gt;
+      &lt;!-- gallery --&gt;
+      &lt;div class="stat-card"&gt;
+        &lt;div class="stat-gallery__grid stat-gallery__grid--4"&gt;
+          &lt;div class="stat-gallery__tile"&gt;
+            &lt;span class="stat-gallery__number"&gt;12&lt;/span&gt;
+            &lt;span class="stat-gallery__label"&gt;Played&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;!-- repeat tiles --&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- unlocked levels --&gt;
+      &lt;div class="stat-card"&gt;
+        &lt;div class="stat-levels__row"&gt;
+          &lt;span class="stat-levels__name"&gt;LevelName&lt;/span&gt;
+          &lt;div class="stat-levels__track"&gt;&lt;div class="stat-levels__fill" style="width:60%"&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;div&gt;&lt;!-- target icon --&gt;&lt;/div&gt;
+          &lt;span class="stat-levels__fraction"&gt;3/5&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- progress bars --&gt;
+      &lt;div class="stat-card"&gt;
+        &lt;div class="stat-progress__row"&gt;
+          &lt;div&gt;&lt;!-- target icon --&gt;&lt;/div&gt;
+          &lt;div class="stat-progress__count"&gt;
+            &lt;span class="stat-progress__count-main"&gt;+10&lt;/span&gt;
+            &lt;span class="stat-progress__count-sub"&gt;out of 50&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class="stat-progress__extra"&gt;
+            &lt;span class="stat-progress__extra-main"&gt;45km&lt;/span&gt;
+            &lt;span class="stat-progress__extra-sub"&gt;from start&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="stat-progress__totals"&gt;
+          &lt;div class="stat-progress__total-item"&gt;
+            &lt;span class="stat-progress__total-value"&gt;102&lt;/span&gt;
+            &lt;span class="stat-progress__total-label"&gt;total&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class="stat-progress__total-item"&gt;
+            &lt;span class="stat-progress__total-value"&gt;268km&lt;/span&gt;
+            &lt;span class="stat-progress__total-label"&gt;total&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- leaderboard --&gt;
+      &lt;div class="stat-card"&gt;
+        &lt;div class="stat-goals__row"&gt;
+          &lt;div class="stat-goals__dot" style="background:var(--color-border)"&gt;&lt;/div&gt;
+          &lt;span class="stat-goals__name"&gt;Beginner Duck&lt;/span&gt;
+          &lt;span class="stat-goals__score"&gt;120&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class="stat-goals__row stat-goals__row--highlighted"&gt;
+          &lt;div class="stat-goals__row-top"&gt;
+            &lt;div class="stat-goals__dot" style="background:var(--color-text-on-primary)"&gt;&lt;/div&gt;
+            &lt;div class="stat-goals__row-info"&gt;
+              &lt;span class="stat-goals__name"&gt;Preset Luck&lt;/span&gt;
+              &lt;span class="stat-goals__note"&gt;You are now 20 points behind.&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;span class="stat-goals__score"&gt;243&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- daily streak (mandatory) --&gt;
+      &lt;div class="stat-streak"&gt;
+        &lt;span class="stat-streak__title"&gt;Daily streak&lt;/span&gt;
+        &lt;div class="stat-streak__grid"&gt;
+          &lt;div class="stat-streak__day"&gt;
+            &lt;span class="stat-streak__letter"&gt;M&lt;/span&gt;
+            &lt;div class="stat-streak__cell"&gt;1&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;!-- states: --completed  --in-progress  --selected  --unavailable --&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__actions"&gt;
+      &lt;button class="btn btn--primary"&gt;Continue playing&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+        <!-- ── Form ─────────────────────────────────────────── -->
+        <div class="component-card">
+          <div class="component-meta">
+            <span class="component-name">.sheet — form variant</span>
+            <span class="component-source">Form / Rating</span>
+          </div>
+          <div style="position:relative;height:640px;background:rgba(0,0,0,0.4);overflow:hidden;display:flex;align-items:flex-end;">
+            <div class="sheet">
+              <div class="sheet__header">
+                <h2 class="sheet__title">Would you like to help us?</h2>
+                <p class="sheet__body">We would love to hear your feedback, it allows us to make the puzzles even better.</p>
+              </div>
+              <div class="sheet__list-wrap">
+                <!-- Star rating -->
+                <div class="form-group">
+                  <label class="form-label">How many stars do you give this game?</label>
+                  <div class="form-stars">
+                    <button class="form-star" id="form-star-1" aria-label="1 star"></button>
+                    <button class="form-star" id="form-star-2" aria-label="2 stars"></button>
+                    <button class="form-star" id="form-star-3" aria-label="3 stars"></button>
+                    <button class="form-star" id="form-star-4" aria-label="4 stars"></button>
+                    <button class="form-star" id="form-star-5" aria-label="5 stars"></button>
+                  </div>
+                </div>
+                <!-- Tips textarea -->
+                <div class="form-group">
+                  <label class="form-label" for="form-tips">What did you like? Any tips?</label>
+                  <textarea class="form-field form-field--textarea" id="form-tips"></textarea>
+                </div>
+                <!-- Word suggestions -->
+                <div class="form-group">
+                  <label class="form-label" for="form-words">Any word suggestions?</label>
+                  <input class="form-field" type="text" id="form-words" />
+                </div>
+                <!-- Checkbox -->
+                <div class="form-checkbox-row">
+                  <button class="form-tickbox" id="form-tickbox" aria-pressed="false">
+                    <div class="form-tickbox__box" id="form-tickbox-icon"></div>
+                  </button>
+                  <label class="form-checkbox-label" for="form-tickbox">The puzzle team may contact me regarding my feedback.</label>
+                </div>
+              </div>
+              <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb"></div></div>
+              <div class="sheet-footer">
+                <button class="btn btn--primary">Send feedback</button>
+              </div>
+            </div>
+          </div>
+          <pre class="component-code">&lt;div class="sheet-overlay" role="dialog" aria-modal="true" hidden&gt;
+  &lt;div class="sheet"&gt;
+    &lt;div class="sheet__header"&gt;
+      &lt;h2 class="sheet__title"&gt;Would you like to help us?&lt;/h2&gt;
+      &lt;p class="sheet__body"&gt;…&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__list-wrap"&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label class="form-label"&gt;How many stars?&lt;/label&gt;
+        &lt;div class="form-stars"&gt;
+          &lt;button class="form-star" aria-label="1 star"&gt;&lt;/button&gt;
+          &lt;!-- repeat for 2–5 --&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label class="form-label" for="form-tips"&gt;Any tips?&lt;/label&gt;
+        &lt;textarea class="form-field form-field--textarea" id="form-tips"&gt;&lt;/textarea&gt;
+      &lt;/div&gt;
+      &lt;div class="form-checkbox-row"&gt;
+        &lt;button class="form-tickbox" aria-pressed="false"&gt;
+          &lt;div class="form-tickbox__box"&gt;&lt;/div&gt;
+        &lt;/button&gt;
+        &lt;label class="form-checkbox-label"&gt;May contact me.&lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="sheet__scrollbar"&gt;&lt;div class="sheet__scrollbar-thumb"&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;div class="sheet-footer"&gt;
+      &lt;button class="btn btn--primary"&gt;Send feedback&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+
+      </div><!-- /popup-grid -->
+    </section>
+
+    <!-- ── SECTION: CLAUDE COMMANDS ──────────────────────────── -->
+    <section class="section" id="sec-claude-commands">
+      <div class="section-header">
+        <div class="section-number">9</div>
+        <h2 class="section-title">Claude Commands</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        All available slash commands for this project. Run in Claude Code with <code>/command-name</code>.
+        Commands live in <code>.claude/commands/</code> at the project root.
+      </p>
+      <table class="commands-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Phase</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/claude-behavior</code></td>
+            <td><span class="cmd-phase cmd-phase--session">Session</span></td>
+            <td>Set workspace permissions before any file work</td>
+          </tr>
+          <tr>
+            <td><code>/master-styleguide</code></td>
+            <td><span class="cmd-phase cmd-phase--design">Design</span></td>
+            <td>Bootstrap tokens.css, components.css, icons.js, game-utils.js + add screens</td>
+          </tr>
+          <tr>
+            <td><code>/game-page</code></td>
+            <td><span class="cmd-phase cmd-phase--design">Design</span></td>
+            <td>Game Bible interview + Game Index page</td>
+          </tr>
+          <tr>
+            <td><code>/game-passport</code></td>
+            <td><span class="cmd-phase cmd-phase--design">Design</span></td>
+            <td>Parse Game Passport → scaffold game folder</td>
+          </tr>
+          <tr>
+            <td><code>/game-styleguide</code></td>
+            <td><span class="cmd-phase cmd-phase--design">Design</span></td>
+            <td>Per-game visual tokens + styleguide page</td>
+          </tr>
+          <tr>
+            <td><code>/flow-prototype</code></td>
+            <td><span class="cmd-phase cmd-phase--design">Design</span></td>
+            <td>Navigation gold standard for all games</td>
+          </tr>
+          <tr>
+            <td><code>/game-build</code></td>
+            <td><span class="cmd-phase cmd-phase--build">Build</span></td>
+            <td>Screen-by-screen game assembly</td>
+          </tr>
+          <tr>
+            <td><code>/new-game</code></td>
+            <td><span class="cmd-phase cmd-phase--build">Build</span></td>
+            <td>Scaffold game folder + walk through 8 shared screens</td>
+          </tr>
+          <tr>
+            <td><code>/new-screen</code></td>
+            <td><span class="cmd-phase cmd-phase--build">Build</span></td>
+            <td>Generate a single proto-screen shell with correct attributes</td>
+          </tr>
+          <tr>
+            <td><code>/populate-tutorial</code></td>
+            <td><span class="cmd-phase cmd-phase--build">Build</span></td>
+            <td>Add step animations inside .tutorial__play-area</td>
+          </tr>
+          <tr>
+            <td><code>/consistency-check</code></td>
+            <td><span class="cmd-phase cmd-phase--qa">QA</span></td>
+            <td>Audit CSS against tokens, flag hardcoded values</td>
+          </tr>
+          <tr>
+            <td><code>/qa</code></td>
+            <td><span class="cmd-phase cmd-phase--qa">QA</span></td>
+            <td>Technical QA checklist + persona playtests</td>
+          </tr>
+          <tr>
+            <td><code>/token</code></td>
+            <td><span class="cmd-phase cmd-phase--utility">Utility</span></td>
+            <td>Look up design tokens by keyword</td>
+          </tr>
+          <tr>
+            <td><code>/icon</code></td>
+            <td><span class="cmd-phase cmd-phase--utility">Utility</span></td>
+            <td>Find icon names, validate colors for Icons.render()</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    </div><!-- /page-main -->
+
+    <!-- ── STICKY NAV ────────────────────────────────────────── -->
+    <nav class="page-nav" aria-label="Styleguide navigation">
+
+      <div class="nav-group-label">Design Tokens</div>
+      <a class="nav-link" href="#sec-colors">Color Palette</a>
+      <a class="nav-link" href="#sec-typography">Typography</a>
+      <a class="nav-link" href="#sec-spacing">Spacing Scale</a>
+      <a class="nav-link" href="#sec-gradients">Gradients</a>
+      <a class="nav-link" href="#sec-dice">Dice Face Colors</a>
+      <a class="nav-link" href="#sec-animation">Animation</a>
+      <a class="nav-link" href="#sec-tokens">Token Reference</a>
+
+      <div class="nav-group-label">Components</div>
+      <a class="nav-link" href="#sec-buttons">Buttons</a>
+      <a class="nav-link" href="#sec-icons">Icons</a>
+      <a class="nav-link" href="#sec-divider">Divider</a>
+      <a class="nav-link" href="#sec-modal">Modal</a>
+
+      <div class="nav-group-label">Screens</div>
+      <a class="nav-link" href="#sec-full-screens">Full Screens</a>
+      <a class="nav-link" href="#sec-gameplay-screens">Gameplay Screens</a>
+      <a class="nav-link" href="#sec-game-sheets">Game Sheets</a>
+      <a class="nav-link" href="#sec-popup-sheets">Pop-up Sheets</a>
+      <a class="nav-link" href="#sec-claude-commands">Claude Commands</a>
+
+      <div class="nav-group-label">Theme</div>
+      <div class="nav-theme-btns">
+        <button class="nav-theme-btn" data-theme-btn="light"  title="Light"><span id="nav-icon-theme-light"></span></button>
+        <button class="nav-theme-btn" data-theme-btn="auto"   title="Auto"><span id="nav-icon-theme-auto"></span></button>
+        <button class="nav-theme-btn" data-theme-btn="dark"   title="Dark"><span id="nav-icon-theme-dark"></span></button>
+      </div>
+
+    </nav>
+
+  </div><!-- /page-layout -->
+  </div><!-- /page-wrapper -->
+  <script src="./icons.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Home page date + last week rows
+      (function () {
+        const MONTHS = ['January','February','March','April','May','June',
+                        'July','August','September','October','November','December'];
+        const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+        const now = new Date();
+        const d = now.getDate();
+        const suffix = ['th','st','nd','rd'][d % 10 > 3 || (d > 10 && d < 14) ? 0 : d % 10] || 'th';
+        const dateEl = document.getElementById('home-game-date');
+        if (dateEl) dateEl.textContent = `Today, ${d}${suffix} ${MONTHS[now.getMonth()]}`;
+
+        const dayEls = document.querySelectorAll('.home-day-row__name');
+        dayEls.forEach((el, i) => {
+          if (i === 0) { el.textContent = 'Yesterday'; return; }
+          const past = new Date(now);
+          past.setDate(now.getDate() - (i + 1));
+          el.textContent = DAYS[past.getDay()];
+        });
+      })();
+
+      // ── Nav bar factory — renders the 4 shared header icons for any screen prefix
+      function renderNavBar(prefix) {
+        Icons.render(document.getElementById(`${prefix}-icon-back`),     'chevronLeft', { size: 'md', color: 'primary' });
+        Icons.render(document.getElementById(`${prefix}-icon-feedback`), 'feedback',    { size: 'md', color: 'primary' });
+        Icons.render(document.getElementById(`${prefix}-icon-share`),    'share',       { size: 'md', color: 'primary' });
+        Icons.render(document.getElementById(`${prefix}-icon-heart`),    'heartFull',   { size: 'md', color: 'error' });
+      }
+
+      // ── Toolbar factory — renders the 3 shared right-side toolbar icons
+      function renderToolbar(prefix) {
+        Icons.render(document.getElementById(`${prefix}-icon-calendar`), 'calendar', { size: 'md', color: 'primary' });
+        Icons.render(document.getElementById(`${prefix}-icon-stats`),    'stats',    { size: 'md', color: 'primary' });
+        Icons.render(document.getElementById(`${prefix}-icon-settings`), 'settings', { size: 'md', color: 'primary' });
+      }
+
+      renderNavBar('home');
+      renderNavBar('loading');
+      renderNavBar('game');
+      renderNavBar('game-hint');
+      renderNavBar('tut');
+
+      // Gameplay screen — toolbar + score bar
+      Icons.render(document.getElementById('game-icon-info'),    'info',  { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('game-icon-pause'),   'pause', { size: 'md' });
+      renderToolbar('game');
+      Icons.render(document.getElementById('game-score-target'), 'target', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('game-score-trophy'), 'star',   { size: 'md', color: 'primary' });
+
+      // Gameplay hint variant — extra hint + close icons
+      Icons.render(document.getElementById('game-hint-icon-info'),  'info',  { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('game-hint-icon-hint'),  'hint',  { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('game-hint-icon-close'), 'cross', { size: 'md' });
+      Icons.render(document.getElementById('game-hint-icon-pause'), 'pause', { size: 'md' });
+      renderToolbar('game-hint');
+      Icons.render(document.getElementById('game-hint-score-target'), 'target', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('game-hint-score-star'),   'star',   { size: 'md', color: 'primary' });
+
+      // Icon-only button demos
+      Icons.render(document.getElementById('demo-icon-btn-back'),     'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('demo-icon-btn-feedback'), 'feedback',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('demo-icon-btn-share'),    'share',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('demo-icon-btn-heart'),    'heartFull',   { size: 'md', color: 'error' });
+
+      // Calendar sheet nav icons — next reuses chevronLeft flipped via scaleX(-1)
+      Icons.render(document.getElementById('demo-cal-prev'), 'chevronLeft', { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('demo-cal-next'), 'chevronLeft', { size: 'md', color: 'primary' });
+
+      function renderIconGrid(gridId, icons, defaultSize) {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        icons.forEach(name => {
+          const card = document.createElement('div');
+          card.className = 'icon-card';
+          const preview = document.createElement('div');
+          preview.className = 'icon-preview';
+          preview.innerHTML = Icons.get(name, defaultSize, 'primary');
+          const label = document.createElement('div');
+          label.className = 'icon-label';
+          label.textContent = name;
+          card.appendChild(preview);
+          card.appendChild(label);
+          grid.appendChild(card);
+        });
+      }
+
+      renderIconGrid('icon-grid-nav', [
+        'chevronLeft', 'feedback', 'share', 'info', 'pause', 'target', 'merges', 'heartFull'
+      ], 'md');
+
+      renderIconGrid('icon-grid-20', [
+        'calendar', 'stats', 'settings', 'hint', 'timer', 'cross', 'chevronDown', 'check',
+        'play', 'star', 'refresh', 'hash', 'bomb',
+        'trophyBronze', 'trophySilver', 'trophyGold',
+        'question', 'book', 'stairs', 'list', 'level'
+      ], 'md');
+
+      renderIconGrid('icon-grid-28', [
+        'gameBack', 'gameRefresh', 'gameRedo', 'gameCross', 'gamePen',
+        'gameLightBulb', 'gameFlag', 'gameSquare', 'gameEnter'
+      ], 'game');
+
+      renderIconGrid('icon-grid-14', [
+        'themeLight', 'themeAutomatic', 'themeDark', 'arrowLeft', 'arrowRight'
+      ], 'tiny');
+    });
+  </script>
+
+  <!-- ── CALENDAR DEMO ─────────────────────────────────────── -->
+  <script>
+    (function () {
+      const MONTH_NAMES = ['January','February','March','April','May','June',
+                           'July','August','September','October','November','December'];
+      const CHECK_SVG = `<svg class="cal-day__check" viewBox="0 0 20 20" fill="none"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4,10 8,15 16,6"/></svg>`;
+      const CORNER_SVG = `<svg class="cal-corner" viewBox="0 0 16 16"
+        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.41927e-05 15.9999L1.41927e-05 0L16 15.9999H1.41927e-05Z"/></svg>`;
+
+      // Real today + demo data: last 3 days completed, today in-progress
+      const TODAY = new Date();
+      const COMPLETED = new Set();
+      const IN_PROGRESS = new Set([TODAY.getDate()]);
+      for (let i = 1; i <= 3; i++) {
+        const d = TODAY.getDate() - i;
+        if (d > 0) COMPLETED.add(d);
+      }
+
+      let viewYear  = TODAY.getFullYear();
+      let viewMonth = TODAY.getMonth();
+      let selYear   = viewYear;
+      let selMonth  = viewMonth;
+      let selDay    = TODAY.getDate();
+
+      function ordinal(n) {
+        const s = ['th','st','nd','rd'], v = n % 100;
+        return n + (s[(v - 20) % 10] || s[v] || s[0]);
+      }
+
+      function dayState(year, month, day) {
+        const d    = new Date(year, month, day);
+        const tod  = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+        if (d > tod) return 'unavailable';
+        // demo data only applies to April 2026
+        if (year === TODAY.getFullYear() && month === TODAY.getMonth()) {
+          if (COMPLETED.has(day))   return 'completed';
+          if (IN_PROGRESS.has(day)) return 'in-progress';
+        }
+        return 'default';
+      }
+
+      function firstAvailableDay(year, month) {
+        const days = new Date(year, month + 1, 0).getDate();
+        for (let d = 1; d <= days; d++) {
+          if (dayState(year, month, d) !== 'unavailable') return d;
+        }
+        return null;
+      }
+
+      function render() {
+        // Nav title
+        document.getElementById('demo-cal-title').textContent =
+          `${MONTH_NAMES[viewMonth]} ${viewYear}`;
+
+        // Today label
+        document.getElementById('demo-cal-today-label').textContent =
+          `${ordinal(TODAY.getDate())} ${MONTH_NAMES[TODAY.getMonth()]}`;
+
+        // Button — always day + month only, no year
+        const btn = document.getElementById('demo-cal-btn');
+        const hasSelection = (selYear === viewYear && selMonth === viewMonth);
+        if (hasSelection) {
+          btn.textContent = `Play ${ordinal(selDay)} ${MONTH_NAMES[selMonth]}`;
+          btn.disabled = false;
+        } else {
+          btn.textContent = 'No games available';
+          btn.disabled = true;
+        }
+
+        // Build grid
+        const grid = document.getElementById('demo-cal-grid');
+        grid.innerHTML = '';
+
+        const firstDow = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
+        const emptyCount = firstDow === 0 ? 6 : firstDow - 1;       // Mon-first
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+        for (let i = 0; i < emptyCount; i++) {
+          const el = document.createElement('div');
+          el.className = 'cal-day cal-day--empty';
+          grid.appendChild(el);
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const el    = document.createElement('div');
+          const state = dayState(viewYear, viewMonth, d);
+          const isSelected = (d === selDay && viewMonth === selMonth && viewYear === selYear);
+
+          const classes = ['cal-day'];
+          if (state === 'completed')    classes.push('cal-day--completed');
+          if (state === 'in-progress')  classes.push('cal-day--in-progress');
+          if (state === 'unavailable')  classes.push('cal-day--unavailable');
+          if (isSelected)               classes.push('cal-day--selected');
+          el.className = classes.join(' ');
+
+          if (state === 'completed')        el.innerHTML = CHECK_SVG;
+          else if (state === 'in-progress') el.innerHTML = String(d) + CORNER_SVG;
+          else                              el.innerHTML = String(d);
+          el.setAttribute('aria-label', `${d} ${MONTH_NAMES[viewMonth]}`);
+          if (isSelected) el.setAttribute('aria-selected', 'true');
+
+          if (state !== 'unavailable') {
+            el.addEventListener('click', () => {
+              selYear  = viewYear;
+              selMonth = viewMonth;
+              selDay   = d;
+              render();
+            });
+          }
+          grid.appendChild(el);
+        }
+
+        // Pad trailing empty cells so grid is always 6 rows (42 cells)
+        const totalCells = emptyCount + daysInMonth;
+        for (let i = totalCells; i < 42; i++) {
+          const el = document.createElement('div');
+          el.className = 'cal-day cal-day--empty';
+          grid.appendChild(el);
+        }
+      }
+
+      function navigateTo(year, month) {
+        viewYear  = year;
+        viewMonth = month;
+        const isCurrentMonth = (year === TODAY.getFullYear() && month === TODAY.getMonth());
+        if (isCurrentMonth) {
+          selYear  = year;
+          selMonth = month;
+          selDay   = TODAY.getDate();
+        } else {
+          const first = firstAvailableDay(year, month);
+          if (first !== null) {
+            selYear  = year;
+            selMonth = month;
+            selDay   = first;
+          } else {
+            selYear  = -1;
+            selMonth = -1;
+            selDay   = -1;
+          }
+        }
+        render();
+      }
+
+      document.getElementById('demo-cal-prev').addEventListener('click', () => {
+        let y = viewYear, m = viewMonth - 1;
+        if (m < 0) { m = 11; y--; }
+        navigateTo(y, m);
+      });
+      document.getElementById('demo-cal-next').addEventListener('click', () => {
+        let y = viewYear, m = viewMonth + 1;
+        if (m > 11) { m = 0; y++; }
+        navigateTo(y, m);
+      });
+
+      // Render trophy icon once icons.js is loaded (already loaded above)
+      Icons.render(document.getElementById('demo-cal-trophy'), 'trophyBronze', { size: 'md' });
+
+      render();
+    })();
+  </script>
+
+  <!-- ── SETTINGS DEMO ─────────────────────────────────────── -->
+  <script>
+    (function () {
+      // Segmented control icons
+      Icons.render(document.getElementById('stt-theme-dark'),  'themeDark',      { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('stt-theme-auto'),  'themeAutomatic', { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('stt-theme-light'), 'themeLight',     { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('stt-hand-left'),   'arrowLeft',      { size: 'tiny', color: 'primary' });
+      Icons.render(document.getElementById('stt-hand-right'),  'arrowLeft',      { size: 'tiny', color: 'primary' });
+
+      // Overflow row icons
+      Icons.render(document.getElementById('stt-icon-howto'),  'question',  { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('stt-icon-stats'),  'stairs',    { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('stt-icon-close'),  'list',      { size: 'md', color: 'primary' });
+
+      // Segmented control toggle behaviour
+      document.querySelectorAll('.stt-segment').forEach(group => {
+        group.addEventListener('click', e => {
+          const btn = e.target.closest('.stt-segment__option');
+          if (!btn) return;
+          group.querySelectorAll('.stt-segment__option').forEach(b => b.classList.remove('stt-segment__option--active'));
+          btn.classList.add('stt-segment__option--active');
+        });
+      });
+    })();
+  </script>
+
+  <!-- ── STATISTICS DEMO ────────────────────────────────── -->
+  <script>
+    (function () {
+      const CORNER_SVG = '<svg class="cal-corner" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M1.41927e-05 15.9999L1.41927e-05 0L16 15.9999H1.41927e-05Z"/></svg>';
+
+      // Level row target icons
+      for (let i = 1; i <= 4; i++) {
+        Icons.render(document.getElementById('stat-lvl-icon-' + i), 'target', { size: 'sm', color: 'primary' });
+      }
+
+      // Progress row target icons
+      for (let i = 1; i <= 4; i++) {
+        Icons.render(document.getElementById('stat-prog-icon-' + i), 'target', { size: 'sm', color: 'primary' });
+      }
+
+      // Daily streak — current week with real dates
+      (function () {
+        const grid = document.getElementById('stat-streak-grid');
+        if (!grid) return;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const mondayOffset = (today.getDay() + 6) % 7;
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - mondayOffset);
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          const cell = document.createElement('div');
+          cell.className = 'cal-day';
+          if (d.getTime() === today.getTime()) {
+            cell.classList.add('cal-day--in-progress');
+            cell.innerHTML = String(d.getDate()) + CORNER_SVG;
+          } else if (d < today) {
+            cell.classList.add('cal-day--completed');
+            cell.innerHTML = Icons.get('check', 'sm', 'on-primary');
+          } else {
+            cell.classList.add('cal-day--unavailable');
+            cell.textContent = d.getDate();
+          }
+          grid.appendChild(cell);
+        }
+      })();
+
+      // ── Form sheet stars ─────────────────────────────────────
+      (function () {
+        let rating = 0;
+        const stars = [1,2,3,4,5].map(n => document.getElementById('form-star-' + n));
+
+        function renderStars(filled) {
+          stars.forEach((btn, i) => {
+            if (!btn) return;
+            btn.innerHTML = Icons.get('star', 'sm', i < filled ? 'warning' : 'tertiary');
+            btn.classList.toggle('form-star--filled', i < filled);
+          });
+        }
+
+        stars.forEach((btn, i) => {
+          if (!btn) return;
+          btn.addEventListener('click', () => { rating = i < rating ? i : i + 1; renderStars(rating); });
+        });
+
+        renderStars(rating);
+
+        // Tickbox toggle
+        const tickbox = document.getElementById('form-tickbox');
+        const tickboxIcon = document.getElementById('form-tickbox-icon');
+        let ticked = false;
+        if (tickbox) {
+          tickbox.addEventListener('click', () => {
+            ticked = !ticked;
+            tickboxIcon.innerHTML = ticked ? Icons.get('check', 'xs', 'primary') : '';
+          });
+        }
+      })();
+
+      // ── Tutorial step navigation ──────────────────────────────
+      (function () {
+        const TOTAL = 5;
+        const STEPS = [
+          { title: 'Instruction Title',   desc: 'A short description of the step the player has to take to play the game.' },
+          { title: 'Step Two Title',      desc: 'Another instruction explaining the next action the player should take.' },
+          { title: 'Step Three Title',    desc: 'Keep guiding the player through the mechanics of the game.' },
+          { title: 'Step Four Title',     desc: 'Almost there — one more thing to learn before you start.' },
+          { title: 'Ready to Play!',      desc: 'You know everything you need. Hit Play to start your first game.' },
+        ];
+        let current = 1;
+        const stepEl = document.getElementById('tut-step');
+        const titleEl = document.getElementById('tut-title');
+        const descEl  = document.getElementById('tut-desc');
+        const btnEl   = document.getElementById('tut-btn');
+        if (!btnEl) return;
+
+        function render() {
+          stepEl.textContent = `Step ${current}/${TOTAL}`;
+          titleEl.textContent = STEPS[current - 1].title;
+          descEl.textContent  = STEPS[current - 1].desc;
+          btnEl.textContent   = current === TOTAL ? 'Play' : 'Next';
+        }
+
+        btnEl.addEventListener('click', () => {
+          if (current < TOTAL) { current++; render(); }
+          else { current = 1; render(); } // loop back in demo
+        });
+
+        render();
+      })();
+    })();
+
+    // ── Nav active highlight ──────────────────────────────────
+    (function () {
+      const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+      const sectionIds = [...navLinks].map(a => a.getAttribute('href').slice(1));
+      const sections   = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+      function setActive(id) {
+        navLinks.forEach(a => {
+          a.classList.toggle('nav-link--active', a.getAttribute('href') === '#' + id);
+        });
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        // Find the topmost section that is intersecting
+        const visible = entries
+          .filter(e => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length) setActive(visible[0].target.id);
+      }, { rootMargin: '0px 0px -60% 0px', threshold: 0 });
+
+      sections.forEach(s => observer.observe(s));
+
+      // Set initial active on load
+      const first = sections.find(s => s.getBoundingClientRect().top >= 0) || sections[0];
+      if (first) setActive(first.id);
+    })();
+
+    // ── Custom scrollbars ─────────────────────────────────────
+    document.querySelectorAll('.sheet__scrollbar').forEach(scrollbar => {
+      const sheet  = scrollbar.closest('.sheet');
+      const wrap   = sheet.querySelector('.sheet__list-wrap');
+      const footer = sheet.querySelector('.sheet-footer');
+      const thumb  = scrollbar.querySelector('.sheet__scrollbar-thumb');
+      if (!wrap || !thumb) return;
+
+      function position() {
+        const sheetRect = sheet.getBoundingClientRect();
+        const wrapRect  = wrap.getBoundingClientRect();
+        const footerH   = footer ? footer.offsetHeight : 0;
+        scrollbar.style.top    = (wrapRect.top - sheetRect.top) + 'px';
+        scrollbar.style.bottom = footerH + 'px';
+      }
+
+      function update() {
+        const { scrollTop, scrollHeight, clientHeight } = wrap;
+        if (scrollHeight <= clientHeight) { thumb.classList.remove('sheet__scrollbar-thumb--visible'); return; }
+        thumb.classList.add('sheet__scrollbar-thumb--visible');
+        const trackH = scrollbar.clientHeight;
+        const thumbH = Math.max(32, (clientHeight / scrollHeight) * trackH);
+        const thumbY = (scrollTop / (scrollHeight - clientHeight)) * (trackH - thumbH);
+        thumb.style.height = thumbH + 'px';
+        thumb.style.top    = thumbY + 'px';
+      }
+
+      // Drag to scroll
+      thumb.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        const startY     = e.clientY;
+        const startScroll = wrap.scrollTop;
+        const trackH     = scrollbar.clientHeight;
+        const thumbH     = thumb.offsetHeight;
+        const scrollRange = wrap.scrollHeight - wrap.clientHeight;
+
+        function onMove(e) {
+          const delta = e.clientY - startY;
+          wrap.scrollTop = startScroll + (delta / (trackH - thumbH)) * scrollRange;
+        }
+        function onUp() {
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', onUp);
+        }
+        document.addEventListener('pointermove', onMove);
+        document.addEventListener('pointerup', onUp);
+      });
+
+      position();
+      update();
+      wrap.addEventListener('scroll', update);
+      window.addEventListener('resize', () => { position(); update(); });
+    });
+
+
+    // Hint tooltip toggle
+    const hintWrap  = document.getElementById('game-hint-wrap');
+    const hintBtn   = document.getElementById('game-hint-icon-hint');
+    const hintClose = document.getElementById('game-hint-icon-close');
+    if (hintWrap && hintBtn) {
+      hintBtn.addEventListener('click', () => hintWrap.classList.toggle('game-hint-wrap--open'));
+      hintClose?.addEventListener('click', () => hintWrap.classList.remove('game-hint-wrap--open'));
+    }
+
+    // ── Game timer — count-up + pause/play icon toggle ──────────────────────
+    function makeGameTimer(pauseIconId) {
+      const iconEl = document.getElementById(pauseIconId);
+      if (!iconEl) return;
+      const group   = iconEl.closest('.game-timer-group');
+      const display = group.querySelector('.game-timer');
+      let seconds = 0;
+      let running = true;
+      let interval = setInterval(tick, 1000);
+
+      function tick() {
+        seconds++;
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        display.textContent = `${m}:${s}`;
+      }
+
+      function toggle() {
+        running = !running;
+        if (running) {
+          interval = setInterval(tick, 1000);
+          Icons.render(iconEl, 'pause', { size: 'md' });
+          group.setAttribute('aria-label', 'Pause');
+        } else {
+          clearInterval(interval);
+          Icons.render(iconEl, 'play', { size: 'md' });
+          group.setAttribute('aria-label', 'Play');
+        }
+      }
+
+      group.addEventListener('click', toggle);
+    }
+
+    makeGameTimer('game-icon-pause');
+    makeGameTimer('game-hint-icon-pause');
+
+    // Theme switcher
+    Icons.render(document.getElementById('nav-icon-theme-light'), 'themeLight',     { size: 'md' });
+    Icons.render(document.getElementById('nav-icon-theme-auto'),  'themeAutomatic', { size: 'md' });
+    Icons.render(document.getElementById('nav-icon-theme-dark'),  'themeDark',      { size: 'md' });
+
+    const themeBtns = document.querySelectorAll('[data-theme-btn]');
+
+    function setTheme(theme) {
+      if (theme === 'auto') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      themeBtns.forEach(btn =>
+        btn.classList.toggle('nav-theme-btn--active', btn.dataset.themeBtn === theme)
+      );
+      localStorage.setItem('sg-theme', theme);
+    }
+
+    themeBtns.forEach(btn => btn.addEventListener('click', () => setTheme(btn.dataset.themeBtn)));
+    setTheme(localStorage.getItem('sg-theme') || 'light');
+  </script>
+</body>
+</html>

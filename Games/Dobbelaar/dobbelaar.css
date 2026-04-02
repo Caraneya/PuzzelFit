@@ -1,0 +1,549 @@
+/* ============================================================
+   DOBBELAAR — Game styles
+   Requires: tokens.css + components.css loaded first.
+   ============================================================ */
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--color-background);
+  font-family: var(--font-family-secondary);
+  color: var(--color-text-primary);
+}
+
+/* ── SCREEN STACK ── */
+.proto-screen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--easing-out);
+}
+/* Step 1: make visible in layout so transition has something to animate */
+.proto-screen.is-visible { display: flex; }
+/* Step 2: fade in (applied one frame after is-visible) */
+.proto-screen.is-active  { opacity: 1; }
+.proto-screen .home-page,
+.proto-screen .loading-page,
+.proto-screen .game-screen { flex: 1; min-height: 0; }
+
+/* ── PROTOTYPE: TUTORIAL OVERLAY ── */
+.proto-tutorial {
+  position: fixed; inset: 0; z-index: var(--z-overlay);
+  display: none; flex-direction: column;
+}
+.proto-tutorial.is-open { display: flex; }
+
+/* ── PROTOTYPE: BADGE ── */
+.proto-badge {
+  position: fixed; top: var(--space-2); right: var(--space-3);
+  z-index: var(--z-toast);
+  background: var(--color-surface-tooltip); color: var(--color-surface);
+  font-size: 10px; font-family: var(--font-family-secondary);
+  font-weight: var(--font-weight-semibold);
+  padding: 3px var(--space-2); border-radius: var(--radius-full);
+  letter-spacing: 0.05em; opacity: 0.7; pointer-events: none;
+}
+
+/* ── LOADING IMAGE ── */
+@keyframes db-loading-float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+.loading-img {
+  width: 100%;
+  height: auto;
+  max-height: 50vw;
+  display: block;
+  overflow: visible; /* allow animated elements to exceed SVG viewport */
+  animation: db-loading-float 2.4s ease-in-out infinite;
+}
+
+
+/* Individual SVG elements — triggered when SVG is inlined */
+#db-ll {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-rock 3s ease-in-out infinite;
+}
+#db-lr {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-rock 2.6s ease-in-out infinite reverse;
+  animation-delay: -1.1s;
+}
+#db-lm {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-pulse 2.2s ease-in-out infinite;
+  animation-delay: -0.5s;
+}
+#db-ls1 {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-twinkle 1.5s ease-in-out infinite;
+}
+#db-ls2 {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-twinkle 1.5s ease-in-out infinite;
+  animation-delay: -0.75s;
+}
+#db-lp {
+  transform-box: fill-box; transform-origin: center;
+  animation: db-ld-plus 2s var(--easing-bounce) infinite;
+}
+@keyframes db-ld-rock {
+  0%, 100% { transform: rotate(-7deg); }
+  50%       { transform: rotate(7deg); }
+}
+@keyframes db-ld-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.07); }
+}
+@keyframes db-ld-twinkle {
+  0%, 100% { transform: scale(0.7) rotate(0deg);   opacity: 0.4; }
+  50%       { transform: scale(1.3) rotate(22deg);  opacity: 1; }
+}
+@keyframes db-ld-plus {
+  0%, 100% { transform: scale(0.88) rotate(0deg);   opacity: 0.7; }
+  50%       { transform: scale(1.18) rotate(90deg);  opacity: 1; }
+}
+
+/* ── BOARD LAYOUT ── */
+
+.game-screen .game-board {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+/*
+  Square grid — constrained by BOTH width and height.
+  .game-screen has container-type: size, so 100cqh = game-screen height.
+  Subtracting fixed chrome (toolbar 54px + game-main padding 100px +
+  score-bar 44px + board gap 16px + tray ~120px + hint ~40px ≈ 374px)
+  prevents the grid from pushing the tray off screen on short viewports.
+*/
+.db-grid-outer {
+  width: min(100%, calc(100cqh - 380px));
+  aspect-ratio: 1;
+  position: relative;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-primary);
+}
+/* aspect-ratio replaces the ::after padding-top trick */
+.db-grid-outer::after { display: none; }
+.db-grid {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: var(--space-1);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+.db-cell {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── DIE FACE ── */
+.db-die {
+  position: absolute; inset: 0;
+  border-radius: var(--radius-xs);
+}
+.db-die--1 { background: var(--color-die-1); }
+.db-die--2 { background: var(--color-die-2); }
+.db-die--3 { background: var(--color-die-3); }
+.db-die--4 { background: var(--color-die-4); }
+.db-die--5 { background: var(--color-die-5); }
+.db-die--6 { background: var(--color-die-6); }
+.db-die svg        { width: 100%; height: 100%; display: block; }
+.db-die svg circle { fill: var(--color-surface); }
+
+/* ── TRAY ── */
+.db-tray-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  flex-shrink: 0;
+}
+.db-tray {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  width: 100%;
+}
+.db-tray-slot {
+  background: var(--color-background);
+  border: 1px solid var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  /* Fixed height — never changes regardless of rotation state */
+  height: calc(2 * clamp(36px, 11cqw, 48px) + var(--space-1) + 2 * var(--space-3));
+}
+.db-tray-die {
+  /* Responsive: scales from 36px on tiny screens to 48px on normal screens */
+  width: clamp(36px, 11cqw, 48px);
+  height: clamp(36px, 11cqw, 48px);
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.db-tray-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+  pointer-events: none; /* decorative — always in background */
+}
+.db-tray-empty svg {
+  height: 32%;
+  width: auto;
+}
+.db-tray-hint {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ── TRAY INNER (spawner / parking dice layout) ──
+   Always a square container holding 1 or 2 dice in a row.
+   Rotation is applied via style.transform (JS) so the container
+   spins while the dice counter-rotate to stay upright.
+   Being a fixed square means the slot height never changes.
+── */
+.db-tray-inner {
+  flex-shrink: 0;
+  width:  calc(2 * clamp(36px, 11cqw, 48px) + var(--space-1));
+  height: calc(2 * clamp(36px, 11cqw, 48px) + var(--space-1));
+  display: flex;
+  flex-direction: row; /* always row — visual orientation set by transform */
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  transition: transform var(--duration-normal) var(--easing-default);
+  transform-origin: center center;
+}
+
+/* Die elements counter-rotate so pips stay upright */
+.db-tray-inner .db-tray-die {
+  transition: transform var(--duration-normal) var(--easing-default);
+  transform-origin: center center;
+}
+
+/* ── DRAGGABLE DICE ── */
+.db-die-draggable {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  opacity: 1;           /* never dim — guaranteed full opacity */
+}
+.db-die-draggable:active  { cursor: grabbing; opacity: 1; }
+
+/* ── DRAG GHOST ── */
+.db-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: var(--z-toast);
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+
+/* ── DROP HIGHLIGHT ── */
+.db-cell--ok {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  border-color: var(--color-accent);
+}
+.db-cell--no {
+  background: color-mix(in srgb, var(--color-error) 22%, transparent);
+  border-color: var(--color-error);
+}
+
+/* ── HINT HIGHLIGHT ── */
+@keyframes db-hint-pulse {
+  0%, 100% { background: color-mix(in srgb, var(--color-sky-blue) 30%, transparent); border-color: var(--color-sky-blue); }
+  50%       { background: color-mix(in srgb, var(--color-sky-blue) 55%, transparent); border-color: var(--color-sky-blue); }
+}
+.db-cell--hint {
+  animation: db-hint-pulse 1s ease-in-out infinite;
+}
+.db-tray-slot--hint {
+  animation: db-hint-pulse 1s ease-in-out infinite;
+}
+.db-hint-rotate-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── MERGE ANIMATION ── */
+@keyframes db-merge {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); filter: brightness(1.25); }
+  100% { transform: scale(1);   filter: brightness(1); }
+}
+.db-cell--merging .db-die {
+  animation: db-merge 0.32s var(--easing-bounce) forwards;
+}
+
+/* ── POP-IN (new merged die) ── */
+@keyframes db-pop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  65%  { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.db-cell--pop .db-die {
+  animation: db-pop 0.28s var(--easing-bounce) forwards;
+}
+
+/* Tray inner hidden while its flyer is in flight (swap animation) */
+.db-tray-inner--flying {
+  opacity: 0 !important;
+}
+
+/* ── SCORE POP ── */
+@keyframes db-score-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.4); color: var(--color-accent); }
+  100% { transform: scale(1); }
+}
+.db-score-pop {
+  display: inline-block; /* scale needs a block-level context */
+  animation: db-score-pop 0.32s var(--easing-bounce);
+}
+
+/* ── FLOATING SCORE ── */
+.db-float-score {
+  position: fixed;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  pointer-events: none;
+  z-index: var(--z-toast);
+  transform: translate(-50%, 0);
+  opacity: 1;
+  transition: transform 0.65s var(--easing-out), opacity 0.65s var(--easing-out);
+}
+.db-float-score--up {
+  transform: translate(-50%, -44px);
+  opacity: 0;
+}
+
+/* ── TUTORIAL ANIMATIONS ──────────────────────────────────── */
+
+.tut-anim         { display: none; }
+.tut-anim--active {
+  display: flex;
+  width: 100%;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Step 1: Place your dice ── */
+/* Scene is the sizing container; all cqw inside references its inline (width) size.
+   Positions use cqw for both x and y so everything scales uniformly with aspect-ratio. */
+.ta1-scene {
+  container-type: inline-size;
+  container-name: ta1;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 168 / 204;
+  /* Pair moves as unit: dx/dy align pair midpoint to cell-pair midpoint */
+  --ta1-dx: -15.49cqw; /* (34.52 - 50.01): cell-pair-mid-x - tray-pair-mid-x */
+  --ta1-dy: -51.19cqw; /* (50.00 - 101.19): cell-pair-mid-y - tray-pair-mid-y */
+}
+
+/* Grid */
+.ta1-grid {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100cqw;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  grid-template-columns: repeat(3, 26.19cqw); /* 44px each */
+  grid-template-rows: repeat(2, 26.19cqw);
+  gap: 4.76cqw;  /* 8px */
+  padding: 5.95cqw; /* 10px */
+  box-sizing: border-box;
+}
+
+.ta1-cell {
+  background: var(--color-background);
+  border-radius: var(--radius-xs);
+}
+
+/* Landing cells — animate from empty to die color when dice are placed */
+.ta1-land--1 {
+  animation: ta1-land-1 calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta1-land--2 {
+  animation: ta1-land-2 calc(var(--duration-xslow) * 6) ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw; /* 7.92px ≈ die × 0.18 */
+  box-sizing: border-box;
+}
+
+/* Tray */
+.ta1-tray {
+  position: absolute;
+  left: 14.29cqw; /* 24px */
+  top:  80.95cqw; /* 136px */
+  width:  71.43cqw; /* 120px */
+  height: 40.48cqw; /* 68px */
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Dice — tray size: 13cqw (fits rotated pair in tray: 2×13 + 2×7.14pad = 40.28 ≤ 40.48cqw) */
+.ta1-die {
+  position: absolute;
+  width: 13cqw;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xs);
+  animation: ta1-die-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+.ta1-die--1 {
+  background: var(--color-die-1);
+  left: 35.82cqw; /* pair centered in tray, space-1 (2.38cqw) gap */
+  top:  94.69cqw; /* vertically centered in tray */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta1-die--2 {
+  background: var(--color-die-2);
+  left: 51.20cqw; /* 35.82 + 13 + 2.38 */
+  top:  94.69cqw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.34cqw; /* 0.18 × 13cqw */
+  box-sizing: border-box;
+}
+
+/* Pips */
+.ta1-pip {
+  display: block;
+  width:  3.57cqw; /* 6px */
+  height: 3.57cqw;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+}
+
+/* Diagonal pip alignment (shared by die-2 and land-2) */
+.ta1-pip--tl { align-self: flex-end; }
+.ta1-pip--br { align-self: flex-start; }
+
+/* Tray dice are smaller than grid cells, so pips scale down proportionally */
+.ta1-die .ta1-pip { width: 2cqw; height: 2cqw; }
+
+/* Pips in landing cells are hidden until die is placed */
+.ta1-land .ta1-pip {
+  opacity: 0;
+  animation: ta1-pip-fade calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+/* Hand cursor */
+.ta1-hand {
+  position: absolute;
+  color: var(--color-primary);
+  width: 23.81cqw; /* 40px */
+  aspect-ratio: 1;
+  /* Top-left placed at tray pair-center; translates to cell-pair midpoint on grid */
+  left: 50.01cqw; /* tray pair-mid-x = (35.82+6.5 + 51.20+6.5) / 2 */
+  top: 101.19cqw; /* tray pair-mid-y = die_top(94.69) + half-die(6.5) */
+  width: 20cqw;   /* reduced so bottom stays within scene (101.19+20=121.19 ≤ 121.43) */
+  animation: ta1-hand-anim calc(var(--duration-xslow) * 6) ease-in-out infinite;
+}
+
+/* Dice: float from tray → bounce into grid → fade (board cell takes over) → reset */
+@keyframes ta1-die-anim {
+  0%,  20% { transform: translate(0, 0) scale(1);                           opacity: 1; }
+  52%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 1;
+             animation-timing-function: ease-out; }
+  56%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1.12); opacity: 1;
+             animation-timing-function: ease-in; }
+  60%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 1; }
+  63%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 0; }
+  88%      { transform: translate(var(--ta1-dx), var(--ta1-dy)) scale(1);   opacity: 0; }
+  89%      { transform: translate(0, 0) scale(1);                           opacity: 0; }
+  100%     { transform: translate(0, 0) scale(1);                           opacity: 1; }
+}
+
+/* Hand: follows dice to grid → stays visible while placed → fades at reset */
+@keyframes ta1-hand-anim {
+  0%,  20% { transform: translate(0, 0);                              opacity: 1; }
+  52%, 78% { transform: translate(var(--ta1-dx), var(--ta1-dy));     opacity: 1; }
+  88%      { transform: translate(var(--ta1-dx), var(--ta1-dy));     opacity: 0; }
+  89%      { transform: translate(0, 0);                              opacity: 0; }
+  100%     { transform: translate(0, 0);                              opacity: 1; }
+}
+
+/* Landing cells light up with die color as dice fade out */
+@keyframes ta1-land-1 {
+  0%,  62% { background: var(--color-background); }
+  63%, 78% { background: var(--color-die-1); }
+  88%, 100% { background: var(--color-background); }
+}
+
+@keyframes ta1-land-2 {
+  0%,  62% { background: var(--color-background); }
+  63%, 78% { background: var(--color-die-2); }
+  88%, 100% { background: var(--color-background); }
+}
+
+/* Pips in landing cells reveal with the cell */
+@keyframes ta1-pip-fade {
+  0%,  62% { opacity: 0; }
+  63%, 78% { opacity: 1; }
+  88%, 100% { opacity: 0; }
+}
+
+/* Compact vsep (space-2 = 8px) on short screens — tray moves up, dy shortens */
+@media (max-width: 390px) {
+  .ta1-scene        { aspect-ratio: 168 / 192; --ta1-dy: -44.05cqw; } /* 192 = 116+8+68 */
+  .ta1-tray         { top: 73.81cqw; } /* (116+8)/168×100 */
+  .ta1-die--1,
+  .ta1-die--2       { top: 87.55cqw; } /* tray_top(73.81)+tpad(7.14)+v_center(6.60) */
+  .ta1-hand         { top: 94.05cqw; } /* die_top(87.55)+half_die(6.5) */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta1-die, .ta1-hand, .ta1-land--1, .ta1-land--2, .ta1-land .ta1-pip { animation: none; }
+}

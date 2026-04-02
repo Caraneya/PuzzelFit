@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" id="game-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dobbelaar — Game Bible</title>
+  <link rel="stylesheet" href="../../tokens.css" />
+  <link rel="stylesheet" href="../../components.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; min-height: 100%;
+      background: var(--color-background);
+      font-family: var(--font-family-secondary);
+      color: var(--color-text-primary);
+    }
+
+    .bible-layout {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-5) var(--space-8);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    /* ── HEADER ── */
+    .bible-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .bible-header__icon {
+      width: 64px; height: 64px;
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bible-header__icon img { width: 100%; height: 100%; object-fit: contain; }
+    .bible-header__text { display: flex; flex-direction: column; gap: var(--space-1); }
+    .bible-header__title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h2);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      line-height: 1.2;
+    }
+    .bible-header__sub {
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+    }
+
+    /* ── PROTOTYPE BUTTON ── */
+    .bible-proto-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      background: var(--color-primary);
+      color: var(--color-surface);
+      border: none; border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      font-family: var(--font-family-secondary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      text-decoration: none;
+      width: 100%;
+      justify-content: center;
+    }
+    .bible-proto-btn:hover { opacity: 0.9; }
+    .bible-proto-btn__icon { display: flex; align-items: center; justify-content: center; }
+
+    /* ── SECTION ── */
+    .bible-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .bible-section__label {
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      padding-bottom: var(--space-2);
+      border-bottom: 1.5px solid var(--color-border);
+    }
+    .bible-card {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+    }
+    .bible-card p {
+      font-size: var(--font-size-body);
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+    }
+
+    /* ── TAG LIST ── */
+    .bible-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .bible-tag {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+    .bible-tag--win {
+      background: color-mix(in srgb, var(--color-success) 12%, transparent);
+      border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+      color: var(--color-success);
+    }
+    .bible-tag--lose {
+      background: color-mix(in srgb, var(--color-error) 12%, transparent);
+      border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+      color: var(--color-error);
+    }
+
+    /* ── NUMBERED LIST ── */
+    .bible-step-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .bible-step {
+      display: flex;
+      gap: var(--space-3);
+      align-items: flex-start;
+    }
+    .bible-step__num {
+      width: 24px; height: 24px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary);
+      color: var(--color-surface);
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-bold);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .bible-step__text {
+      font-size: var(--font-size-body);
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+      padding-top: 2px;
+    }
+
+    /* ── SCORE BAR PREVIEW ── */
+    .bible-scorebar-preview {
+      display: flex;
+      gap: var(--space-4);
+    }
+    .bible-scorebar-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+    .bible-scorebar-item__icon { display: flex; }
+
+    /* ── STAT GRID ── */
+    .bible-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+    .bible-stat {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    .bible-stat__label {
+      font-size: 10px;
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+    }
+    .bible-stat__value {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h4);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    /* ── BACK LINK ── */
+    .bible-back {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-primary);
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .bible-back:hover { opacity: 0.8; }
+    .bible-back__icon { display: flex; }
+  </style>
+</head>
+<body>
+
+  <div class="bible-layout">
+
+    <!-- Back -->
+    <button class="bible-back" id="btn-back">
+      <span class="bible-back__icon" id="icon-back"></span>
+      All games
+    </button>
+
+    <!-- Header -->
+    <div class="bible-header">
+      <div class="bible-header__icon">
+        <img src="./dobbelaar_icon.svg" alt="Dobbelaar icon" />
+      </div>
+      <div class="bible-header__text">
+        <span class="bible-header__title">Dobbelaar</span>
+        <span class="bible-header__sub">Game Bible · In Development</span>
+      </div>
+    </div>
+
+    <!-- Open prototype CTA -->
+    <a class="bible-proto-btn" href="./dobbelaar.html">
+      <span class="bible-proto-btn__icon" id="icon-proto"></span>
+      Open Flow Prototype
+    </a>
+
+    <!-- Primary Action -->
+    <div class="bible-section">
+      <span class="bible-section__label">Primary Action</span>
+      <div class="bible-card">
+        <p>Each turn the player is given either one or two dice. The player can place them on the board by dragging the dice onto the grid. Before placing, the player can also rotate a pair by tapping on it — each tap rotates it 90°. Once placed, dice are fixed. The player can also "hold" dice using the parking option. Parking can hold one die or pair at a time. Dragging from the spawner to a filled parking spot swaps their contents.</p>
+      </div>
+    </div>
+
+    <!-- Match Rule -->
+    <div class="bible-section">
+      <span class="bible-section__label">Match Rule</span>
+      <div class="bible-card">
+        <p>Three or more dice of the same value placed adjacent to each other combine, match, and merge — adding to the score. If the sum of the merging dice exceeds 6, the matching dice disappear from the board. If the sum is ≤ 6, they are replaced by one die showing the sum. For example: three 1-dice → one 3-die.</p>
+      </div>
+    </div>
+
+    <!-- Win / Lose -->
+    <div class="bible-section">
+      <span class="bible-section__label">Win Conditions</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag bible-tag--win">Reach Score Target</span>
+        <span class="bible-tag bible-tag--win">Survive the Timer</span>
+        <span class="bible-tag bible-tag--win">Chain Reaction Goal</span>
+        <span class="bible-tag bible-tag--win">Daily Challenge</span>
+        <span class="bible-tag bible-tag--win">Reach score in given merges</span>
+      </div>
+    </div>
+
+    <div class="bible-section">
+      <span class="bible-section__label">Lose Conditions</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag bible-tag--lose">Board Full / No Space</span>
+        <span class="bible-tag bible-tag--lose">Timer Runs Out</span>
+        <span class="bible-tag bible-tag--lose">No Valid Moves Left</span>
+      </div>
+    </div>
+
+    <!-- Tutorial -->
+    <div class="bible-section">
+      <span class="bible-section__label">Tutorial (5 steps)</span>
+      <div class="bible-step-list">
+        <div class="bible-step"><span class="bible-step__num">1</span><span class="bible-step__text">Place your dice: You get 1 or 2 dice each turn. Drag them on an empty cell to place them on the grid.</span></div>
+        <div class="bible-step"><span class="bible-step__num">2</span><span class="bible-step__text">Rotate and match: Rotate your dice by tapping on them once. Place the matching next to each other.</span></div>
+        <div class="bible-step"><span class="bible-step__num">3</span><span class="bible-step__text">Merge and add to score: You score points merging three or more similar dice. If the total adds up to 6, the dice disappear from the board.</span></div>
+        <div class="bible-step"><span class="bible-step__num">4</span><span class="bible-step__text">Parking spot: Rotate your piece or stash it in the parking spot to play something else first.</span></div>
+        <div class="bible-step"><span class="bible-step__num">5</span><span class="bible-step__text">More pairs = higher score: Increase your score by matching all the dice on the grid.</span></div>
+      </div>
+    </div>
+
+    <!-- Score Bar -->
+    <div class="bible-section">
+      <span class="bible-section__label">Score Bar</span>
+      <div class="bible-card">
+        <div class="bible-scorebar-preview">
+          <div class="bible-scorebar-item">
+            <span class="bible-scorebar-item__icon" id="icon-score"></span>
+            Score
+          </div>
+          <div class="bible-scorebar-item">
+            <span class="bible-scorebar-item__icon" id="icon-merges"></span>
+            Merges
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="bible-section">
+      <span class="bible-section__label">Settings</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag">Theme (Dark / Light)</span>
+        <span class="bible-tag">Sound Effects</span>
+        <span class="bible-tag">Background Music</span>
+        <span class="bible-tag">Dominant Hand</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="bible-section">
+      <span class="bible-section__label">Statistics</span>
+      <div class="bible-stat-grid">
+        <div class="bible-stat"><span class="bible-stat__label">Games Played</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Current Streak</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Best Score</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Average Score</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Win Rate</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Time Played</span><span class="bible-stat__value">—</span></div>
+      </div>
+    </div>
+
+    <!-- Skill Expression -->
+    <div class="bible-section">
+      <span class="bible-section__label">Skill Expression</span>
+      <div class="bible-card">
+        <p>An expert plans ahead — leaving space to avoid premature merges so they can form bigger, higher-value combinations. A beginner places dice close together to quickly get three of the same type.</p>
+      </div>
+    </div>
+
+    <!-- Depth Layer -->
+    <div class="bible-section">
+      <span class="bible-section__label">Depth Layer (Future Mechanics)</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag">Time-based challenges</span>
+        <span class="bible-tag">Maximum merge count</span>
+        <span class="bible-tag">Null dice-block (fills space, scores nothing)</span>
+      </div>
+    </div>
+
+    <!-- Animation & Feel -->
+    <div class="bible-section">
+      <span class="bible-section__label">Animation Mood</span>
+      <div class="bible-card">
+        <p>Calm. When dice combine, the animation should feel satisfying — merges have a pop/scale effect and score points animate upward from the merge position.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../../icons.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Icons.render(document.getElementById('icon-back'),   'chevronLeft', { size: 'sm', color: 'primary' });
+      Icons.render(document.getElementById('icon-proto'),  'play',        { size: 'sm' });
+      Icons.render(document.getElementById('icon-score'),  'target',      { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('icon-merges'), 'merges',      { size: 'md', color: 'primary' });
+
+      document.getElementById('btn-back').addEventListener('click', () => {
+        window.location.href = '../../GamePage.html';
+      });
+    });
+  </script>
+</body>
+</html>
