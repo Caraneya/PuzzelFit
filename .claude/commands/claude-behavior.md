@@ -67,6 +67,7 @@ Output this summary block once confirmed:
 ### What Claude does without asking
 - Create, edit files inside permitted folders
 - Create subfolders inside permitted folders
+- Speak like a caveman
 
 ### What Claude always asks before doing (even inside permitted folders)
 - Deleting a file or folder

@@ -630,7 +630,11 @@
         <tr><td><code class="token-name">--font-size-button</code></td><td><span class="token-val">0.875rem (14px)</span></td><td class="token-cat">Type</td><td>Button labels</td></tr>
         <tr><td><code class="token-name">--font-size-small</code></td><td><span class="token-val">0.75rem (12px)</span></td><td class="token-cat">Type</td><td>Captions, badges</td></tr>
         <tr><td><code class="token-name">--radius-full</code></td><td><span class="token-val">9999px</span></td><td class="token-cat">Radius</td><td>Pills, badges, toggles</td></tr>
+        <tr><td><code class="token-name">--duration-instant</code></td><td><span class="token-val">100ms</span></td><td class="token-cat">Animation</td><td>Button press states, instant feedback</td></tr>
+        <tr><td><code class="token-name">--duration-fast</code></td><td><span class="token-val">150ms</span></td><td class="token-cat">Animation</td><td>Toggle track, segment, scrollbar thumb</td></tr>
         <tr><td><code class="token-name">--duration-normal</code></td><td><span class="token-val">250ms</span></td><td class="token-cat">Animation</td><td>Standard transitions</td></tr>
+        <tr><td><code class="token-name">--duration-slow</code></td><td><span class="token-val">400ms</span></td><td class="token-cat">Animation</td><td>Screen fade in/out, modal entry</td></tr>
+        <tr><td><code class="token-name">--duration-xslow</code></td><td><span class="token-val">600ms</span></td><td class="token-cat">Animation</td><td>Sheet slide-in, complex transitions</td></tr>
         <tr><td><code class="token-name">--easing-bounce</code></td><td><span class="token-val">cubic-bezier(0.34,1.56,0.64,1)</span></td><td class="token-cat">Animation</td><td>Dice placement, merge</td></tr>
         <tr><td><code class="token-name">--min-touch-target</code></td><td><span class="token-val">44px</span></td><td class="token-cat">Layout</td><td>All interactive elements</td></tr>
       </tbody>
@@ -742,7 +746,13 @@
             <span class="component-name">.btn--success</span>
             <span class="component-source">Figma: Button / FixedGreen</span>
           </div>
-          <pre class="component-code">&lt;button class="btn btn--success"&gt;Open&lt;/button&gt;</pre>
+          <pre class="component-code">&lt;button class="btn btn--success"&gt;Open&lt;/button&gt;
+
+/* Size overrides via CSS custom properties: */
+.my-context .btn--success {
+  --btn-success-w:     84px;  /* default */
+  --btn-success-min-h: 40px;  /* default */
+}</pre>
         </div>
 
         <!-- Icon-only -->
@@ -777,7 +787,13 @@ Icons.render(el, 'chevronLeft', { size: 'md', color: 'primary' });</pre>
             <span class="component-name">.btn--pill</span>
             <span class="component-source">Figma: SmallPillButton</span>
           </div>
-          <pre class="component-code">&lt;button class="btn btn--pill"&gt;Play&lt;/button&gt;</pre>
+          <pre class="component-code">&lt;button class="btn btn--pill"&gt;Play&lt;/button&gt;
+
+/* Size overrides via CSS custom properties: */
+.my-context .btn--pill {
+  --btn-pill-w: 68px;  /* default */
+  --btn-pill-h: 28px;  /* default */
+}</pre>
         </div>
 
       </div>
@@ -1623,6 +1639,13 @@ Icons.render(el, 'chevronLeft', { size: 'md', color: 'primary' });</pre>
             &lt;span class="stt-toggle__slider"&gt;&lt;/span&gt;
           &lt;/label&gt;
         &lt;/div&gt;
+        &lt;!-- Toggle dimensions via CSS custom properties (set on .stt-toggle):
+          --toggle-track-w   52px   track width
+          --toggle-track-h   32px   track height
+          --toggle-thumb     27px   thumb diameter
+          --toggle-offset    2.5px  thumb inset from edges
+          --toggle-travel    auto   computed: track-w - thumb - offset*2
+          --toggle-inactive  color  track color when off (dark-mode aware) --&gt;
         &lt;div class="divider"&gt;&lt;/div&gt;
         &lt;!-- segmented row --&gt;
         &lt;div class="stt-row"&gt;
@@ -2070,6 +2093,108 @@ Icons.render(el, 'chevronLeft', { size: 'md', color: 'primary' });</pre>
       </div><!-- /popup-grid -->
     </section>
 
+    <!-- ── SECTION: SHARED UTILITIES ──────────────────────────── -->
+    <section class="section" id="sec-game-utils">
+      <div class="section-header">
+        <div class="section-number">10</div>
+        <h2 class="section-title">Shared Utilities (game-utils.js)</h2>
+      </div>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-bottom:var(--space-6);">
+        All games load <code>game-utils.js</code> after <code>icons.js</code>. Every function lives on the <code>GameUtils</code> namespace.
+      </p>
+
+      <table class="commands-table">
+        <thead>
+          <tr><th>Method</th><th>Signature</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>navigateTo</code></td>
+            <td><code>navigateTo(screenId)</code></td>
+            <td>Fade between <code>.proto-screen</code> elements. Uses <code>--duration-slow</code> (400ms).</td>
+          </tr>
+          <tr>
+            <td><code>openPopup / closePopup</code></td>
+            <td><code>(id)</code></td>
+            <td>Adds/removes <code>.is-open</code> on a <code>.overlay</code> element.</td>
+          </tr>
+          <tr>
+            <td><code>openSheet / closeSheet</code></td>
+            <td><code>(id)</code></td>
+            <td>Adds/removes <code>.is-open</code> on a <code>.sheet-overlay</code> element.</td>
+          </tr>
+          <tr>
+            <td><code>switchSheet</code></td>
+            <td><code>(fromId, action, delay = 100)</code></td>
+            <td>Closes one sheet then runs <code>action()</code> after <code>delay</code>ms. Default 100ms lets the close animation start before the next thing opens. Use <code>TIMING.NAV_DELAY</code> (400ms) when navigating away.</td>
+          </tr>
+          <tr>
+            <td><code>initSheetDismiss</code></td>
+            <td><code>(onDismiss)</code></td>
+            <td>Wires scrim-click dismiss for all <code>.sheet-overlay</code> elements. Skips those with <code>data-no-dismiss</code> (win/lose sheets).</td>
+          </tr>
+          <tr>
+            <td><code>showToast</code></td>
+            <td><code>(toastId, msg, duration = 2200)</code></td>
+            <td>Shows a toast for <code>duration</code>ms. Pass a custom duration when the toast follows a sheet close — use <code>TIMING.TOAST_DELAY</code> (300ms) as the <em>setTimeout</em> wrapper delay, not this parameter.</td>
+          </tr>
+          <tr>
+            <td><code>makeTimer</code></td>
+            <td><code>(groupEl, iconEl, displayEl)</code></td>
+            <td>Returns <code>{ start, pause, reset, isRunning }</code>. Renders pause/play icon automatically.</td>
+          </tr>
+          <tr>
+            <td><code>initSheetScrollbar</code></td>
+            <td><code>(wrapId, thumbId)</code></td>
+            <td>Custom scrollbar for sheet list areas. Init all sheet scrollbars in a loop: <code>['instr','cal','stats','settings','feedback'].forEach(n =&gt; GameUtils.initSheetScrollbar(`game-${n}-wrap`, `game-${n}-thumb`))</code></td>
+          </tr>
+          <tr>
+            <td><code>setTheme</code></td>
+            <td><code>(theme, segmentId, storageKey)</code></td>
+            <td>Sets <code>data-theme</code> on <code>&lt;html&gt;</code>, syncs segment UI, persists to localStorage.</td>
+          </tr>
+          <tr>
+            <td><code>initCalendar</code></td>
+            <td><code>(prefix)</code></td>
+            <td>Full calendar with prev/next navigation. Derives all element IDs from <code>prefix</code> (e.g. <code>'db'</code> → <code>'db-cal-title'</code>).</td>
+          </tr>
+          <tr>
+            <td><code>initFeedbackForm</code></td>
+            <td><code>(prefix)</code></td>
+            <td>Star rating + checkbox. IDs derived from prefix.</td>
+          </tr>
+          <tr>
+            <td><code>initHomeDate</code></td>
+            <td><code>(prefix)</code></td>
+            <td>Sets date label and fills last-week day name rows on the home screen.</td>
+          </tr>
+          <tr>
+            <td><code>buildStreakGrid</code></td>
+            <td><code>(gridId)</code></td>
+            <td>Renders the 7-day streak calendar row inside a <code>.cal-day</code> grid.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-body);margin-top:var(--space-6);margin-bottom:var(--space-2);">
+        <strong style="color:var(--color-text-primary);">TIMING constants</strong> — Each game should define a <code>TIMING</code> object at the top of its JS file so every <code>setTimeout</code> duration is named, not a magic number:
+      </p>
+      <pre class="component-code" style="margin-top:0">const TIMING = {
+  MERGE_1:          30,   // delay before first merge check
+  MERGE_2:          80,   // cascaded merge re-check
+  MERGE_ANIM:      360,   // merge animation hold
+  FLOAT_REMOVE:    750,   // floating score label cleanup
+  SHEET_OPEN:      600,   // sheet delay  — matches --duration-slow×1.5
+  SHEET_SWITCH:    100,   // close → open gap (switchSheet default)
+  NAV_DELAY:       400,   // navigate after sheet — matches --duration-slow
+  POPUP_SHOW:      500,   // popup after screen transition
+  POPUP_QUICK:     200,   // fast popup (e.g. post-tutorial)
+  TOAST_DELAY:     300,   // toast after sheet close starts
+  LOADING_DELAY:  2000,   // loading screen minimum
+  HINT_AUTO_CLOSE: 5000,  // hint banner auto-dismiss
+};</pre>
+    </section>
+
     <!-- ── SECTION: CLAUDE COMMANDS ──────────────────────────── -->
     <section class="section" id="sec-claude-commands">
       <div class="section-header">
@@ -2188,6 +2313,7 @@ Icons.render(el, 'chevronLeft', { size: 'md', color: 'primary' });</pre>
       <a class="nav-link" href="#sec-gameplay-screens">Gameplay Screens</a>
       <a class="nav-link" href="#sec-game-sheets">Game Sheets</a>
       <a class="nav-link" href="#sec-popup-sheets">Pop-up Sheets</a>
+      <a class="nav-link" href="#sec-game-utils">Shared Utilities</a>
       <a class="nav-link" href="#sec-claude-commands">Claude Commands</a>
 
       <div class="nav-group-label">Theme</div>

@@ -56,13 +56,21 @@ const GameUtils = {
 
   // ── TOAST ───────────────────────────────────────────────────
   _toastTimer: null,
-  showToast(toastId, msg) {
+  showToast(toastId, msg, duration = 2200) {
     const el = document.getElementById(toastId);
     if (!el) return;
     el.textContent = msg;
     el.classList.add('toast--visible');
     clearTimeout(this._toastTimer);
-    this._toastTimer = setTimeout(() => el.classList.remove('toast--visible'), 2200);
+    this._toastTimer = setTimeout(() => el.classList.remove('toast--visible'), duration);
+  },
+
+  // ── SHEET SWITCH ────────────────────────────────────────────
+  // Close one sheet then run an action after a short delay (default 100ms
+  // lets the close animation start before the next thing opens).
+  switchSheet(fromId, action, delay = 100) {
+    this.closeSheet(fromId);
+    setTimeout(action, delay);
   },
 
   // ── TIMER ───────────────────────────────────────────────────

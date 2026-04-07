@@ -419,10 +419,10 @@ html, body {
 /* Tray */
 .ta1-tray {
   position: absolute;
-  left: 14.29cqw; /* 24px */
-  top:  80.95cqw; /* 136px */
-  width:  71.43cqw; /* 120px */
-  height: 40.48cqw; /* 68px */
+  left: 28cqw;
+  top:  80.95cqw;
+  width:  44cqw;
+  height: 40.48cqw;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -622,9 +622,9 @@ html, body {
 /* Tray */
 .ta2-tray {
   position: absolute;
-  left: 14.29cqw;
+  left: 28cqw;
   top:  80.95cqw;
-  width:  71.43cqw;
+  width:  44cqw;
   height: 40.48cqw;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
@@ -923,9 +923,9 @@ html, body {
 /* Tray */
 .ta3-tray {
   position: absolute;
-  left: 14.29cqw;
+  left: 28cqw;
   top:  80.95cqw;
-  width:  71.43cqw;
+  width:  44cqw;
   height: 40.48cqw;
   background: var(--color-surface);
   border: 2px solid var(--color-border);
@@ -1085,20 +1085,46 @@ html, body {
   61%, 100% { opacity: 0; }
 }
 
-/* Pre-placed blue cells: blue → surface flash at merge → empty during hold → fade-in at reset */
+/* Pre-placed blue cells: blue → surface flash at merge → empty during hold → fade-in at reset.
+   Flicker fix: fade opacity to 0 while still on --color-background (88→91%),
+   then snap to --color-die-2 when invisible (92%), then fade back in (92→100%). */
 @keyframes ta3-preblue {
   0%,  59%  { background: var(--color-die-2); opacity: 1; }
   61%       { background: var(--color-surface); opacity: 1; }
   63%, 88%  { background: var(--color-background); opacity: 1; }
+  91%       { background: var(--color-background); opacity: 0; }
   92%       { background: var(--color-die-2); opacity: 0; }
   100%      { background: var(--color-die-2); opacity: 1; }
 }
 
-/* Pips in pre-placed blue cells — parent opacity drives the fade-in */
+/* Pips in pre-placed blue cells — keep at 0 through parent fade-out to avoid ghost flash */
 @keyframes ta3-prepip {
   0%,  59%  { opacity: 1; }
-  63%, 88%  { opacity: 0; }
-  92%, 100% { opacity: 1; }
+  63%, 92%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+
+/* Score popup: floats up from merged die center (64%), fades before the hold ends (86%). */
+.ta3-score {
+  position: absolute;
+  left: calc(36.90cqw + 2px + 13.1cqw); /* center-x of merged die */
+  top:  calc(36.90cqw + 2px);
+  transform: translateX(-50%);
+  font-size: 6cqw;
+  font-weight: 700;
+  color: var(--color-accent);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ta3-score-anim calc(var(--duration-xslow) * 7) ease-in-out infinite;
+}
+
+@keyframes ta3-score-anim {
+  0%,  63%  { opacity: 0; transform: translateX(-50%) translateY(0); }
+  64%        { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%        { opacity: 1; transform: translateX(-50%) translateY(-10cqw); }
+  86%        { opacity: 0; transform: translateX(-50%) translateY(-12cqw); }
+  88%, 100%  { opacity: 0; transform: translateX(-50%) translateY(0); }
 }
 
 /* Merged die: pops in at 64%, holds 1s (64–88% of 4200ms = 1008ms), fades at 88–92%. */
@@ -1122,7 +1148,407 @@ html, body {
   .ta3-land--r, .ta3-land--b,
   .ta3-land--r .ta3-pip, .ta3-land--b .ta3-pip,
   .ta3-preblue, .ta3-preblue .ta3-pip,
-  .ta3-merged { animation: none; }
+  .ta3-merged, .ta3-score { animation: none; }
   .ta3-preblue { background: var(--color-die-2); }
   .ta3-merged  { opacity: 0; }
+  .ta3-score   { opacity: 0; }
+}
+
+/* ── Step 4: Parking mechanic ──────────────────────────────────────────────────
+   Continues from step 3 end state: reds at (0,0)/(0,2), green-1 at (1,0), die-6 at (1,1).
+   Parking tray slides in from left (5–16%), regular tray shifts right simultaneously.
+   Beat 1: green pair parks (29%), single red-4 placed at (0,1) (47%) → 3 reds merge (51%).
+   Beat 2: parked pair retrieved (70%) → placed at (0,0)+(0,1) (82%) → 3 greens → die-3 (84%).
+   Cycle: 12× xslow = 7200ms. */
+.ta4-scene {
+  container-type: inline-size;
+  container-name: ta4;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 168 / 204;
+  --ta4-dy:      -82.14cqw;  /* tray centre Y → grid row-0 centre Y */
+  --ta4-dx-init: -25cqw;     /* pair: centred reg tray (before trays settle) */
+  --ta4-dx-grid: -40.48cqw;  /* pair: park-tray base → grid cells */
+  --ta4-dx-rdie: +25cqw;     /* single red die: left reg-tray base → cell (0,1) */
+}
+
+/* Grid — identical structure to steps 1–3 */
+.ta4-grid {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100cqw;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  display: grid;
+  grid-template-columns: repeat(3, 26.19cqw);
+  grid-template-rows: repeat(2, 26.19cqw);
+  gap: 4.76cqw;
+  padding: 5.95cqw;
+  box-sizing: border-box;
+}
+
+.ta4-cell {
+  background: var(--color-background);
+  border-radius: var(--radius-xs);
+}
+
+/* Static die-6 at (1,1): dark navy, 3×2 pip grid */
+.ta4-cell--6 {
+  background: var(--color-die-6);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
+  place-items: center;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+.ta4-pip {
+  display: block;
+  width: 3.57cqw;
+  height: 3.57cqw;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+/* ── Absolute die overlays (each fills a full grid cell: 26.19×26.19cqw) ── */
+.ta4-rdie, .ta4-gdie {
+  position: absolute;
+  width: 26.19cqw;
+  height: 26.19cqw;
+  border-radius: var(--radius-xs);
+  padding: 4.71cqw;
+  box-sizing: border-box;
+}
+
+/* Red-4 overlays: 2×2 pip grid */
+.ta4-rdie {
+  background: var(--color-die-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  place-items: center;
+}
+
+/* Red-4 at cell (0,0): visible from start, fades at red merge */
+.ta4-rdie--a {
+  left: calc(5.95cqw + 2px);
+  top:  calc(5.95cqw + 2px);
+  animation: ta4-rdie-ac calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Red-4 at cell (0,1): only appears when single die lands */
+.ta4-rdie--b {
+  left: calc(36.90cqw + 2px);
+  top:  calc(5.95cqw + 2px);
+  opacity: 0;
+  animation: ta4-rdie-b calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Red-4 at cell (0,2): visible from start, fades at red merge */
+.ta4-rdie--c {
+  left: calc(67.85cqw + 2px);
+  top:  calc(5.95cqw + 2px);
+  animation: ta4-rdie-ac calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Green-1 at cell (1,0): single centred pip */
+.ta4-gdie {
+  background: var(--color-die-1);
+  left: calc(5.95cqw + 2px);
+  top:  calc(36.90cqw + 2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ta4-gdie-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Merged die-3 at cell (0,0): orange, 3-pip diagonal */
+.ta4-merged3 {
+  position: absolute;
+  left: calc(5.95cqw + 2px);
+  top:  calc(5.95cqw + 2px);
+  width: 26.19cqw;
+  height: 26.19cqw;
+  border-radius: var(--radius-xs);
+  background: var(--color-die-3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4.71cqw;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: ta4-merged3-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+.ta4-mpip {
+  display: block;
+  width: 3.57cqw;
+  height: 3.57cqw;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.ta4-mpip--r { align-self: flex-end; }
+.ta4-mpip--c { align-self: center; }
+.ta4-mpip--l { align-self: flex-start; }
+
+/* ── Score popups ── */
+.ta4-score {
+  position: absolute;
+  font-size: 6cqw;
+  font-weight: 700;
+  color: var(--color-accent);
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+/* Red merge score: centred over top row */
+.ta4-score--r {
+  left: 50cqw;
+  top:  calc(5.95cqw + 2px);
+  animation: ta4-score-r-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Green merge score: centred over cell (0,0) */
+.ta4-score--g {
+  left: calc(19.05cqw + 2px);
+  top:  calc(5.95cqw + 2px);
+  animation: ta4-score-g-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* ── Trays ── */
+.ta4-tray {
+  position: absolute;
+  top:    80.95cqw;
+  width:  44cqw;
+  height: 40.48cqw;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Regular tray: left side. Starts centred (translateX +25), shifts left as parking arrives. */
+.ta4-tray--reg {
+  left: 3cqw;
+  animation: ta4-tray-reg-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Parking tray: right side. Slides in from off-screen right. */
+.ta4-tray--park {
+  left: 53cqw;
+  animation: ta4-tray-park-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+.ta4-park-p {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 9cqw;
+  font-weight: 800;
+  color: var(--color-primary);
+  opacity: 0.5;
+}
+
+/* ── Green pair: regular tray → parking tray → grid (0,0)+(0,1) ──
+   Base: left 60.81cqw (pair centre = 75cqw in right tray), top 94.69cqw */
+.ta4-pair {
+  position: absolute;
+  left: 60.81cqw;
+  top:  94.69cqw;
+  width: 28.38cqw;
+  height: 13cqw;
+  transform-origin: center;
+  opacity: 0;
+  animation: ta4-pair-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+.ta4-pdie {
+  position: absolute;
+  width: 13cqw;
+  height: 13cqw;
+  border-radius: var(--radius-xs);
+  background: var(--color-die-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ta4-pdie--1 { left: 0; }
+.ta4-pdie--2 { left: 15.38cqw; }
+
+.ta4-ppip {
+  display: block;
+  width: 2cqw;
+  height: 2cqw;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+/* Single red-4 die: spawns in left reg-tray (32%), moves to cell (0,1) (47%), fades at merge (51%).
+   Base: left 18.5cqw (centred in 44cqw reg-tray at left:3cqw), top 94.69cqw */
+.ta4-sdie {
+  position: absolute;
+  left: 18.5cqw;
+  top:  94.69cqw;
+  width:  13cqw;
+  height: 13cqw;
+  border-radius: var(--radius-xs);
+  background: var(--color-die-4);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  place-items: center;
+  padding: 1.5cqw;
+  box-sizing: border-box;
+  opacity: 0;
+  animation: ta4-sdie-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* Hand cursor: base at right-tray pair centre (75cqw, 101.19cqw) */
+.ta4-hand {
+  position: absolute;
+  left:  75cqw;
+  top:   101.19cqw;
+  width: 20cqw;
+  color: var(--color-primary);
+  opacity: 0;
+  animation: ta4-hand-anim calc(var(--duration-xslow) * 12) ease-in-out infinite;
+}
+
+/* ── Keyframes ── */
+
+/* Red-4 at (0,0) and (0,2): fade in at loop start, hold until red merge (51%), then clear */
+@keyframes ta4-rdie-ac {
+  0%        { opacity: 0; }
+  2%        { opacity: 1; }
+  51%       { opacity: 1; }
+  55%       { opacity: 0; }
+  100%      { opacity: 0; }
+}
+
+/* Red-4 at (0,1): appears when single die arrives (47%), fades at merge (51%) */
+@keyframes ta4-rdie-b {
+  0%, 47%  { opacity: 0; }
+  49%      { opacity: 1; }
+  51%      { opacity: 1; }
+  55%      { opacity: 0; }
+  100%     { opacity: 0; }
+}
+
+/* Green-1 at (1,0): fade in at start, holds until 87% (pair visible at grid), fades by 89% */
+@keyframes ta4-gdie-anim {
+  0%        { opacity: 0; }
+  2%        { opacity: 1; }
+  87%       { opacity: 1; }
+  89%       { opacity: 0; }
+  100%      { opacity: 0; }
+}
+
+/* Merged die-3: pops in at 87% (pair holds 82–87%), holds through score hold, fades at reset */
+@keyframes ta4-merged3-anim {
+  0%, 87%  { opacity: 0; transform: scale(0.85); }
+  90%      { opacity: 1; transform: scale(1); }
+  97%      { opacity: 1; transform: scale(1); }
+  99%      { opacity: 0; transform: scale(0.85); }
+}
+
+/* Red merge score: appears at 51%, floats up, fades by 66% */
+@keyframes ta4-score-r-anim {
+  0%, 51%  { opacity: 0; transform: translateX(-50%) translateY(0); }
+  53%      { opacity: 1; transform: translateX(-50%) translateY(0); }
+  62%      { opacity: 1; transform: translateX(-50%) translateY(-8cqw); }
+  66%      { opacity: 0; transform: translateX(-50%) translateY(-10cqw); }
+  68%, 100% { opacity: 0; transform: translateX(-50%) translateY(0); }
+}
+
+/* Green merge score: appears at 90% (once merged die is fully visible), floats up, fades by 97% */
+@keyframes ta4-score-g-anim {
+  0%, 90%  { opacity: 0; transform: translateX(-50%) translateY(0); }
+  92%      { opacity: 1; transform: translateX(-50%) translateY(0); }
+  95%      { opacity: 1; transform: translateX(-50%) translateY(-8cqw); }
+  97%      { opacity: 0; transform: translateX(-50%) translateY(-10cqw); }
+  99%, 100% { opacity: 0; transform: translateX(-50%) translateY(0); }
+}
+
+/* Regular tray: starts centred (+25cqw), shifts left to its position (0) as parking arrives */
+@keyframes ta4-tray-reg-anim {
+  0%, 5%    { transform: translateX(+25cqw); }
+  16%       { transform: translateX(0); }
+  97%       { transform: translateX(0); }
+  99%, 100% { transform: translateX(+25cqw); }
+}
+
+/* Parking tray: off-screen right, slides in from right 5–16%, snaps back at 99% */
+@keyframes ta4-tray-park-anim {
+  0%, 5%    { transform: translateX(+60cqw); }
+  16%       { transform: translateX(0); }
+  97%       { transform: translateX(0); }
+  99%, 100% { transform: translateX(+60cqw); }
+}
+
+/* Green pair: centred reg → settled reg (left) → park (right) → grid → fade at merge → reset */
+@keyframes ta4-pair-anim {
+  0%        { transform: translate(-25cqw, 0);                              opacity: 0; }
+  2%        { transform: translate(-25cqw, 0);                              opacity: 1; }
+  5%        { transform: translate(-25cqw, 0);                              opacity: 1; }
+  16%       { transform: translate(-50cqw, 0);                              opacity: 1; }
+  29%       { transform: translate(0, 0);                                   opacity: 1; }
+  70%       { transform: translate(0, 0);                                   opacity: 1; }
+  82%       { transform: translate(var(--ta4-dx-grid), var(--ta4-dy));      opacity: 1; }
+  87%       { transform: translate(var(--ta4-dx-grid), var(--ta4-dy));      opacity: 1; }
+  89%       { transform: translate(var(--ta4-dx-grid), var(--ta4-dy));      opacity: 0; }
+  99%, 100% { transform: translate(-25cqw, 0);                              opacity: 0; }
+}
+
+/* Single red die: spawns at 32%, moves to (0,1) at 47%, fades at merge (51%) */
+@keyframes ta4-sdie-anim {
+  0%, 32%   { opacity: 0; transform: translate(0, 0); }
+  34%       { opacity: 1; transform: translate(0, 0); }
+  47%       { transform: translate(var(--ta4-dx-rdie), var(--ta4-dy)); opacity: 1; }
+  51%       { transform: translate(var(--ta4-dx-rdie), var(--ta4-dy)); opacity: 0; }
+  52%, 100% { opacity: 0; transform: translate(0, 0); }
+}
+
+/* Hand: tracks each active element across the full sequence.
+   Base 75cqw = pair right-edge when in park tray (60.81+14.19).
+   Offsets: centred-reg=-25, settled-reg=-50, park=0, sdie-in-tray=-43.5, sdie-at-grid=-18.5 */
+@keyframes ta4-hand-anim {
+  0%        { transform: translate(-25cqw, 0);                              opacity: 0; }
+  2%        { transform: translate(-25cqw, 0);                              opacity: 1; }
+  5%        { transform: translate(-25cqw, 0);                              opacity: 1; }
+  16%       { transform: translate(-50cqw, 0);                              opacity: 1; }
+  17%       { transform: translate(-50cqw, 0);                              opacity: 1; }
+  29%       { transform: translate(0, 0);                                   opacity: 1; }
+  32%       { transform: translate(0, 0);                                   opacity: 1; }
+  34%       { transform: translate(-43.5cqw, 0);                           opacity: 1; }
+  47%       { transform: translate(-18.5cqw, var(--ta4-dy));                opacity: 1; }
+  63%       { transform: translate(-18.5cqw, var(--ta4-dy));                opacity: 1; }
+  67%       { transform: translate(0, 0);                                   opacity: 1; }
+  70%       { transform: translate(0, 0);                                   opacity: 1; }
+  82%       { transform: translate(var(--ta4-dx-grid), var(--ta4-dy));      opacity: 1; }
+  89%       { transform: translate(var(--ta4-dx-grid), var(--ta4-dy));      opacity: 0; }
+  99%, 100% { transform: translate(-25cqw, 0);                              opacity: 0; }
+}
+
+/* Compact: tray moves up, vertical delta shortens */
+@media (max-width: 390px) {
+  .ta4-scene { aspect-ratio: 168 / 192; --ta4-dy: -75.0cqw; }
+  .ta4-tray  { top: 73.81cqw; }
+  .ta4-pair  { top: 87.55cqw; }
+  .ta4-sdie  { top: 87.55cqw; }
+  .ta4-hand  { top: 94.05cqw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta4-rdie--a, .ta4-rdie--b, .ta4-rdie--c, .ta4-gdie,
+  .ta4-merged3, .ta4-score--r, .ta4-score--g,
+  .ta4-tray--reg, .ta4-tray--park,
+  .ta4-pair, .ta4-sdie, .ta4-hand { animation: none; }
+  .ta4-rdie--a, .ta4-rdie--c { opacity: 1; }
+  .ta4-gdie   { opacity: 1; }
+  .ta4-tray--reg  { transform: translateX(0); }
+  .ta4-tray--park { transform: translateX(0); }
+  .ta4-pair   { opacity: 1; transform: translate(-50cqw, 0); } /* settled in left reg tray */
+  .ta4-merged3, .ta4-score--r, .ta4-score--g { opacity: 0; }
 }

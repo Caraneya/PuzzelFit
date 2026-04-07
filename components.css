@@ -190,11 +190,13 @@
 
 /* Success — green rounded rectangle, used for inline row actions */
 .btn--success {
+  --btn-success-w:     84px;
+  --btn-success-min-h: 40px;
   background: var(--color-success);
   color: var(--color-text-on-primary);
   border-radius: var(--radius-sm);
-  width: 84px;
-  min-height: 40px;
+  width: var(--btn-success-w);
+  min-height: var(--btn-success-min-h);
   padding: var(--space-3);
   font-size: var(--font-size-button);
 }
@@ -230,14 +232,16 @@
 
 /* Small pill — used in row lists (e.g. Last Week days) */
 .btn--pill {
+  --btn-pill-w: 68px;
+  --btn-pill-h: 28px;
   background: var(--color-surface);
   color: var(--color-primary);
   border: var(--stroke-thin) solid var(--color-primary);
   border-radius: var(--radius-full);
   padding: 0 var(--space-3);
-  min-width: 68px;
-  width: 68px;
-  height: 30px;
+  min-width: var(--btn-pill-w);
+  width: var(--btn-pill-w);
+  height: var(--btn-pill-h);
   min-height: unset;
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-button);
@@ -329,7 +333,7 @@
   z-index: var(--z-modal);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 400ms ease-in;
+  transition: opacity var(--duration-slow) ease-in;
 }
 .sheet-overlay.is-open {
   opacity: 1;
@@ -342,7 +346,7 @@
   width: 100%;
   height: 85%;
   transform: translateY(100%);
-  transition: transform 400ms ease-in;
+  transition: transform var(--duration-slow) ease-in;
   background: var(--color-background);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   padding: var(--space-5) var(--space-5) var(--space-15);
@@ -479,7 +483,7 @@
   background: var(--color-border);
   border-radius: var(--radius-full);
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity var(--duration-fast);
   pointer-events: auto;
   cursor: grab;
 }
@@ -868,15 +872,26 @@
   justify-self: end;
 }
 
-/* iOS-style toggle — 52×32px */
+/* iOS-style toggle — dimensions controlled via local custom properties */
 .stt-toggle {
+  --toggle-track-w:   52px;
+  --toggle-track-h:   32px;
+  --toggle-thumb:     27px;
+  --toggle-offset:    2.5px;
+  --toggle-travel:    calc(var(--toggle-track-w) - var(--toggle-thumb) - var(--toggle-offset) * 2);
+  --toggle-inactive:  var(--color-text-tertiary);
   position: relative;
   display: inline-block;
-  width: 52px;
-  height: 32px;
+  width: var(--toggle-track-w);
+  height: var(--toggle-track-h);
   flex-shrink: 0;
   cursor: pointer;
 }
+
+@media (prefers-color-scheme: dark) {
+  .stt-toggle { --toggle-inactive: #636366; }
+}
+[data-theme="dark"] .stt-toggle { --toggle-inactive: #636366; }
 
 .stt-toggle input {
   position: absolute;
@@ -888,36 +903,30 @@
 .stt-toggle__slider {
   position: absolute;
   inset: 0;
-  background: var(--color-text-tertiary);
+  background: var(--toggle-inactive);
   border-radius: var(--radius-full);
-  transition: background 0.2s ease;
+  transition: background var(--duration-fast) ease;
 }
 
 .stt-toggle__slider::before {
   content: '';
   position: absolute;
-  width: 27px;
-  height: 27px;
-  left: 2.5px;
-  top: 2.5px;
+  width: var(--toggle-thumb);
+  height: var(--toggle-thumb);
+  left: var(--toggle-offset);
+  top: var(--toggle-offset);
   background: white;
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-fast) ease;
 }
-
-/* Dark mode: bump track contrast — #CCCCCC border becomes near-invisible */
-@media (prefers-color-scheme: dark) {
-  .stt-toggle__slider { background: #636366; }
-}
-[data-theme="dark"] .stt-toggle__slider { background: #636366; }
 
 .stt-toggle input:checked+.stt-toggle__slider {
   background: var(--color-success);
 }
 
 .stt-toggle input:checked+.stt-toggle__slider::before {
-  transform: translateX(20px);
+  transform: translateX(var(--toggle-travel));
 }
 
 /* Segmented control */
@@ -952,7 +961,7 @@
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-small);
   font-weight: var(--font-weight-semibold);
-  transition: background 0.15s, box-shadow 0.15s;
+  transition: background var(--duration-fast), box-shadow var(--duration-fast);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1604,9 +1613,7 @@
 }
 
 .home-game-icon {
-  width: 120px;
-  height: 120px;
-  background: var(--color-surface);
+  width: 32%;
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;

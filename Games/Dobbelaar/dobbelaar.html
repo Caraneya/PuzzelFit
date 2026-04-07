@@ -342,6 +342,8 @@
               <span class="ta3-mpip"></span>
               <span class="ta3-badge">!</span>
             </div>
+            <!-- Score popup: floats up after merge -->
+            <div class="ta3-score">+6</div>
             <!-- Tray -->
             <div class="ta3-tray"></div>
             <!-- Pair: red-4 (left) + blue-2 (right) -->
@@ -366,8 +368,75 @@
             </div>
           </div>
         </div>
-        <div class="tut-anim tut-anim--step-4" aria-hidden="true"></div>
-        <div class="tut-anim tut-anim--step-5" aria-hidden="true"></div>
+        <div class="tut-anim tut-anim--step-4" aria-hidden="true">
+          <div class="ta4-scene">
+            <!-- Grid: (0,0)=red-4 overlay, (0,1)=empty→red overlay, (0,2)=red-4 overlay,
+                       (1,0)=green-1 overlay, (1,1)=die-6 static, (1,2)=empty -->
+            <div class="ta4-grid">
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell ta4-cell--6">
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+              </div>
+              <div class="ta4-cell"></div>
+            </div>
+            <!-- Red-4 die overlays: (0,0) and (0,2) from step 3; (0,1) appears when single die lands -->
+            <div class="ta4-rdie ta4-rdie--a">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <div class="ta4-rdie ta4-rdie--b">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <div class="ta4-rdie ta4-rdie--c">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <!-- Green-1 die overlay at (1,0) -->
+            <div class="ta4-gdie"><span class="ta4-pip"></span></div>
+            <!-- Merged die-3 overlay at (0,0): appears after green merge -->
+            <div class="ta4-merged3">
+              <span class="ta4-mpip ta4-mpip--r"></span>
+              <span class="ta4-mpip ta4-mpip--c"></span>
+              <span class="ta4-mpip ta4-mpip--l"></span>
+            </div>
+            <!-- Score popups -->
+            <div class="ta4-score ta4-score--r">+12</div>
+            <div class="ta4-score ta4-score--g">+3</div>
+            <!-- Regular tray (shifts right when parking arrives) -->
+            <div class="ta4-tray ta4-tray--reg"></div>
+            <!-- Parking tray (slides in from screen left) -->
+            <div class="ta4-tray ta4-tray--park">
+              <span class="ta4-park-p">P</span>
+            </div>
+            <!-- Green pair: regular tray → parking → grid (0,0)+(0,1) -->
+            <div class="ta4-pair">
+              <div class="ta4-pdie ta4-pdie--1"><span class="ta4-ppip"></span></div>
+              <div class="ta4-pdie ta4-pdie--2"><span class="ta4-ppip"></span></div>
+            </div>
+            <!-- Single red-4 die: spawns in regular tray → placed at (0,1) -->
+            <div class="ta4-sdie">
+              <span class="ta4-ppip"></span><span class="ta4-ppip"></span>
+              <span class="ta4-ppip"></span><span class="ta4-ppip"></span>
+            </div>
+            <!-- Hand cursor -->
+            <div class="ta4-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div class="tutorial__info">
         <div class="tutorial__instruction">
@@ -398,7 +467,7 @@
   <div class="overlay" id="popup-goal" role="dialog" aria-modal="true">
     <div class="modal" style="text-align:center">
       <h2 class="modal__title">Today's Goal</h2>
-      <p class="modal__content">Reach <strong>250 points</strong> before the board fills. Merges that exceed 6 disappear from the board and score bonus points!</p>
+      <p class="modal__content">Reach <strong id="db-goal-target">300</strong> points before the board fills. Merges that exceed 6 disappear from the board and score bonus points!</p>
       <div class="modal__actions" style="margin-top:var(--space-5)">
         <button class="btn btn--primary" id="db-btn-ready">Ready to play</button>
       </div>

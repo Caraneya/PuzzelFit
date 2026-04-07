@@ -9,7 +9,6 @@ const TUTORIAL_STEPS = [
   { title: 'Rotate and match',          desc: 'Rotate your dice by tapping on them once. Place the matching dice next to each other.',                             icon: '🔄' },
   { title: 'Merge and score',            desc: 'You score points merging three or more similar dice. They merge into their sum, or disappear if the total is over 6.',  icon: '✨' },
   { title: 'Parking spot',              desc: 'Rotate your piece or stash it in the parking spot to play something else first.',                                    icon: '🅿️' },
-  { title: 'More pairs = higher score', desc: 'Increase your score by matching all the dice on the grid.',                                                          icon: '🏆' },
 ];
 
 // ── DIE RENDERING ───────────────────────────────────────────
@@ -33,6 +32,22 @@ function renderDie(value) {
 const GRID_ROWS    = 5;
 const GRID_COLS    = 5;
 const SCORE_TARGET = 300; // Today's challenge goal
+
+// ── TIMING ───────────────────────────────────────────────────
+const TIMING = {
+  MERGE_1:          30,   // delay before first merge check after placement
+  MERGE_2:          80,   // delay between cascaded merge checks
+  MERGE_ANIM:      360,   // merge animation duration (matches db-cell--merging CSS)
+  FLOAT_REMOVE:    750,   // floating score label cleanup
+  SHEET_OPEN:      600,   // sheet slide-in delay (matches --duration-xslow)
+  SHEET_SWITCH:    100,   // brief gap between sheet close and next open
+  NAV_DELAY:       400,   // navigation after sheet close (matches --duration-slow)
+  POPUP_SHOW:      500,   // popup appear delay after screen transition
+  POPUP_QUICK:     200,   // fast popup (e.g. after tutorial close)
+  TOAST_DELAY:     300,   // toast fires after sheet close animation starts
+  LOADING_DELAY:  2000,   // minimum loading screen duration
+  HINT_AUTO_CLOSE: 5000,  // hint banner auto-dismiss
+};
 
 // ── GAME STATE ───────────────────────────────────────────────
 let board   = [];
@@ -213,7 +228,7 @@ function doPlace(cells, dicesToPlace) {
   clearTimeout(hintTimeout);
   document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');
   renderBoard();
-  setTimeout(() => triggerMergeCheck(), 30);
+  setTimeout(() => triggerMergeCheck(), TIMING.MERGE_1);
 }
 
 function placeFromSpawner(row, col) {
@@ -409,8 +424,8 @@ function triggerMergeCheck() {
     );
 
     isMerging = false;
-    setTimeout(() => triggerMergeCheck(), 80);
-  }, 360);
+    setTimeout(() => triggerMergeCheck(), TIMING.MERGE_2);
+  }, TIMING.MERGE_ANIM);
 }
 
 function onTurnEnd() {
@@ -436,7 +451,7 @@ function floatScore(r, c, text) {
   div.style.cssText = `left:${rect.left + rect.width / 2}px;top:${rect.top}px`;
   document.body.appendChild(div);
   requestAnimationFrame(() => requestAnimationFrame(() => div.classList.add('db-float-score--up')));
-  setTimeout(() => div.remove(), 750);
+  setTimeout(() => div.remove(), TIMING.FLOAT_REMOVE);
 }
 
 // ── WIN / LOSE ────────────────────────────────────────────────
@@ -465,7 +480,7 @@ function checkWin() {
         countdownEl.textContent = timeUntilNextChallenge();
       }, 1000);
     }
-    setTimeout(() => GameUtils.openSheet('sheet-win'), 600);
+    setTimeout(() => GameUtils.openSheet('sheet-win'), TIMING.SHEET_OPEN);
     return true;
   }
   return false;
@@ -475,7 +490,7 @@ function triggerLose() {
   timerObj?.pause();
   const el = document.getElementById('db-lose-score');
   if (el) el.textContent = score;
-  setTimeout(() => GameUtils.openSheet('sheet-lose'), 600);
+  setTimeout(() => GameUtils.openSheet('sheet-lose'), TIMING.SHEET_OPEN);
 }
 
 function checkLose() {
@@ -847,9 +862,9 @@ function startLoading() {
     renderBoard();
     renderParking();
     spawnDice();
-    if (firstTimeUser) setTimeout(() => GameUtils.openPopup('popup-welcome'), 500);
-    else               setTimeout(() => GameUtils.openPopup('popup-goal'),    500);
-  }, 2000);
+    if (firstTimeUser) setTimeout(() => GameUtils.openPopup('popup-welcome'), TIMING.POPUP_SHOW);
+    else               setTimeout(() => GameUtils.openPopup('popup-goal'),    TIMING.POPUP_SHOW);
+  }, TIMING.LOADING_DELAY);
 }
 
 // ── TUTORIAL ─────────────────────────────────────────────────
@@ -863,17 +878,23 @@ function showTutorialStep(n) {
     el.classList.toggle('tut-anim--active', i === n)
   );
 }
-function openTutorial() {
+let _tutorialFromWelcome = false;
+function openTutorial(fromWelcome = false) {
+  _tutorialFromWelcome = fromWelcome;
   tutorialStep = 0;
   showTutorialStep(0);
   document.getElementById('overlay-tutorial').classList.add('is-open');
 }
 function closeTutorial() {
   document.getElementById('overlay-tutorial').classList.remove('is-open');
-  const wasFirstTime = firstTimeUser;
   sessionStorage.setItem('db-tutorialSeen', 'true');
   firstTimeUser = false;
-  if (wasFirstTime) setTimeout(() => GameUtils.openPopup('popup-goal'), 200);
+  if (_tutorialFromWelcome) {
+    _tutorialFromWelcome = false;
+    setTimeout(() => GameUtils.openPopup('popup-goal'), TIMING.POPUP_QUICK);
+  } else {
+    timerObj?.start(); // tutorial opened from settings mid-game — resume
+  }
 }
 
 // ── THEME ─────────────────────────────────────────────────────
@@ -888,52 +909,52 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBoard();
   renderParking();
   updateScoreBar();
+  const goalTargetEl = document.getElementById('db-goal-target');
+  if (goalTargetEl) goalTargetEl.textContent = SCORE_TARGET;
 
-  // Nav bar icons
+  // All static icons — [id, iconName, size, color|null]
   [
-    ['db-home-icon-back',        'chevronLeft', 'md', 'primary'],
-    ['db-home-icon-feedback',    'feedback',    'md', 'primary'],
-    ['db-home-icon-share',       'share',       'md', 'primary'],
-    ['db-home-icon-heart',       'heartFull',   'md', 'error'],
-    ['db-loading-icon-back',     'chevronLeft', 'md', 'primary'],
-    ['db-loading-icon-feedback', 'feedback',    'md', 'primary'],
-    ['db-loading-icon-share',    'share',       'md', 'primary'],
-    ['db-loading-icon-heart',    'heartFull',   'md', 'error'],
-    ['db-game-icon-back',        'chevronLeft', 'md', 'primary'],
-    ['db-game-icon-feedback',    'feedback',    'md', 'primary'],
-    ['db-game-icon-share',       'share',       'md', 'primary'],
-    ['db-game-icon-heart',       'heartFull',   'md', 'error'],
-    ['db-tut-icon-back',         'chevronLeft', 'md', 'primary'],
-    ['db-tut-icon-feedback',     'feedback',    'md', 'primary'],
-    ['db-tut-icon-share',        'share',       'md', 'primary'],
-    ['db-tut-icon-heart',        'heartFull',   'md', 'error'],
+    // Nav bar — 4 screens × 4 icons
+    ['db-home-icon-back',        'chevronLeft',    'md',   'primary'],
+    ['db-home-icon-feedback',    'feedback',       'md',   'primary'],
+    ['db-home-icon-share',       'share',          'md',   'primary'],
+    ['db-home-icon-heart',       'heartFull',      'md',   'error'  ],
+    ['db-loading-icon-back',     'chevronLeft',    'md',   'primary'],
+    ['db-loading-icon-feedback', 'feedback',       'md',   'primary'],
+    ['db-loading-icon-share',    'share',          'md',   'primary'],
+    ['db-loading-icon-heart',    'heartFull',      'md',   'error'  ],
+    ['db-game-icon-back',        'chevronLeft',    'md',   'primary'],
+    ['db-game-icon-feedback',    'feedback',       'md',   'primary'],
+    ['db-game-icon-share',       'share',          'md',   'primary'],
+    ['db-game-icon-heart',       'heartFull',      'md',   'error'  ],
+    ['db-tut-icon-back',         'chevronLeft',    'md',   'primary'],
+    ['db-tut-icon-feedback',     'feedback',       'md',   'primary'],
+    ['db-tut-icon-share',        'share',          'md',   'primary'],
+    ['db-tut-icon-heart',        'heartFull',      'md',   'error'  ],
+    // Toolbar
+    ['db-game-icon-info',        'info',           'md',   'primary'],
+    ['db-game-icon-hint',        'hint',           'md',   'primary'],
+    ['db-game-icon-hint-close',  'cross',          'md',   null     ],
+    ['db-game-icon-pause',       'pause',          'md',   null     ],
+    ['db-game-icon-calendar',    'calendar',       'md',   'primary'],
+    ['db-game-icon-stats',       'stats',          'md',   'primary'],
+    ['db-game-icon-settings',    'settings',       'md',   'primary'],
+    // Score bar
+    ['db-score-icon',            'target',         'md',   'primary'],
+    ['db-merges-icon',           'merges',         'md',   'primary'],
+    // Settings
+    ['db-stt-theme-dark',        'themeDark',      'tiny', 'primary'],
+    ['db-stt-theme-auto',        'themeAutomatic', 'tiny', 'primary'],
+    ['db-stt-theme-light',       'themeLight',     'tiny', 'primary'],
+    ['db-stt-hand-left',         'arrowLeft',      'tiny', 'primary'],
+    ['db-stt-hand-right',        'arrowLeft',      'tiny', 'primary'],
+    ['db-stt-icon-howto',        'question',       'md',   'primary'],
+    ['db-stt-icon-stats',        'stairs',         'md',   'primary'],
+    ['db-stt-icon-bible',        'book',           'md',   'primary'],
   ].forEach(([id, name, size, color]) => {
     const el = document.getElementById(id);
-    if (el) Icons.render(el, name, { size, color });
+    if (el) Icons.render(el, name, color ? { size, color } : { size });
   });
-
-  // Toolbar icons
-  Icons.render(document.getElementById('db-game-icon-info'),       'info',     { size: 'md', color: 'primary' });
-  Icons.render(document.getElementById('db-game-icon-hint'),       'hint',     { size: 'md', color: 'primary' });
-  Icons.render(document.getElementById('db-game-icon-hint-close'), 'cross',    { size: 'md' });
-  Icons.render(document.getElementById('db-game-icon-pause'),      'pause',    { size: 'md' });
-  Icons.render(document.getElementById('db-game-icon-calendar'),   'calendar', { size: 'md', color: 'primary' });
-  Icons.render(document.getElementById('db-game-icon-stats'),      'stats',    { size: 'md', color: 'primary' });
-  Icons.render(document.getElementById('db-game-icon-settings'),   'settings', { size: 'md', color: 'primary' });
-
-  // Score bar icons
-  Icons.render(document.getElementById('db-score-icon'),  'target', { size: 'md', color: 'primary' });
-  Icons.render(document.getElementById('db-merges-icon'), 'merges', { size: 'md', color: 'primary' });
-
-  // Settings icons
-  Icons.render(document.getElementById('db-stt-theme-dark'),  'themeDark',      { size: 'tiny', color: 'primary' });
-  Icons.render(document.getElementById('db-stt-theme-auto'),  'themeAutomatic', { size: 'tiny', color: 'primary' });
-  Icons.render(document.getElementById('db-stt-theme-light'), 'themeLight',     { size: 'tiny', color: 'primary' });
-  Icons.render(document.getElementById('db-stt-hand-left'),   'arrowLeft',      { size: 'tiny', color: 'primary' });
-  Icons.render(document.getElementById('db-stt-hand-right'),  'arrowLeft',      { size: 'tiny', color: 'primary' });
-  Icons.render(document.getElementById('db-stt-icon-howto'),  'question',       { size: 'md',   color: 'primary' });
-  Icons.render(document.getElementById('db-stt-icon-stats'),  'stairs',         { size: 'md',   color: 'primary' });
-  Icons.render(document.getElementById('db-stt-icon-bible'),  'book',           { size: 'md',   color: 'primary' });
 
   // Shared utilities
   GameUtils.initCalendar('db');
@@ -964,21 +985,22 @@ document.addEventListener('DOMContentLoaded', () => {
   // Play button
   document.getElementById('db-btn-play').addEventListener('click', startLoading);
 
-  // Home back → Games page
-  document.getElementById('db-home-icon-back').addEventListener('click', () => { window.location.href = '../../GamePage.html'; });
-
-  // Gameplay back → exit confirm
-  document.getElementById('db-game-icon-back').addEventListener('click', () => {
-    if (timerObj.isRunning()) timerObj.pause();
-    GameUtils.openPopup('popup-exit');
-  });
+  // Nav bar back buttons — each screen has its own behaviour
+  [
+    ['#screen-home',      () => { window.location.href = '../../GamePage.html'; }],
+    ['#screen-loading',   () => GameUtils.navigateTo('home')],
+    ['#overlay-tutorial', () => GameUtils.navigateTo('home')],
+    ['#screen-gameplay',  () => { if (timerObj.isRunning()) timerObj.pause(); GameUtils.openPopup('popup-exit'); }],
+  ].forEach(([scope, handler]) =>
+    document.querySelector(`${scope} .home-nav-bar__start`)?.addEventListener('click', handler)
+  );
 
   // Exit popup
   document.getElementById('db-btn-exit-confirm').addEventListener('click', () => { GameUtils.closePopup('popup-exit'); GameUtils.navigateTo('home'); });
   document.getElementById('db-btn-exit-stay').addEventListener('click',    () => { GameUtils.closePopup('popup-exit'); timerObj.start(); });
 
   // Welcome popup
-  document.getElementById('db-btn-letsgo').addEventListener('click', () => { GameUtils.closePopup('popup-welcome'); openTutorial(); });
+  document.getElementById('db-btn-letsgo').addEventListener('click', () => { GameUtils.closePopup('popup-welcome'); openTutorial(true); });
   document.getElementById('db-btn-skip-tutorial').addEventListener('click', () => {
     GameUtils.closePopup('popup-welcome');
     sessionStorage.setItem('db-tutorialSeen', 'true');
@@ -1027,17 +1049,17 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   // Settings shortcuts
-  document.getElementById('db-stt-btn-howto').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); setTimeout(() => openTutorial(), 100); });
-  document.getElementById('db-stt-btn-stats').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); setTimeout(() => GameUtils.openSheet('sheet-stats'), 100); });
+  document.getElementById('db-stt-btn-howto').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', openTutorial));
+  document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => GameUtils.openSheet('sheet-stats')));
   document.getElementById('db-stt-btn-bible').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
   document.getElementById('db-btn-save-settings').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
   document.getElementById('db-btn-reset-settings').addEventListener('click', () => GameUtils.showToast('db-toast', 'Settings reset to defaults.'));
 
   // Win / lose actions
   document.getElementById('db-win-btn-share').addEventListener('click', () => GameUtils.showToast('db-toast', 'Sharing…'));
-  document.getElementById('db-win-btn-home').addEventListener('click',  () => { clearInterval(winCountdownInterval); GameUtils.closeSheet('sheet-win');  setTimeout(() => GameUtils.navigateTo('home'), 400); });
-  document.getElementById('db-lose-btn-retry').addEventListener('click', () => { GameUtils.closeSheet('sheet-lose'); setTimeout(() => startLoading(), 400); });
-  document.getElementById('db-lose-btn-home').addEventListener('click',  () => { GameUtils.closeSheet('sheet-lose'); setTimeout(() => GameUtils.navigateTo('home'), 400); });
+  document.getElementById('db-win-btn-home').addEventListener('click',  () => { clearInterval(winCountdownInterval); GameUtils.switchSheet('sheet-win',  () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
+  document.getElementById('db-lose-btn-retry').addEventListener('click', () => GameUtils.switchSheet('sheet-lose', startLoading, TIMING.NAV_DELAY));
+  document.getElementById('db-lose-btn-home').addEventListener('click',  () => GameUtils.switchSheet('sheet-lose', () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY));
 
   // Calendar button
   document.getElementById('db-cal-btn').addEventListener('click', () => { GameUtils.closeSheet('sheet-calendar'); timerObj?.start(); });
@@ -1046,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-btn-send-feedback').addEventListener('click', () => {
     GameUtils.closeSheet('sheet-feedback');
     timerObj?.start();
-    setTimeout(() => GameUtils.showToast('db-toast', 'Thanks for your feedback!'), 300);
+    setTimeout(() => GameUtils.showToast('db-toast', 'Thanks for your feedback!'), TIMING.TOAST_DELAY);
   });
 
   // Hint toggle — compute contextual hint, auto-close after 5 s
@@ -1061,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hintTimeout = setTimeout(() => {
         wrap.classList.remove('game-hint-wrap--open');
         clearHintHighlights();
-      }, 5000);
+      }, TIMING.HINT_AUTO_CLOSE);
     }
   });
   document.getElementById('db-game-icon-hint-close').addEventListener('click', e => {
