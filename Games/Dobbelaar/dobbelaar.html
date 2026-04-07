@@ -580,14 +580,18 @@
         </div>
         <div class="cal-info">
           <div class="cal-info__date">
-            <span>Today,</span>
+            <span id="db-cal-sel-prefix">Today,</span>
             <strong id="db-cal-today-label"></strong>
           </div>
           <div class="cal-info__sep"></div>
           <div class="cal-info__badge">
             <div class="cal-info__badge-icon" id="db-cal-trophy"></div>
-            <span class="cal-info__badge-text">In progress</span>
+            <span class="cal-info__badge-text" id="db-cal-badge-text">In progress</span>
           </div>
+        </div>
+        <div class="cal-challenge" id="db-cal-ch" hidden>
+          <span class="cal-challenge__label" id="db-cal-ch-label"></span>
+          <span class="cal-challenge__target" id="db-cal-ch-target"></span>
         </div>
       </div>
       <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-cal-thumb"></div></div>
@@ -816,6 +820,7 @@
   <!-- == SCRIPTS =================================================== -->
   <script src="../../icons.js"></script>
   <script src="../../game-utils.js"></script>
+  <script src="./dobbelaar-challenges.js"></script>
   <script src="./dobbelaar.js"></script>
   <script><!-- intentionally empty — all logic in dobbelaar.js + game-utils.js -->
   </script>

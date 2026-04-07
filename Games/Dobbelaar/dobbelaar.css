@@ -268,6 +268,19 @@ html, body {
   opacity: 1;
 }
 
+/* ── NULL BLOCK ── */
+.db-cell--null {
+  background: color-mix(in srgb, var(--color-text) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-text) 25%, transparent);
+  cursor: not-allowed;
+}
+.db-cell--null::after {
+  content: '';
+  position: absolute; inset: 30%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
 /* ── DROP HIGHLIGHT ── */
 .db-cell--ok {
   background: color-mix(in srgb, var(--color-accent) 22%, transparent);

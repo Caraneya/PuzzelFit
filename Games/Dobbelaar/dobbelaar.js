@@ -31,7 +31,27 @@ function renderDie(value) {
 // ── GAME CONSTANTS ───────────────────────────────────────────
 const GRID_ROWS    = 5;
 const GRID_COLS    = 5;
-const SCORE_TARGET = 300; // Today's challenge goal
+const todayChallenge      = getTodayChallenge();
+const TODAY_ISO           = new Date().toISOString().slice(0, 10);
+let   activeChallenge     = todayChallenge;
+let   activeChallengeDate = TODAY_ISO;
+// For chainGoal winType, target = chain length (mechanic not yet implemented).
+// Fall back to DEFAULT_CHALLENGE.target (300) until chainGoal is wired up.
+function scoreTargetFrom(ch) {
+  return ch.winType === 'chainGoal' ? DEFAULT_CHALLENGE.target : ch.target;
+}
+let SCORE_TARGET = scoreTargetFrom(todayChallenge);
+
+// ── CHALLENGE STORAGE ────────────────────────────────────────
+function getCompletedDates() {
+  try { return new Set(JSON.parse(localStorage.getItem('db-completed') || '[]')); }
+  catch { return new Set(); }
+}
+function markDateCompleted(iso) {
+  const s = getCompletedDates();
+  s.add(iso);
+  localStorage.setItem('db-completed', JSON.stringify([...s]));
+}
 
 // ── TIMING ───────────────────────────────────────────────────
 const TIMING = {
@@ -95,7 +115,10 @@ function popEl(el, newText) {
 }
 function updateScoreBar() {
   popEl(document.getElementById('db-score-value'),  `${score}/${SCORE_TARGET}`);
-  popEl(document.getElementById('db-merges-value'), String(merges));
+  const mergeLabel = activeChallenge.modifier === 'maxMerges'
+    ? `${merges}/${activeChallenge.modValue}`
+    : String(merges);
+  popEl(document.getElementById('db-merges-value'), mergeLabel);
 }
 
 // ── RENDER BOARD ─────────────────────────────────────────────
@@ -110,7 +133,8 @@ function renderBoard() {
       cell.dataset.row = r;
       cell.dataset.col = c;
       const val = board[r][c];
-      if (val > 0) cell.innerHTML = renderDie(val);
+      if (val === -1) cell.classList.add('db-cell--null');
+      else if (val > 0) cell.innerHTML = renderDie(val);
       grid.appendChild(cell);
     }
   }
@@ -374,7 +398,7 @@ function findMergeGroups() {
   for (let r = 0; r < GRID_ROWS; r++) {
     for (let c = 0; c < GRID_COLS; c++) {
       const val = board[r][c];
-      if (!val) continue;
+      if (!val || val === -1) continue;
       const key = r * GRID_COLS + c;
       if (visited.has(key)) continue;
       const group = floodFill(r, c, val, new Set());
@@ -418,6 +442,12 @@ function triggerMergeCheck() {
     score += earned;
     updateScoreBar();
     renderBoard();
+
+    // maxMerges: lose if merge budget exhausted before score target
+    if (activeChallenge.modifier === 'maxMerges' && merges >= activeChallenge.modValue && score < SCORE_TARGET) {
+      triggerLose();
+      return;
+    }
 
     newDice.forEach(([r, c]) =>
       requestAnimationFrame(() => cellEl(r, c)?.classList.add('db-cell--pop'))
@@ -471,6 +501,7 @@ let winCountdownInterval = null;
 
 function checkWin() {
   if (score >= SCORE_TARGET) {
+    markDateCompleted(activeChallengeDate);
     timerObj?.pause();
     const countdownEl = document.getElementById('db-win-countdown');
     if (countdownEl) {
@@ -494,7 +525,7 @@ function triggerLose() {
 }
 
 function checkLose() {
-  const full = board.every(row => row.every(v => v > 0));
+  const full = board.every(row => row.every(v => v !== 0));
   if (full) { triggerLose(); return true; }
   return false;
 }
@@ -848,12 +879,71 @@ function clearHintHighlights() {
   document.querySelectorAll('.db-hint-rotate-badge').forEach(el => el.remove());
 }
 
+// ── CALENDAR CHALLENGE PANEL ─────────────────────────────────
+const CAL_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CAL_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function onCalDaySelect(iso) {
+  activeChallengeDate = iso;
+  const ch       = CHALLENGES[iso] ?? DEFAULT_CHALLENGE;
+  const d        = new Date(iso + 'T12:00:00');
+  const isToday  = iso === TODAY_ISO;
+
+  const prefixEl = document.getElementById('db-cal-sel-prefix');
+  const badgeEl  = document.getElementById('db-cal-badge-text');
+  const labelEl  = document.getElementById('db-cal-ch-label');
+  const targetEl = document.getElementById('db-cal-ch-target');
+  const rowEl    = document.getElementById('db-cal-ch');
+
+  if (prefixEl) prefixEl.textContent = isToday ? 'Today,' : `${CAL_DAYS[d.getDay()]},`;
+
+  const completed = getCompletedDates().has(iso);
+  if (badgeEl) badgeEl.textContent = completed ? 'Completed' : isToday ? 'In progress' : 'Not played';
+
+  if (labelEl)  labelEl.textContent  = ch.label;
+  if (targetEl) targetEl.textContent = ch.winType === 'chainGoal'
+    ? `${ch.target} merges`
+    : `${ch.target} pts`;
+  if (rowEl) rowEl.hidden = false;
+}
+
 // ── NAVIGATION ───────────────────────────────────────────────
+function rebuildTimer(ch) {
+  const opts = ch.modifier === 'timer'
+    ? { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } }
+    : {};
+  timerObj = GameUtils.makeTimer(
+    document.getElementById('db-timer-group'),
+    document.getElementById('db-game-icon-pause'),
+    document.getElementById('db-timer-display'),
+    opts
+  );
+  // re-bind click (remove old by replacing node clone is not needed — listener is stable via closure)
+}
+
+function placeNullBlocks(count) {
+  const empty = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === 0) empty.push([r, c]);
+  for (let i = empty.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [empty[i], empty[j]] = [empty[j], empty[i]];
+  }
+  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = -1; });
+}
+
 function startLoading() {
+  SCORE_TARGET = scoreTargetFrom(activeChallenge);
+  rebuildTimer(activeChallenge);
+  const goalEl = document.getElementById('db-goal-target');
+  if (goalEl) goalEl.textContent = SCORE_TARGET;
   GameUtils.navigateTo('loading');
   score = 0; merges = 0; isMerging = false;
   updateScoreBar();
   initBoard();
+  if (activeChallenge.modifier === 'nullBlock' && activeChallenge.modValue > 0)
+    placeNullBlocks(activeChallenge.modValue);
   spawnerDice = []; parkedDice = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
   setTimeout(() => {
@@ -957,9 +1047,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Shared utilities
-  GameUtils.initCalendar('db');
+  GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
   GameUtils.initFeedbackForm('db');
   GameUtils.initHomeDate('db');
+  const homeDateEl = document.getElementById('db-home-date');
+  if (homeDateEl) homeDateEl.textContent += ' · ' + todayChallenge.label;
   GameUtils.buildStreakGrid('db-stat-streak-grid');
 
   // Sheet scrollbars
@@ -972,18 +1064,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Theme
   setTheme(localStorage.getItem('db-theme') || 'auto');
 
-  // Timer
-  timerObj = GameUtils.makeTimer(
-    document.getElementById('db-timer-group'),
-    document.getElementById('db-game-icon-pause'),
-    document.getElementById('db-timer-display')
-  );
+  // Timer — built per-game in rebuildTimer() called from startLoading()
   document.getElementById('db-timer-group').addEventListener('click', () => {
-    if (timerObj.isRunning()) { timerObj.pause(); GameUtils.openSheet('sheet-pause'); }
+    if (timerObj?.isRunning()) { timerObj.pause(); GameUtils.openSheet('sheet-pause'); }
   });
 
-  // Play button
-  document.getElementById('db-btn-play').addEventListener('click', startLoading);
+  // Home Play button — always today's challenge
+  document.getElementById('db-btn-play').addEventListener('click', () => {
+    activeChallenge     = todayChallenge;
+    activeChallengeDate = TODAY_ISO;
+    startLoading();
+  });
 
   // Nav bar back buttons — each screen has its own behaviour
   [
@@ -1061,8 +1152,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-lose-btn-retry').addEventListener('click', () => GameUtils.switchSheet('sheet-lose', startLoading, TIMING.NAV_DELAY));
   document.getElementById('db-lose-btn-home').addEventListener('click',  () => GameUtils.switchSheet('sheet-lose', () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY));
 
-  // Calendar button
-  document.getElementById('db-cal-btn').addEventListener('click', () => { GameUtils.closeSheet('sheet-calendar'); timerObj?.start(); });
+  // Calendar Play button — plays the selected day's challenge
+  document.getElementById('db-cal-btn').addEventListener('click', () => {
+    activeChallenge = CHALLENGES[activeChallengeDate] ?? DEFAULT_CHALLENGE;
+    GameUtils.closeSheet('sheet-calendar');
+    setTimeout(startLoading, 200);
+  });
 
   // Feedback
   document.getElementById('db-btn-send-feedback').addEventListener('click', () => {

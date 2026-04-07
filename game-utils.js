@@ -74,17 +74,28 @@ const GameUtils = {
   },
 
   // ── TIMER ───────────────────────────────────────────────────
-  makeTimer(groupEl, iconEl, displayEl) {
-    let seconds = 0, running = false, interval = null;
+  // options.countdown = seconds to count down from (omit for count-up)
+  // options.onExpire  = callback fired when countdown hits 0
+  makeTimer(groupEl, iconEl, displayEl, options = {}) {
+    const countdownFrom = options.countdown ?? null;
+    const onExpire      = options.onExpire   ?? null;
+    let seconds = countdownFrom ?? 0, running = false, interval = null;
+    function fmt(s) {
+      return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    }
     function tick() {
-      seconds++;
-      displayEl.textContent =
-        String(Math.floor(seconds / 60)).padStart(2, '0') + ':' +
-        String(seconds % 60).padStart(2, '0');
+      if (countdownFrom !== null) {
+        seconds--;
+        displayEl.textContent = fmt(Math.max(0, seconds));
+        if (seconds <= 0) { pause(); onExpire?.(); }
+      } else {
+        seconds++;
+        displayEl.textContent = fmt(seconds);
+      }
     }
     function start()     { if (running) return; running = true;  interval = setInterval(tick, 1000); Icons.render(iconEl, 'pause', { size: 'md' }); groupEl.setAttribute('aria-label', 'Pause'); }
     function pause()     { if (!running) return; running = false; clearInterval(interval);            Icons.render(iconEl, 'play',  { size: 'md' }); groupEl.setAttribute('aria-label', 'Play'); }
-    function reset()     { pause(); seconds = 0; displayEl.textContent = '00:00'; }
+    function reset()     { pause(); seconds = countdownFrom ?? 0; displayEl.textContent = fmt(seconds); }
     function isRunning() { return running; }
     return { start, pause, reset, isRunning };
   },
@@ -178,16 +189,19 @@ const GameUtils = {
   // ── CALENDAR ────────────────────────────────────────────────
   // Call from inside DOMContentLoaded. Derives all element IDs from prefix.
   // e.g. prefix 'db' → 'db-cal-title', 'db-cal-grid', etc.
-  initCalendar(prefix) {
-    const self = this;
-    const TODAY       = new Date();
-    const COMPLETED   = new Set();
-    const IN_PROGRESS = new Set([TODAY.getDate()]);
-    for (let i = 1; i <= 3; i++) { const d = TODAY.getDate() - i; if (d > 0) COMPLETED.add(d); }
+  // options.completedDates — Set of ISO "YYYY-MM-DD" strings for completed days
+  // options.onDaySelect    — callback(isoString) fired when a day cell is clicked or nav lands on a day
+  initCalendar(prefix, options = {}) {
+    const self         = this;
+    const TODAY        = new Date();
+    const completedSet = options.completedDates instanceof Set ? options.completedDates : new Set();
 
     let viewYear = TODAY.getFullYear(), viewMonth = TODAY.getMonth();
     let selYear  = viewYear, selMonth = viewMonth, selDay = TODAY.getDate();
 
+    function toISO(y, m, d) {
+      return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
     function ordinal(n) {
       const s = ['th','st','nd','rd'], v = n % 100;
       return n + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -196,10 +210,8 @@ const GameUtils = {
       const day = new Date(y, m, d);
       const tod = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
       if (day > tod) return 'unavailable';
-      if (y === TODAY.getFullYear() && m === TODAY.getMonth()) {
-        if (COMPLETED.has(d))   return 'completed';
-        if (IN_PROGRESS.has(d)) return 'in-progress';
-      }
+      if (completedSet.has(toISO(y, m, d))) return 'completed';
+      if (y === TODAY.getFullYear() && m === TODAY.getMonth() && d === TODAY.getDate()) return 'in-progress';
       return 'default';
     }
     function renderCal() {
@@ -242,7 +254,11 @@ const GameUtils = {
         else                              el.innerHTML = String(d);
         el.setAttribute('aria-label', `${d} ${self.MONTH_NAMES[viewMonth]}`);
         if (state !== 'unavailable') {
-          el.addEventListener('click', () => { selYear = viewYear; selMonth = viewMonth; selDay = d; renderCal(); });
+          el.addEventListener('click', () => {
+            selYear = viewYear; selMonth = viewMonth; selDay = d;
+            renderCal();
+            if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(selYear, selMonth, selDay));
+          });
         }
         grid.appendChild(el);
       }
@@ -264,6 +280,7 @@ const GameUtils = {
         else        { selYear = -1; selMonth = -1; selDay = -1; }
       }
       renderCal();
+      if (selYear !== -1 && typeof options.onDaySelect === 'function') options.onDaySelect(toISO(selYear, selMonth, selDay));
     }
 
     const prev = document.getElementById(`${prefix}-cal-prev`);
@@ -274,6 +291,7 @@ const GameUtils = {
     Icons.render(document.getElementById(`${prefix}-cal-next`),   'chevronLeft',  { size: 'md', color: 'primary' });
     Icons.render(document.getElementById(`${prefix}-cal-trophy`), 'trophyBronze', { size: 'md' });
     renderCal();
+    if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()));
   },
 
   // ── FEEDBACK FORM ───────────────────────────────────────────
