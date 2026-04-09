@@ -281,6 +281,94 @@ html, body {
   background: color-mix(in srgb, var(--color-text) 30%, transparent);
 }
 
+/* ── FROZEN CELL ── */
+.db-cell--frozen {
+  background: color-mix(in srgb, var(--color-info) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-info) 55%, transparent);
+  cursor: not-allowed;
+}
+.db-cell--frozen::after {
+  content: '❄';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(11px, 3.5cqw, 16px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ── FLIP DIE ── */
+.db-cell--flip {
+  background: color-mix(in srgb, var(--color-die-5) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-die-5) 55%, transparent);
+  cursor: default;
+}
+.db-cell--flip::after {
+  content: '⇆';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(12px, 3.8cqw, 18px);
+  color: var(--color-die-5);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ── BOMB DIE ── */
+.db-cell--bomb {
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 60%, transparent);
+  cursor: not-allowed;
+}
+.db-bomb-fuse {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(14px, 4.5cqw, 20px);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-error);
+  pointer-events: none;
+}
+/* Urgent pulse when fuse = 1 */
+.db-cell--bomb-urgent {
+  animation: db-bomb-pulse 0.7s ease-in-out infinite;
+}
+@keyframes db-bomb-pulse {
+  0%, 100% { border-color: color-mix(in srgb, var(--color-error) 60%, transparent); }
+  50%       { border-color: var(--color-error); box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-error) 30%, transparent); }
+}
+/* Explosion flash */
+.db-cell--exploding {
+  animation: db-bomb-explode 0.6s ease-out forwards;
+}
+@keyframes db-bomb-explode {
+  0%   { background: var(--color-error); transform: scale(1.15); }
+  60%  { background: color-mix(in srgb, var(--color-error) 40%, transparent); transform: scale(0.95); }
+  100% { background: transparent; transform: scale(1); }
+}
+
+/* ── DISEASED DIE ── */
+.db-cell--diseased {
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 50%, transparent);
+  cursor: not-allowed;
+}
+.db-cell--diseased::after {
+  content: '☣';
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(11px, 3.5cqw, 16px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ── WILD DIE ── */
+.db-die--wild {
+  background: linear-gradient(135deg,
+    var(--color-die-2) 0%,
+    var(--color-die-5) 50%,
+    var(--color-die-4) 100%
+  );
+}
+.db-die--wild svg text { fill: white; }
+
 /* ── DROP HIGHLIGHT ── */
 .db-cell--ok {
   background: color-mix(in srgb, var(--color-accent) 22%, transparent);

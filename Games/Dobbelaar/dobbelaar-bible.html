@@ -6,217 +6,47 @@
   <title>Dobbelaar — Game Bible</title>
   <link rel="stylesheet" href="../../tokens.css" />
   <link rel="stylesheet" href="../../components.css" />
+  <link rel="stylesheet" href="../../utility-pages.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%; min-height: 100%;
-      background: var(--color-background);
-      font-family: var(--font-family-secondary);
-      color: var(--color-text-primary);
+    /* Chip variants — Dobbelaar-specific modifier visuals */
+    .bible-chip--null {
+      background: color-mix(in srgb, var(--color-text) 12%, transparent);
+      border-color: color-mix(in srgb, var(--color-text) 25%, transparent);
     }
-
-    .bible-layout {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: var(--space-6) var(--space-5) var(--space-8);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
+    .bible-chip--null::after {
+      content: '';
+      position: absolute; inset: 30%;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--color-text) 30%, transparent);
     }
-
-    /* ── HEADER ── */
-    .bible-header {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
+    .bible-chip--frozen {
+      background: color-mix(in srgb, var(--color-info) 20%, transparent);
+      border-color: color-mix(in srgb, var(--color-info) 55%, transparent);
     }
-    .bible-header__icon {
-      width: 64px; height: 64px;
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      overflow: hidden;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
+    .bible-chip--flip {
+      background: color-mix(in srgb, var(--color-die-5) 20%, transparent);
+      border-color: color-mix(in srgb, var(--color-die-5) 55%, transparent);
     }
-    .bible-header__icon img { width: 100%; height: 100%; object-fit: contain; }
-    .bible-header__text { display: flex; flex-direction: column; gap: var(--space-1); }
-    .bible-header__title {
+    .bible-chip--bomb {
+      background: color-mix(in srgb, var(--color-error) 18%, transparent);
+      border-color: color-mix(in srgb, var(--color-error) 60%, transparent);
+    }
+    .bible-chip__fuse {
       font-family: var(--font-family-primary);
-      font-size: var(--font-size-h2);
       font-weight: var(--font-weight-bold);
-      color: var(--color-text-primary);
-      line-height: 1.2;
-    }
-    .bible-header__sub {
-      font-size: var(--font-size-caption);
-      font-weight: var(--font-weight-semibold);
-      letter-spacing: var(--letter-spacing-wide);
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-    }
-
-    /* ── PROTOTYPE BUTTON ── */
-    .bible-proto-btn {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      background: var(--color-primary);
-      color: var(--color-surface);
-      border: none; border-radius: var(--radius-md);
-      padding: var(--space-4) var(--space-5);
-      font-family: var(--font-family-secondary);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-semibold);
-      cursor: pointer;
-      text-decoration: none;
-      width: 100%;
-      justify-content: center;
-    }
-    .bible-proto-btn:hover { opacity: 0.9; }
-    .bible-proto-btn__icon { display: flex; align-items: center; justify-content: center; }
-
-    /* ── SECTION ── */
-    .bible-section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-    .bible-section__label {
-      font-size: var(--font-size-caption);
-      font-weight: var(--font-weight-bold);
-      letter-spacing: var(--letter-spacing-wide);
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-      padding-bottom: var(--space-2);
-      border-bottom: 1.5px solid var(--color-border);
-    }
-    .bible-card {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-4) var(--space-5);
-    }
-    .bible-card p {
-      font-size: var(--font-size-body);
-      line-height: 1.6;
-      color: var(--color-text-secondary);
-    }
-
-    /* ── TAG LIST ── */
-    .bible-tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
-    .bible-tag {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-full);
-      padding: var(--space-1) var(--space-3);
-      font-size: var(--font-size-caption);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-secondary);
-    }
-    .bible-tag--win {
-      background: color-mix(in srgb, var(--color-success) 12%, transparent);
-      border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
-      color: var(--color-success);
-    }
-    .bible-tag--lose {
-      background: color-mix(in srgb, var(--color-error) 12%, transparent);
-      border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
       color: var(--color-error);
+      font-size: 20px;
     }
-
-    /* ── NUMBERED LIST ── */
-    .bible-step-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
+    .bible-chip--diseased {
+      background: color-mix(in srgb, var(--color-success) 18%, transparent);
+      border-color: color-mix(in srgb, var(--color-success) 50%, transparent);
     }
-    .bible-step {
-      display: flex;
-      gap: var(--space-3);
-      align-items: flex-start;
-    }
-    .bible-step__num {
-      width: 24px; height: 24px;
-      border-radius: var(--radius-full);
-      background: var(--color-primary);
-      color: var(--color-surface);
-      font-size: var(--font-size-caption);
+    .bible-chip--wild {
+      background: linear-gradient(135deg, var(--color-die-2) 0%, var(--color-die-5) 50%, var(--color-die-4) 100%);
+      border-color: transparent;
+      color: white;
       font-weight: var(--font-weight-bold);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
     }
-    .bible-step__text {
-      font-size: var(--font-size-body);
-      line-height: 1.6;
-      color: var(--color-text-secondary);
-      padding-top: 2px;
-    }
-
-    /* ── SCORE BAR PREVIEW ── */
-    .bible-scorebar-preview {
-      display: flex;
-      gap: var(--space-4);
-    }
-    .bible-scorebar-item {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-    }
-    .bible-scorebar-item__icon { display: flex; }
-
-    /* ── STAT GRID ── */
-    .bible-stat-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-3);
-    }
-    .bible-stat {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-3) var(--space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-    .bible-stat__label {
-      font-size: 10px;
-      font-weight: var(--font-weight-semibold);
-      letter-spacing: var(--letter-spacing-wide);
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-    }
-    .bible-stat__value {
-      font-family: var(--font-family-primary);
-      font-size: var(--font-size-h4);
-      font-weight: var(--font-weight-bold);
-      color: var(--color-text-primary);
-    }
-
-    /* ── BACK LINK ── */
-    .bible-back {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      color: var(--color-primary);
-      font-size: var(--font-size-body);
-      font-weight: var(--font-weight-semibold);
-      text-decoration: none;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-    .bible-back:hover { opacity: 0.8; }
-    .bible-back__icon { display: flex; }
   </style>
 </head>
 <body>
@@ -280,6 +110,62 @@
         <span class="bible-tag bible-tag--lose">Board Full / No Space</span>
         <span class="bible-tag bible-tag--lose">Timer Runs Out</span>
         <span class="bible-tag bible-tag--lose">No Valid Moves Left</span>
+      </div>
+    </div>
+
+    <!-- Board Modifiers -->
+    <div class="bible-section">
+      <span class="bible-section__label">Board Modifiers</span>
+      <div class="bible-mechanic-list">
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--null"></div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Null Block</span>
+            <span class="bible-mechanic__desc">A permanently blocked cell. You cannot place dice here — it just takes up space. Shown as a muted grey square with a small circular mark.</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--frozen">❄</div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Frozen Cell</span>
+            <span class="bible-mechanic__desc">A locked cell placed at fixed corner or edge positions. Cannot be played on. Shown as an icy blue cell with a snowflake (❄).</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--flip">⇆</div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Flip Die</span>
+            <span class="bible-mechanic__desc">Sits on the board and waits. Place a die next to it and it inverts all its neighbours' values (7 − value), then vanishes. Shown as a plum cell with a double arrow (⇆).</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--bomb"><span class="bible-chip__fuse">3</span></div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Bomb Die</span>
+            <span class="bible-mechanic__desc">A countdown fuse on the board. Every new spawn wave ticks it down by one. When it hits zero, it detonates and you lose. Pulses urgently when the fuse is at 1. Shown as a coral red cell with the remaining fuse count.</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--diseased">☣</div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Diseased Die</span>
+            <span class="bible-mechanic__desc">Any die placed adjacent to a diseased cell is immediately infected — its value is forced to 6. Cannot be merged away. Shown as a green cell with a biohazard symbol (☣).</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--wild">★</div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Wild Die</span>
+            <span class="bible-mechanic__desc">Appears in the spawner tray. Joins any merge group regardless of value, but cannot start a merge on its own. Shown as a blue→plum→coral gradient face with a star (★).</span>
+          </div>
+        </div>
+
       </div>
     </div>
 

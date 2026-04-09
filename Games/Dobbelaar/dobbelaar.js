@@ -22,6 +22,9 @@ const PIP_POSITIONS = {
 };
 
 function renderDie(value) {
+  if (value === WILD_DIE) {
+    return `<div class="db-die db-die--wild"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="54" font-family="sans-serif">★</text></svg></div>`;
+  }
   const pips = (PIP_POSITIONS[value] || []).map(([x,y]) =>
     `<circle cx="${x}%" cy="${y}%" r="9%"/>`
   ).join('');
@@ -35,10 +38,18 @@ const todayChallenge      = getTodayChallenge();
 const TODAY_ISO           = new Date().toISOString().slice(0, 10);
 let   activeChallenge     = todayChallenge;
 let   activeChallengeDate = TODAY_ISO;
-// For chainGoal winType, target = chain length (mechanic not yet implemented).
-// Fall back to DEFAULT_CHALLENGE.target (300) until chainGoal is wired up.
+
+// ── SENTINEL VALUES ──────────────────────────────────────────
+const NULL_BLOCK   = -1;  // permanent grey blocker (placed randomly)
+const FROZEN_CELL  = -2;  // permanent icy blocker (placed at fixed positions)
+const FLIP_DIE     = -3;  // flip die: inverts neighbour values when triggered
+const BOMB_DIE     = -4;  // bomb die: countdown fuse, detonates on 0
+const DISEASED_DIE = -5;  // diseased die: infects adjacent placed dice → value 6
+const WILD_DIE     =  7;  // wild die (spawner only): joins any merge group
+
+// chainGoal uses target = chain length, not score — use huge score so score-win never fires
 function scoreTargetFrom(ch) {
-  return ch.winType === 'chainGoal' ? DEFAULT_CHALLENGE.target : ch.target;
+  return ch.winType === 'chainGoal' ? 999999 : ch.target;
 }
 let SCORE_TARGET = scoreTargetFrom(todayChallenge);
 
@@ -84,6 +95,13 @@ let parkedRotDeg  = 0;   // cumulative degrees
 let isMerging     = false;
 let hintTimeout   = null;
 
+// ── MODIFIER STATE ───────────────────────────────────────────
+let wildRemaining  = 0;          // wild dice left to distribute this game
+let bombFuses      = new Map();  // cellKey → remaining turns until detonation
+let chainDepth     = 0;          // cascade waves resolved in current placement
+let bestChainDepth = 0;          // best cascade achieved this game (for display)
+let chainWon       = false;      // prevents double-win on chainGoal
+
 // ── DRAG STATE ───────────────────────────────────────────────
 // pending = pointerdown received, but hasn't moved past threshold yet
 const drag = { active: false, pending: false, source: null, startX: 0, startY: 0, ghostEl: null, hiddenInner: null, dropTarget: null };
@@ -100,8 +118,15 @@ function randomDie() {
 // ── SPAWN ────────────────────────────────────────────────────
 function spawnDice() {
   const count = Math.random() < 0.35 ? 1 : 2;
-  spawnerDice   = Array.from({ length: count }, randomDie);
+  spawnerDice = Array.from({ length: count }, () => {
+    if (wildRemaining > 0 && Math.random() < 0.45) {
+      wildRemaining--;
+      return { value: WILD_DIE };
+    }
+    return randomDie();
+  });
   spawnerRotDeg = 0;
+  tickBombs(); // decrement fuses; may trigger lose (before renderSpawner so board is fresh)
   renderSpawner();
 }
 
@@ -114,7 +139,10 @@ function popEl(el, newText) {
   el.classList.add('db-score-pop');
 }
 function updateScoreBar() {
-  popEl(document.getElementById('db-score-value'),  `${score}/${SCORE_TARGET}`);
+  const scoreDisplay = activeChallenge.winType === 'chainGoal'
+    ? `${bestChainDepth}/${activeChallenge.target}`
+    : `${score}/${SCORE_TARGET}`;
+  popEl(document.getElementById('db-score-value'), scoreDisplay);
   const mergeLabel = activeChallenge.modifier === 'maxMerges'
     ? `${merges}/${activeChallenge.modValue}`
     : String(merges);
@@ -133,8 +161,17 @@ function renderBoard() {
       cell.dataset.row = r;
       cell.dataset.col = c;
       const val = board[r][c];
-      if (val === -1) cell.classList.add('db-cell--null');
-      else if (val > 0) cell.innerHTML = renderDie(val);
+      if      (val === NULL_BLOCK)   { cell.classList.add('db-cell--null'); }
+      else if (val === FROZEN_CELL)  { cell.classList.add('db-cell--frozen'); }
+      else if (val === FLIP_DIE)     { cell.classList.add('db-cell--flip'); }
+      else if (val === BOMB_DIE) {
+        const fuse = bombFuses.get(r * GRID_COLS + c) ?? '?';
+        cell.classList.add('db-cell--bomb');
+        if (fuse === 1) cell.classList.add('db-cell--bomb-urgent');
+        cell.innerHTML = `<span class="db-bomb-fuse">${fuse}</span>`;
+      }
+      else if (val === DISEASED_DIE) { cell.classList.add('db-cell--diseased'); }
+      else if (val > 0) { cell.innerHTML = renderDie(val); }
       grid.appendChild(cell);
     }
   }
@@ -248,9 +285,13 @@ function canPlace(cells) {
 
 function doPlace(cells, dicesToPlace) {
   cells.forEach(([r, c], i) => { board[r][c] = dicesToPlace[i].value; });
+  chainDepth = 0; // reset cascade counter for this new placement
   clearHintHighlights();
   clearTimeout(hintTimeout);
   document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');
+  // Modifier effects — flip first (affects pre-existing neighbours), diseased second (affects just-placed dice)
+  if (activeChallenge.modifier === 'flipDice')     applyFlipEffects(cells);
+  if (activeChallenge.modifier === 'diseasedDice') applyDiseasedEffects(cells);
   renderBoard();
   setTimeout(() => triggerMergeCheck(), TIMING.MERGE_1);
 }
@@ -381,7 +422,9 @@ function floodFill(r, c, val, visited) {
   const key = r * GRID_COLS + c;
   if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) return [];
   if (visited.has(key)) return [];
-  if (board[r][c] !== val) return [];
+  const cellVal = board[r][c];
+  // Wild die (7) joins any group; otherwise must match the seed value
+  if (cellVal !== val && cellVal !== WILD_DIE) return [];
   visited.add(key);
   return [
     [r, c],
@@ -398,7 +441,8 @@ function findMergeGroups() {
   for (let r = 0; r < GRID_ROWS; r++) {
     for (let c = 0; c < GRID_COLS; c++) {
       const val = board[r][c];
-      if (!val || val === -1) continue;
+      // Skip empty cells, all sentinels (≤0), and wild dice (absorbed into groups, never starters)
+      if (val <= 0 || val === WILD_DIE) continue;
       const key = r * GRID_COLS + c;
       if (visited.has(key)) continue;
       const group = floodFill(r, c, val, new Set());
@@ -440,12 +484,26 @@ function triggerMergeCheck() {
     });
 
     score += earned;
+
+    // chainGoal: count this resolved wave
+    chainDepth++;
+    if (chainDepth > bestChainDepth) {
+      bestChainDepth = chainDepth;
+    }
+
     updateScoreBar();
     renderBoard();
 
     // maxMerges: lose if merge budget exhausted before score target
     if (activeChallenge.modifier === 'maxMerges' && merges >= activeChallenge.modValue && score < SCORE_TARGET) {
       triggerLose();
+      return;
+    }
+
+    // chainGoal: win when cascade depth reaches target
+    if (activeChallenge.winType === 'chainGoal' && chainDepth >= activeChallenge.target) {
+      isMerging = false;
+      triggerWin();
       return;
     }
 
@@ -499,19 +557,26 @@ function timeUntilNextChallenge() {
 
 let winCountdownInterval = null;
 
-function checkWin() {
-  if (score >= SCORE_TARGET) {
-    markDateCompleted(activeChallengeDate);
-    timerObj?.pause();
-    const countdownEl = document.getElementById('db-win-countdown');
-    if (countdownEl) {
+function triggerWin() {
+  if (chainWon) return; // guard against double-fire
+  chainWon = true;
+  markDateCompleted(activeChallengeDate);
+  timerObj?.pause();
+  const countdownEl = document.getElementById('db-win-countdown');
+  if (countdownEl) {
+    countdownEl.textContent = timeUntilNextChallenge();
+    clearInterval(winCountdownInterval);
+    winCountdownInterval = setInterval(() => {
       countdownEl.textContent = timeUntilNextChallenge();
-      clearInterval(winCountdownInterval);
-      winCountdownInterval = setInterval(() => {
-        countdownEl.textContent = timeUntilNextChallenge();
-      }, 1000);
-    }
-    setTimeout(() => GameUtils.openSheet('sheet-win'), TIMING.SHEET_OPEN);
+    }, 1000);
+  }
+  setTimeout(() => GameUtils.openSheet('sheet-win'), TIMING.SHEET_OPEN);
+}
+
+function checkWin() {
+  if (chainWon) return true;
+  if (score >= SCORE_TARGET) {
+    triggerWin();
     return true;
   }
   return false;
@@ -909,16 +974,19 @@ function onCalDaySelect(iso) {
 
 // ── NAVIGATION ───────────────────────────────────────────────
 function rebuildTimer(ch) {
-  const opts = ch.modifier === 'timer'
-    ? { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } }
-    : {};
+  let opts = {};
+  if (ch.modifier === 'timer') {
+    opts = { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } };
+  } else if (ch.winType === 'surviveTimer') {
+    // Non-timer modifier with surviveTimer win type → apply default 90 s clock
+    opts = { countdown: 90, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } };
+  }
   timerObj = GameUtils.makeTimer(
     document.getElementById('db-timer-group'),
     document.getElementById('db-game-icon-pause'),
     document.getElementById('db-timer-display'),
     opts
   );
-  // re-bind click (remove old by replacing node clone is not needed — listener is stable via closure)
 }
 
 function placeNullBlocks(count) {
@@ -930,20 +998,217 @@ function placeNullBlocks(count) {
     const j = Math.floor(Math.random() * (i + 1));
     [empty[i], empty[j]] = [empty[j], empty[i]];
   }
-  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = -1; });
+  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = NULL_BLOCK; });
+}
+
+// Frozen cells: fixed corner/edge positions for a puzzle feel
+function placeFrozenCells(count) {
+  const preferred = [
+    [0,0],[0,4],[4,0],[4,4],  // corners
+    [0,2],[2,0],[4,2],[2,4],  // edge centres
+    [1,1],[3,3],[1,3],[3,1],  // inner corners
+  ];
+  let placed = 0;
+  for (const [r, c] of preferred) {
+    if (placed >= count) break;
+    if (board[r][c] === 0) { board[r][c] = FROZEN_CELL; placed++; }
+  }
+}
+
+// Flip dice: random positions (removed when triggered)
+function placeFlipDice(count) {
+  const empty = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === 0) empty.push([r, c]);
+  for (let i = empty.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [empty[i], empty[j]] = [empty[j], empty[i]];
+  }
+  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = FLIP_DIE; });
+}
+
+// Bomb die: 1 bomb placed near centre, modValue = initial fuse
+function placeBombDice(fuse) {
+  const preferred = [
+    [2,2],[1,2],[2,1],[2,3],[3,2],
+    [1,1],[1,3],[3,1],[3,3],
+    [0,2],[2,0],[4,2],[2,4],
+  ];
+  for (const [r, c] of preferred) {
+    if (board[r][c] === 0) {
+      board[r][c] = BOMB_DIE;
+      bombFuses.set(r * GRID_COLS + c, fuse);
+      return;
+    }
+  }
+}
+
+// Diseased dice: random positions (permanent, infect adjacents)
+function placeDiseasedDice(count) {
+  const empty = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === 0) empty.push([r, c]);
+  for (let i = empty.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [empty[i], empty[j]] = [empty[j], empty[i]];
+  }
+  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = DISEASED_DIE; });
+}
+
+// ── MODIFIER EFFECTS ─────────────────────────────────────────
+const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
+const FLIP_MAP = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1 };
+
+// Flip die activation: when a die is placed adjacent to a flip die,
+// the flip die inverts all of its own neighbours, then removes itself.
+function applyFlipEffects(placedCells) {
+  const flipKeys = new Set();
+  for (const [r, c] of placedCells) {
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === FLIP_DIE)
+        flipKeys.add(nr * GRID_COLS + nc);
+    }
+  }
+  if (!flipKeys.size) return;
+  for (const key of flipKeys) {
+    const fr = Math.floor(key / GRID_COLS), fc = key % GRID_COLS;
+    board[fr][fc] = 0; // consume flip die
+    for (const [dr, dc] of DIRS) {
+      const nr = fr + dr, nc = fc + dc;
+      if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS) {
+        const v = board[nr][nc];
+        if (v >= 1 && v <= 6) board[nr][nc] = FLIP_MAP[v];
+        // Wild dice and other sentinels are not inverted
+      }
+    }
+  }
+}
+
+// Diseased die infection: any newly placed die adjacent to a diseased cell
+// is immediately overridden to value 6 (infected).
+function applyDiseasedEffects(placedCells) {
+  for (const [r, c] of placedCells) {
+    const v = board[r][c];
+    if (v <= 0) continue; // already a sentinel, skip
+    for (const [dr, dc] of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === DISEASED_DIE) {
+        board[r][c] = 6; // infect!
+        break;
+      }
+    }
+  }
+}
+
+// ── BOMB TICK / DETONATE ─────────────────────────────────────
+function tickBombs() {
+  if (!bombFuses.size) return;
+  for (const [key, fuse] of bombFuses) {
+    const newFuse = fuse - 1;
+    if (newFuse <= 0) {
+      bombFuses.delete(key);
+      const r = Math.floor(key / GRID_COLS), c = key % GRID_COLS;
+      board[r][c] = 0;
+      if (!isMerging) detonateBomb(r, c); // only trigger lose when not mid-animation
+      return; // handle one detonation at a time
+    }
+    bombFuses.set(key, newFuse);
+  }
+  renderBoard(); // refresh fuse counters
+}
+
+function detonateBomb(r, c) {
+  renderBoard();
+  const cell = cellEl(r, c);
+  if (cell) cell.classList.add('db-cell--exploding');
+  setTimeout(() => triggerLose(), 700);
+}
+
+// ── GOAL DESCRIPTION ─────────────────────────────────────────
+function describeGoal(ch) {
+  // Win condition sentence
+  let goal;
+  switch (ch.winType) {
+    case 'chainGoal':
+      goal = `Trigger a chain of <strong>${ch.target}</strong> consecutive merges in a single turn.`;
+      break;
+    case 'scoreInMerges':
+      goal = `Reach <strong>${ch.target}</strong> points within <strong>${ch.modValue}</strong> merges. Make every placement count!`;
+      break;
+    case 'surviveTimer':
+      goal = `Reach <strong>${ch.target}</strong> points before the timer runs out.`;
+      break;
+    default:
+      goal = `Reach <strong>${ch.target}</strong> points before the board fills up.`;
+  }
+
+  // Modifier mechanic explanation (not needed for winType-driven modifiers like maxMerges/timer)
+  let mechanic = '';
+  switch (ch.modifier) {
+    case 'nullBlock': {
+      const n = ch.modValue;
+      mechanic = ` <strong>${n}</strong> null block${n > 1 ? 's' : ''} permanently occupy cells on the board — you cannot place dice on them.`;
+      break;
+    }
+    case 'frozenCell': {
+      const n = ch.modValue;
+      mechanic = ` <strong>${n}</strong> frozen cell${n > 1 ? 's' : ''} (❄) are locked solid — you cannot place dice on them.`;
+      break;
+    }
+    case 'flipDice':
+      mechanic = ` Flip dice (⇆) sit on the board. Place a die next to one and it inverts all its neighbours' values (7 − value), then vanishes.`;
+      break;
+    case 'bombDice':
+      mechanic = ` A bomb (💣) is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down — when it hits zero, it detonates and you lose.`;
+      break;
+    case 'diseasedDice':
+      mechanic = ` Diseased dice (☣) infect any die you place next to them, forcing its value to 6. Plan your placements carefully.`;
+      break;
+    case 'wildDice': {
+      const n = ch.modValue;
+      mechanic = ` You have <strong>${n}</strong> wild die${n > 1 ? 's' : ''} (★) in your spawner. They join any merge group regardless of value, but cannot start a merge on their own.`;
+      break;
+    }
+  }
+
+  return goal + mechanic;
 }
 
 function startLoading() {
-  SCORE_TARGET = scoreTargetFrom(activeChallenge);
+  SCORE_TARGET      = scoreTargetFrom(activeChallenge);
+  chainDepth        = 0;
+  bestChainDepth    = 0;
+  chainWon          = false;
+  wildRemaining     = activeChallenge.modifier === 'wildDice' ? activeChallenge.modValue : 0;
+  bombFuses         = new Map();
+
   rebuildTimer(activeChallenge);
+
   const goalEl = document.getElementById('db-goal-target');
-  if (goalEl) goalEl.textContent = SCORE_TARGET;
+  if (goalEl) {
+    goalEl.textContent = activeChallenge.winType === 'chainGoal'
+      ? `${activeChallenge.target} chain`
+      : SCORE_TARGET;
+  }
+  const goalDescEl = document.getElementById('db-goal-desc');
+  if (goalDescEl) goalDescEl.innerHTML = describeGoal(activeChallenge);
+
   GameUtils.navigateTo('loading');
   score = 0; merges = 0; isMerging = false;
   updateScoreBar();
   initBoard();
-  if (activeChallenge.modifier === 'nullBlock' && activeChallenge.modValue > 0)
-    placeNullBlocks(activeChallenge.modValue);
+
+  // Place board-level modifier tiles
+  const m = activeChallenge.modifier, mv = activeChallenge.modValue;
+  if (m === 'nullBlock'    && mv > 0) placeNullBlocks(mv);
+  if (m === 'frozenCell'   && mv > 0) placeFrozenCells(mv);
+  if (m === 'flipDice'     && mv > 0) placeFlipDice(mv);
+  if (m === 'bombDice'     && mv > 0) placeBombDice(mv);
+  if (m === 'diseasedDice' && mv > 0) placeDiseasedDice(mv);
+
   spawnerDice = []; parkedDice = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
   setTimeout(() => {
@@ -1000,7 +1265,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderParking();
   updateScoreBar();
   const goalTargetEl = document.getElementById('db-goal-target');
-  if (goalTargetEl) goalTargetEl.textContent = SCORE_TARGET;
+  if (goalTargetEl) goalTargetEl.textContent = todayChallenge.winType === 'chainGoal'
+    ? `${todayChallenge.target} chain`
+    : SCORE_TARGET;
 
   // All static icons — [id, iconName, size, color|null]
   [

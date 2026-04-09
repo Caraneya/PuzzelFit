@@ -1,81 +1,118 @@
-You are setting up a new PuzzleFit game. The argument is the game name: $ARGUMENTS
+# NewGame — Game Bible Generator
 
-Follow this workflow exactly. Do not skip steps or batch questions.
-
----
-
-## Step 0 — Scaffold the folder
-
-Create the folder `Games/$ARGUMENTS/` with these three empty files:
-- `$ARGUMENTS.html` — linked to `../../tokens.css`, `../../components.css`, `../../game-utils.js`, `./$ARGUMENTS.css`, `./$ARGUMENTS.js`
-- `$ARGUMENTS.css` — with a header comment "GAME — $ARGUMENTS styles. Requires: tokens.css + components.css loaded first."
-- `$ARGUMENTS.js` — with a header comment and a `document.addEventListener('DOMContentLoaded', () => { ... })` shell
-
-The HTML file must have:
-- `screen-home` as `class="proto-screen is-visible is-active"` (no `inert`)
-- All other proto-screens as `class="proto-screen"` with `inert` attribute
-- A `.proto-badge` div with the game name
+Use this skill when the user shares a completed Game Passport (block starting with GAME PASSPORT), or says "start a new game" / "process this passport" / "here is my game passport".
 
 ---
 
-## Step 1–8 — Shared screens (one at a time)
+## Step 1 — Parse the Passport
 
-Go through each screen below **one by one**. After the user answers, implement that screen before moving to the next.
+Extract: name, icon, core fantasy, primary action, match rule, feedback response, skill expression, depth layer, win tags, lose tags, animation mood and file, tutorial count and notes, hint system enabled/detail, settings list, stats list.
 
-### 1. Tutorial
-Ask: "How many tutorial steps does this game need?" (default: 5)
-Ask: "Write the step titles/descriptions yourself, or should I generate them from the game rules?"
-- If Claude-generates: draft step content and show for approval before building.
-- Last step button always reads "Play" instead of "Next".
-- Build as a separate `tutorial.html` per game using shared `.tutorial` CSS classes.
-
-### 2. Pause
-Standard `.sheet` prefab — single primary action "Continue playing". No questions. Build it.
-
-### 3. Congratulations / Game Over
-Standard `.sheet` prefab.
-- Win sheet: secondary "Share the win" + primary "Explore challenges". Add `data-no-dismiss` attribute.
-- Lose sheet: single primary "Explore challenges". Add `data-no-dismiss` attribute.
-No questions. Build both.
-
-### 4. Instructions
-Ask: "Write the instructions yourself, or should I generate from the game rules?"
-- Self-written: collect 3–10 instruction strings from the user.
-- Claude-generated: draft them and show for approval.
-- Min 3, max 10 items.
-
-### 5. Calendar
-Standard prefab (day/week/month picker).
-Ask: "Any custom markers, streaks, or special day states for the calendar?"
-
-### 6. Settings
-Ask: "Which settings to include?" — let user pick from:
-  - Music (toggle)
-  - Sound (toggle)
-  - Theme (light / auto / dark segment)
-  - Dominant hand (left / right toggle)
-Ask: "Extra button or overflow menu inside Settings?"
-If nothing selected: default to Sound + Theme for puzzle games.
-
-### 7. Statistics
-Ask: "Which stat display?" — let user pick from:
-  - Gallery (grid of best scores)
-  - Progress bars
-  - Added goals
-  - Unlocked levels
-If nothing selected: default to Gallery with Claude-suggested metrics for the game type.
-
-### 8. Rating Form
-Standard prefab (star rating + tickbox + text input for suggestions).
-Ask: "Any custom prompt text or extra fields?"
+Acknowledge in one sentence, then move to Step 2.
 
 ---
 
-## Implementation rules (always apply)
+## Step 2 — Request Figma Game Screen
 
-- Feature change order: HTML structure → CSS tokens/classes → JS behaviour. Never write JS against IDs that don't exist yet.
-- All colour and spacing values must use tokens from `tokens.css`. No hardcoded hex or px.
-- `Icons.render()` valid colors: `default | muted | accent | on-primary | primary | error | warning | tertiary`. Never use `secondary`.
-- Win and Lose sheets must have `data-no-dismiss` on their `.sheet-overlay` element.
-- Every `proto-screen` except the initial home screen must have the `inert` attribute in HTML.
-- After completing all 8 screens, confirm with the user before starting any game-specific gameplay code.
+Say: "Got it! Share your Figma game screen design (the gameplay board). I will extract grid dimensions, piece values, timer setup, and score targets from it automatically."
+
+Wait for the Figma URL or screenshot.
+
+---
+
+## Step 3 — Extract Game Variables from Figma
+
+Document in SCREAMING_SNAKE_CASE with inline comments. Fill these groups:
+
+```
+BOARD: BOARD_COLS, BOARD_ROWS, PARK_SLOTS
+CORE MECHANIC: face/piece min-max, spawn probabilities, weight biases
+SCORING: SCORE_PER_ACTION, SCORE_MULTIPLIER_BASE, SCORE_MULTIPLIER_MAX, SCORE_MULTIPLIER_DECAY
+TIMED CHALLENGE: TIMER_DURATION_SEC, bonus seconds per successful action
+DAILY CHALLENGE: DAILY_SCORE_TARGET_BASE, _INCREMENT, _MAX, _STREAK_BONUS_MULTIPLIER
+ANIMATION TIMING: ANIM_PLACE_MS, ANIM_VANISH_MS, ANIM_CHAIN_DELAY_MS, ANIM_SCORE_POP_MS
+TUTORIAL: TUTORIAL_SESSION_COUNT=2, TUTORIAL_HINT_DELAY_MS=1500
+```
+
+---
+
+## Step 4 — Generate Derived Content
+
+**One-Line Pitch:** [Action verb] [core object] [win condition twist].
+
+**Win/Lose Conditions:** Expand each selected tag with exact trigger, edge case, and retry CTA label.
+
+**Engagement loops:**
+- Core Loop (30 sec): receive → decide → action → match check → feedback → repeat
+- Session Loop (2-4 min): start → build score → tension peaks → end → results → CTA
+- Meta Loop: daily streak → daily challenge modifier → leaderboard → share → cosmetics
+
+**Daily Challenge Concept:** one themed daily modifier per day that fits the mechanic.
+
+**Difficulty Curve — 5 tiers:**
+- Onboarding (1-3): easiest settings, bias toward easy pieces, core mechanic only
+- Hook (4-10): +10% difficulty, 2nd mechanic introduced
+- Engagement (11-25): +15%, neutral distribution, daily modifiers begin
+- Challenge (26-50): +20%, bias toward harder pieces, variant board mode
+- Mastery (51+): skill-adaptive, weekly reset challenge
+
+---
+
+## Step 5 — Create the Game Folder
+
+Create: `Games/[game-name]/`
+
+### 5a. `Games/[game-name]/[game-name]-game-bible.html`
+
+7 sections (match structure from existing game bibles in the project):
+1. Game Overview — kv-grid
+2. Core Mechanic — prose paragraphs
+3. Win / Lose Conditions — data-table
+4. Game Feel and Juice — feel-grid, 8+ moment cards
+5. Game Variables — pre/code block, SCREAMING_SNAKE_CASE, grouped
+6. Difficulty Curve — color-coded data-table, 5 rows
+7. Engagement Loops — loop-blocks (Core/Session/Meta) + retention hooks note
+
+STRICTLY ENFORCED:
+- Link `../../tokens.css`, `../../components.css`, `../../utility-pages.css` — zero hardcoded hex values
+- `data-theme="light"` on html element
+- `.back-btn` links to `../../GamePage.html`
+
+### 5b. `Games/[game-name]/[game-name].css`
+
+```css
+/* === [Game Name] — Game Stylesheet ===========================
+   Per-game CSS overrides and gameplay-specific custom properties.
+   Requires: ../../tokens.css, ../../components.css
+   Run the /game-styleguide skill to populate this file.
+   =========================================================== */
+```
+
+### 5c. `Games/[game-name]/[game-name]-styleguide.html` (stub)
+
+Link `../../tokens.css`, `../../components.css`, `./[game-name].css`.
+`.back-btn` links to `../../GamePage.html`.
+Show placeholder: "Run the /game-styleguide skill to generate this page."
+
+---
+
+## Step 6 — Update GamePage.html
+
+Insert a new game card in `.games-grid`, BEFORE any placeholder card.
+Use: emoji icon, game name, one-line pitch, `status-badge--active` labeled "In progress".
+Link `href` to `./Games/[game-name]/[game-name]-game-bible.html`.
+
+---
+
+## Handoff
+
+```
+Game Passport processed.
+Folder created: Games/[game-name]/
+  [game-name]-game-bible.html  — full game bible
+  [game-name].css              — stub, ready for /game-styleguide
+  [game-name]-styleguide.html  — stub, ready for /game-styleguide
+GamePage.html updated — [game-name] card added.
+
+Next step: /game-styleguide
+```
