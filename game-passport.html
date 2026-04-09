@@ -509,7 +509,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: var(--space-2);
+      margin-bottom: var(--space-3);
     }
     .tutorial-step-num {
       font-size: var(--font-size-small);
@@ -518,9 +518,20 @@
       letter-spacing: var(--letter-spacing-wide);
       text-transform: uppercase;
     }
+    .tutorial-step-fields { display: flex; flex-direction: column; gap: var(--space-2); }
+    .tutorial-field-label {
+      font-size: 11px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-tertiary);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
 
-    /* ── SAVE BUTTON ── */
+    /* ── ACTION BUTTONS ── */
+    .passport-actions { display: flex; gap: var(--space-3); margin-bottom: var(--space-4); }
     .save-btn {
+      flex: 1;
       padding: var(--space-4) var(--space-6);
       border-radius: var(--radius-sm);
       border: var(--stroke-thin) solid var(--color-surface-alt);
@@ -534,6 +545,13 @@
       white-space: nowrap;
     }
     .save-btn:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+    .save-btn--primary {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: var(--color-text-on-accent);
+    }
+    .save-btn--primary:hover { opacity: 0.9; border-color: var(--color-accent); color: var(--color-text-on-accent); }
+    .save-btn--primary.is-copied { background: var(--color-success); border-color: var(--color-success); }
 
     /* ── TOAST ── */
     .toast-bar {
@@ -621,7 +639,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label form-label--required" for="primary-action">Primary Action</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'primary-action')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'primary-action')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="primary-action" placeholder="Each turn, the player…" rows="3"></textarea>
         <p class="form-hint">The physical or logical action taken each turn. Be specific about input (tap, drag, swipe).</p>
@@ -630,7 +648,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label form-label--required" for="match-rule">Match / Resolve Rule</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'match-rule')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'match-rule')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="match-rule" placeholder="After the action, the game checks…" rows="3"></textarea>
         <p class="form-hint">What rule determines whether the action succeeded? What triggers a clear, merge, or score?</p>
@@ -639,7 +657,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="feedback-response">Feedback Response</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'feedback-response')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'feedback-response')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="feedback-response" placeholder="The player immediately sees / hears…" rows="3"></textarea>
         <p class="form-hint">Describe the visual and audio moment. This is the "juice" — the satisfying instant of feedback.</p>
@@ -648,7 +666,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="skill-expression">Skill Expression</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'skill-expression')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'skill-expression')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="skill-expression" placeholder="An expert plans 3–5 moves ahead and…  A beginner tends to…" rows="3"></textarea>
         <p class="form-hint">What separates a skilled player from a new one? What does mastery look like?</p>
@@ -657,7 +675,7 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="depth-layer">Depth Layer</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'depth-layer')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'depth-layer')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="depth-layer" placeholder="The twist that adds strategic depth is…" rows="3"></textarea>
         <p class="form-hint">The secondary mechanic or special slot that creates risk/reward tension. E.g. the Park slot in Dicer.</p>
@@ -672,15 +690,15 @@
       <div class="form-group">
         <label class="form-label form-label--required">Win Condition</label>
         <div class="tag-group" id="win-tags">
-          <button class="tag-btn" data-value="score-target"    onclick="toggleTag(this)"><span class="tag-check">✓ </span>Reach Score Target</button>
-          <button class="tag-btn" data-value="board-cleared"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Clear the Board</button>
-          <button class="tag-btn" data-value="survive-timer"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Survive the Timer</button>
-          <button class="tag-btn" data-value="sequence"        onclick="toggleTag(this)"><span class="tag-check">✓ </span>Complete a Sequence</button>
-          <button class="tag-btn" data-value="pattern-match"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Match a Pattern</button>
-          <button class="tag-btn" data-value="fill-grid"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Fill the Grid</button>
-          <button class="tag-btn" data-value="chain-goal"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Chain Reaction Goal</button>
-          <button class="tag-btn" data-value="daily-challenge" onclick="toggleTag(this)"><span class="tag-check">✓ </span>Daily Challenge</button>
-          <button class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'win-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
+          <button type="button" class="tag-btn" data-value="score-target"    onclick="toggleTag(this)"><span class="tag-check">✓ </span>Reach Score Target</button>
+          <button type="button" class="tag-btn" data-value="board-cleared"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Clear the Board</button>
+          <button type="button" class="tag-btn" data-value="survive-timer"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Survive the Timer</button>
+          <button type="button" class="tag-btn" data-value="sequence"        onclick="toggleTag(this)"><span class="tag-check">✓ </span>Complete a Sequence</button>
+          <button type="button" class="tag-btn" data-value="pattern-match"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Match a Pattern</button>
+          <button type="button" class="tag-btn" data-value="fill-grid"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Fill the Grid</button>
+          <button type="button" class="tag-btn" data-value="chain-goal"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Chain Reaction Goal</button>
+          <button type="button" class="tag-btn" data-value="daily-challenge" onclick="toggleTag(this)"><span class="tag-check">✓ </span>Daily Challenge</button>
+          <button type="button" class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'win-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
         </div>
         <div class="custom-tag-input-wrap" id="win-custom-wrap" style="display:none">
           <input class="form-input" type="text" id="win-custom" placeholder="Describe your custom win condition…" />
@@ -692,13 +710,13 @@
       <div class="form-group">
         <label class="form-label form-label--required">Lose Condition</label>
         <div class="tag-group" id="lose-tags">
-          <button class="tag-btn" data-value="board-full"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Board Full / No Space</button>
-          <button class="tag-btn" data-value="timer-out"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Timer Runs Out</button>
-          <button class="tag-btn" data-value="lives-depleted"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>Lives Depleted</button>
-          <button class="tag-btn" data-value="wrong-move"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Wrong Move (instant fail)</button>
-          <button class="tag-btn" data-value="no-valid-moves"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>No Valid Moves Left</button>
-          <button class="tag-btn" data-value="streak-broken"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Streak Broken</button>
-          <button class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'lose-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
+          <button type="button" class="tag-btn" data-value="board-full"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Board Full / No Space</button>
+          <button type="button" class="tag-btn" data-value="timer-out"       onclick="toggleTag(this)"><span class="tag-check">✓ </span>Timer Runs Out</button>
+          <button type="button" class="tag-btn" data-value="lives-depleted"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>Lives Depleted</button>
+          <button type="button" class="tag-btn" data-value="wrong-move"      onclick="toggleTag(this)"><span class="tag-check">✓ </span>Wrong Move (instant fail)</button>
+          <button type="button" class="tag-btn" data-value="no-valid-moves"  onclick="toggleTag(this)"><span class="tag-check">✓ </span>No Valid Moves Left</button>
+          <button type="button" class="tag-btn" data-value="streak-broken"   onclick="toggleTag(this)"><span class="tag-check">✓ </span>Streak Broken</button>
+          <button type="button" class="tag-btn tag-btn--custom" data-value="custom" onclick="toggleCustomTag(this,'lose-custom-wrap')"><span class="tag-check">✓ </span>Custom…</button>
         </div>
         <div class="custom-tag-input-wrap" id="lose-custom-wrap" style="display:none">
           <input class="form-input" type="text" id="lose-custom" placeholder="Describe your custom lose condition…" />
@@ -779,11 +797,11 @@
       <div class="form-group">
         <label class="form-label">Animation Mood</label>
         <div class="tag-group" id="mood-tags">
-          <button class="tag-btn" data-group="mood" data-value="calm"       onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Calm</button>
-          <button class="tag-btn" data-group="mood" data-value="playful"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Playful</button>
-          <button class="tag-btn" data-group="mood" data-value="energetic"  onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Energetic</button>
-          <button class="tag-btn" data-group="mood" data-value="mysterious" onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Mysterious</button>
-          <button class="tag-btn" data-group="mood" data-value="minimal"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Minimal</button>
+          <button type="button" class="tag-btn" data-group="mood" data-value="calm"       onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Calm</button>
+          <button type="button" class="tag-btn" data-group="mood" data-value="playful"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Playful</button>
+          <button type="button" class="tag-btn" data-group="mood" data-value="energetic"  onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Energetic</button>
+          <button type="button" class="tag-btn" data-group="mood" data-value="mysterious" onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Mysterious</button>
+          <button type="button" class="tag-btn" data-group="mood" data-value="minimal"    onclick="toggleTagSingle(this)"><span class="tag-check">✓ </span>Minimal</button>
         </div>
       </div>
 
@@ -819,9 +837,9 @@
       <div class="form-group">
         <label class="form-label">Number of Tutorial Steps</label>
         <div class="number-input-wrap">
-          <button class="number-btn" onclick="changeNumber('tutorial-count', -1)">−</button>
+          <button type="button" class="number-btn" onclick="changeNumber('tutorial-count', -1)">−</button>
           <span class="number-display" id="tutorial-count">3</span>
-          <button class="number-btn" onclick="changeNumber('tutorial-count', 1)">+</button>
+          <button type="button" class="number-btn" onclick="changeNumber('tutorial-count', 1)">+</button>
           <span class="number-label">steps (max 8)</span>
         </div>
       </div>
@@ -837,13 +855,13 @@
       <div class="form-group">
         <label class="form-label">Does this game have hints?</label>
         <div class="toggle-group">
-          <button class="toggle-btn is-active" id="hints-yes" onclick="setHints(true)">Yes</button>
-          <button class="toggle-btn" id="hints-no" onclick="setHints(false)">No</button>
+          <button type="button" class="toggle-btn is-active" id="hints-yes" onclick="setHints(true)">Yes</button>
+          <button type="button" class="toggle-btn" id="hints-no" onclick="setHints(false)">No</button>
         </div>
         <div id="hint-detail-wrap">
           <div class="form-label-row">
             <label class="form-label" for="hint-detail">What do hints reveal?</label>
-            <button class="generate-btn" onclick="toggleGenerate(this,'hint-detail')">✦ Generate</button>
+            <button type="button" class="generate-btn" onclick="toggleGenerate(this,'hint-detail')">✦ Generate</button>
           </div>
           <textarea class="form-textarea" id="hint-detail" placeholder="Hints highlight the best cell to place the current piece, showing a glowing outline…" rows="3"></textarea>
         </div>
@@ -1000,14 +1018,14 @@
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="score-bar-metrics">What metrics appear in the score bar?</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'score-bar-metrics')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'score-bar-metrics')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="score-bar-metrics" rows="2" placeholder="e.g. Current score, moves left, time elapsed…"></textarea>
       </div>
       <div class="form-group">
         <div class="form-label-row">
           <label class="form-label" for="score-bar-icons">What icons or visuals represent each metric?</label>
-          <button class="generate-btn" onclick="toggleGenerate(this,'score-bar-icons')">✦ Generate</button>
+          <button type="button" class="generate-btn" onclick="toggleGenerate(this,'score-bar-icons')">✦ Generate</button>
         </div>
         <textarea class="form-textarea" id="score-bar-icons" rows="2" placeholder="e.g. ⭐ for score, ↔ for moves, ⏱ for time…"></textarea>
       </div>
@@ -1020,7 +1038,10 @@
 
       <div class="passport-output-area" id="passport-output-area"></div>
 
-      <button class="save-btn" style="width:100%;margin-bottom:var(--space-4)" onclick="saveAnswers()">💾 Save Passport</button>
+      <div class="passport-actions">
+        <button type="button" class="save-btn" onclick="saveAnswers()">💾 Download contents</button>
+        <button type="button" class="save-btn save-btn--primary" id="copy-passport-btn" onclick="copyPassport(this)">Copy passport</button>
+      </div>
 
       <div class="handoff-note">
         <strong>What happens next:</strong>
@@ -1035,8 +1056,8 @@
 
     <!-- NAVIGATION -->
     <div class="step-nav">
-      <button class="nav-btn" id="nav-back" onclick="prevStep()" disabled>← Back</button>
-      <button class="nav-btn nav-btn--primary" id="nav-next" onclick="nextStep()">Next →</button>
+      <button type="button" class="nav-btn" id="nav-back" onclick="prevStep()" disabled>← Back</button>
+      <button type="button" class="nav-btn nav-btn--primary" id="nav-next" onclick="nextStep()">Next →</button>
     </div>
 
   </div>
@@ -1123,27 +1144,63 @@
     // ── Tutorial steps render ─────────────────────────────────────
     function renderTutorialSteps(count) {
       const wrap = document.getElementById('tutorial-steps-wrap');
-      const existing = [...wrap.querySelectorAll('.tutorial-step-input')].map(inp => inp.value);
+      // Preserve existing values before clearing
+      const existingTitles = [...wrap.querySelectorAll('.tutorial-step-title')].map(inp => inp.value);
+      const existingDescs  = [...wrap.querySelectorAll('.tutorial-step-desc')].map(inp => inp.value);
       wrap.innerHTML = '';
       for (let i = 1; i <= count; i++) {
-        const saved = (existing[i - 1] || '').replace(/"/g, '&quot;');
+        const savedTitle = (existingTitles[i - 1] || '').replace(/"/g, '&quot;');
+        const savedDesc  = (existingDescs[i - 1]  || '').replace(/"/g, '&quot;');
+        const isGen = !!generateFields[`tutorial-step-${i}`];
         const card = document.createElement('div');
         card.className = 'tutorial-step-card';
-        const isGen = !!generateFields[`tutorial-step-${i}`];
         card.innerHTML = `
           <div class="tutorial-step-header">
             <span class="tutorial-step-num">Step ${i}</span>
-            <button class="generate-btn${isGen ? ' is-toggled' : ''}" onclick="toggleGenerate(this,'tutorial-step-${i}')">${isGen ? '✦ Generates ✓' : '✦ Generate'}</button>
+            <button type="button" class="generate-btn${isGen ? ' is-toggled' : ''}" onclick="toggleTutorialStep(this,${i})">${isGen ? '✦ Generates ✓' : '✦ Generate'}</button>
           </div>
-          <input class="form-input tutorial-step-input"
-                 id="tutorial-step-${i}"
-                 type="text"
-                 placeholder="${isGen ? 'Claude will generate this after you complete the form.' : `Step ${i}: Teach the player how to…`}"
-                 value="${saved}"
-                 ${isGen ? 'disabled' : ''} />
+          <div class="tutorial-step-fields">
+            <div>
+              <div class="tutorial-field-label">Title</div>
+              <input class="form-input tutorial-step-title"
+                     id="tutorial-step-${i}-title"
+                     type="text"
+                     placeholder="${isGen ? 'Claude will generate this.' : `e.g. Place your first piece`}"
+                     value="${savedTitle}"
+                     ${isGen ? 'disabled' : ''} />
+            </div>
+            <div>
+              <div class="tutorial-field-label">Description</div>
+              <input class="form-input tutorial-step-desc"
+                     id="tutorial-step-${i}-desc"
+                     type="text"
+                     placeholder="${isGen ? 'Claude will generate this.' : `e.g. Tap an empty cell to place a piece on the board.`}"
+                     value="${savedDesc}"
+                     ${isGen ? 'disabled' : ''} />
+            </div>
+          </div>
         `;
         wrap.appendChild(card);
       }
+    }
+
+    function toggleTutorialStep(btn, i) {
+      const key = `tutorial-step-${i}`;
+      const isNowOn = !generateFields[key];
+      generateFields[key] = isNowOn;
+      const titleField = document.getElementById(`${key}-title`);
+      const descField  = document.getElementById(`${key}-desc`);
+      if (isNowOn) {
+        btn.textContent = '✦ Generates ✓';
+        btn.classList.add('is-toggled');
+        [titleField, descField].forEach(f => { if (f) { f.disabled = true; f.placeholder = 'Claude will generate this.'; } });
+      } else {
+        btn.textContent = '✦ Generate';
+        btn.classList.remove('is-toggled');
+        if (titleField) { titleField.disabled = false; titleField.placeholder = `e.g. Place your first piece`; }
+        if (descField)  { descField.disabled  = false; descField.placeholder  = `e.g. Tap an empty cell to place a piece on the board.`; }
+      }
+      showToast(isNowOn ? `Claude will generate Step ${i}` : `Step ${i} unlocked — fill it manually`);
     }
 
     // ── Generate toggles ──────────────────────────────────────────
@@ -1249,8 +1306,13 @@
     }
 
     function getTutorialSteps() {
-      return [...document.querySelectorAll('.tutorial-step-input')]
-        .map((inp, i) => ({ step: i + 1, text: inp.value.trim() }));
+      const titles = [...document.querySelectorAll('.tutorial-step-title')];
+      const descs  = [...document.querySelectorAll('.tutorial-step-desc')];
+      return titles.map((t, i) => ({
+        step:  i + 1,
+        title: t.value.trim(),
+        desc:  (descs[i] ? descs[i].value.trim() : ''),
+      }));
     }
 
     function getChecked(name) {
@@ -1318,7 +1380,10 @@
         ``,
         `TUTORIAL`,
         `  Steps          ${tutorialCount}`,
-        ...tutSteps.map(s => `  Step ${s.step}      ${s.text || '(not filled)'}`),
+        ...tutSteps.flatMap(s => [
+          `  Step ${s.step} Title  ${s.title || '(not filled)'}`,
+          `  Step ${s.step} Desc   ${s.desc  || '(not filled)'}`,
+        ]),
         ``,
         `HINT SYSTEM`,
         `  Enabled        ${hasHints ? 'Yes' : 'No'}`,
@@ -1375,7 +1440,7 @@
         boardFigmaLink:   val('board-figma-link'),
         animationMood:    document.querySelector('#mood-tags .tag-btn.is-selected')?.dataset.value || '',
         tutorialCount,
-        tutorialSteps:    getTutorialSteps().map(s => s.text),
+        tutorialSteps:    getTutorialSteps(),
         hasHints,
         hintDetail:       val('hint-detail'),
         settings:         getChecked('settings'),
@@ -1443,6 +1508,19 @@
       }
 
       showToast(`Saved — all uploaded files downloaded alongside`);
+    }
+
+    // ── Copy passport text ────────────────────────────────────────
+    async function copyPassport(btn) {
+      const text = document.getElementById('passport-output-area').textContent;
+      if (!text) { showToast('Generate the passport first'); return; }
+      await navigator.clipboard.writeText(text);
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('is-copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy passport';
+        btn.classList.remove('is-copied');
+      }, 2000);
     }
 
 

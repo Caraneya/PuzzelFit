@@ -4,39 +4,29 @@ saved: 2026-04-09
 ---
 
 ## Goal
-Building out the PuzzleFit project infrastructure and Dobbelaar game. Current session focused on skill/command cleanup and shared CSS architecture.
+Building out the PuzzleFit project — a suite of casual puzzle games. This session added Nonogram as a new game and fixed the `/new-game` skill to restore the pipeline row step that was missing.
 
 ## Decisions
-- `game-page` and `game-passport` skills deleted — consolidated into a single `/new-game` skill using game-passport rules
-- `/new-game` now: parses passport → requests Figma screen → extracts variables → generates derived content → creates game-bible.html + CSS stub + styleguide stub → updates GamePage.html
-- Game bible pages default to `data-theme="light"` on the `<html>` element
-- Nonogram game removed from the project (was never started)
-- `utility-pages.css` created in project root — holds all generic `.bible-*` layout/component styles
-- Dobbelaar-specific chip variants (`.bible-chip--*`) stay inline in dobbelaar-bible.html since they reference game-specific tokens (`--color-die-5`, etc.)
-- `/new-game` skill enforces linking `tokens.css` + `components.css` + `utility-pages.css` for all future game bibles
+- `new-game.md` Step 6 split into 6a (game card in `.games-grid`) and 6b (pipeline row in `.pipeline-wrap`) — pipeline row was missing from the skill and has been restored
+- Pipeline row statuses: `pipeline-step--done` / `pipeline-step--active` / `pipeline-step--next` / unstyled — must be kept up to date as each skill completes
+- Per-game pipeline steps: Bible → Styleguide → GameBuild → Challenges → QA
 
 ## Work completed
-- `.claude/commands/new-game.md` — replaced with consolidated game-passport rules; links updated to include `utility-pages.css`
-- `.claude/commands/game-passport.md` — deleted
-- `.claude/commands/game-page.md` — deleted
-- `Games/Dobbelaar/dobbelaar-bible.html` — `data-theme="light"` added; inline `<style>` reduced to chip variants only; now links `utility-pages.css`
-- `GamePage.html` — Nonogram card removed
-- `utility-pages.css` — created with all generic `.bible-*` styles (layout, header, proto-btn, section, card, tag-list, step-list, scorebar, stat-grid, mechanic-list, back-link)
+- `.claude/commands/new-game.md` — Step 6 restored with 6b pipeline row instruction + HTML template
+- `Games/Nonogram/` folder bootstrapped — bible, css stub, styleguide stub (see local checkpoint for detail)
+- `GamePage.html` — Nonogram game card added; Dobbelaar and Nonogram pipeline rows added to `.pipeline-wrap`
 
 ## Open threads
-- Visual QA of all 4 Dobbelaar tutorial steps not yet confirmed in browser
-- `chainGoal` win condition not implemented — falls back to 300 pts score target
-- `wildDice`, `diseasedDice`, `bombDice`, `frozenCell`, `flipDice` are data-only stubs
-- `Challenges.html` and calendar panel not visually QA'd yet
-- git push still pending (was failing due to credential dialog cancellation)
+- Dobbelaar `dobbelaar-styleguide.html` existence not confirmed — pipeline links to it, may 404
+- `flow-prototype.html` (root) exists as a link in the Foundation pipeline row but file may not exist yet
+- git push still pending from previous session
 
 ## Constraints
-- Never use PowerShell `WriteAllText` with complex string interpolation — use Edit tool only
-- No hardcoded hex colors or px sizes — tokens only
-- `utility-pages.css` is for utility/documentation pages only — never import it from actual game screens
-- `/new-game` skill: bible HTML must link tokens.css + components.css + utility-pages.css, `data-theme="light"` on html element
-- Game-specific chip/modifier visuals stay in the game's bible file, not in utility-pages.css
-- `/populate-challenges` must never auto-apply wiring changes — always present diff and wait for approval
+- No hardcoded hex values — tokens only
+- `data-theme="light"` on `<html>` is FORCED BRIGHT for all bible/utility pages — never omit
+- `utility-pages.css` is for utility/documentation pages only — never import from actual game screens
+- All `<button>` elements must have `type="button"` explicitly
+- `/new-game` skill: Step 6 must always create both game card AND pipeline row
 
 ## Next step
-Push pending commits (`git push`), then continue Dobbelaar modifier implementation — tackle `chainGoal` win condition or `wildDice` mechanic next.
+Run `/game-styleguide` for Nonogram to populate `nonogram.css` and `nonogram-styleguide.html`.

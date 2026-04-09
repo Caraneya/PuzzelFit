@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" id="game-root" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nonogram — Game Bible</title>
+  <link rel="stylesheet" href="../../tokens.css" />
+  <link rel="stylesheet" href="../../components.css" />
+  <link rel="stylesheet" href="../../utility-pages.css" />
+  <style>
+    /* Cell state chips — Nonogram-specific */
+    .bible-chip--filled {
+      background: var(--color-text-primary);
+      border-color: transparent;
+    }
+    .bible-chip--marked {
+      background: var(--color-surface-alt);
+      border-color: var(--color-text-tertiary);
+      color: var(--color-text-tertiary);
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-bold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bible-chip--empty {
+      background: var(--color-surface);
+      border: var(--stroke-medium) solid var(--color-surface-alt);
+    }
+    .bible-chip--hint {
+      background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
+      border-color: var(--color-accent);
+    }
+
+    /* Game variables block */
+    .bible-vars {
+      background: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-5) var(--space-6);
+      overflow-x: auto;
+    }
+    .bible-vars pre {
+      margin: 0;
+      font-family: var(--font-family-mono, monospace);
+      font-size: var(--font-size-small);
+      line-height: 1.7;
+      color: var(--color-text-primary);
+      white-space: pre;
+    }
+    .bible-vars .comment { color: var(--color-text-tertiary); }
+
+    /* Difficulty table */
+    .bible-diff-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-small);
+    }
+    .bible-diff-table th {
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+    }
+    .bible-diff-table td {
+      padding: var(--space-2) var(--space-3);
+      color: var(--color-text-primary);
+      border-bottom: var(--stroke-thin) solid var(--color-surface-alt);
+      vertical-align: top;
+    }
+    .diff-tier { font-weight: var(--font-weight-semibold); }
+    .diff-tier--1 { color: var(--color-accent); }
+    .diff-tier--2 { color: var(--color-primary); }
+    .diff-tier--3 { color: var(--color-yellow); }
+    .diff-tier--4 { color: color-mix(in srgb, var(--color-error) 70%, var(--color-text-primary)); }
+    .diff-tier--5 { color: var(--color-error); }
+
+    /* Loop blocks */
+    .bible-loop-list { display: flex; flex-direction: column; gap: var(--space-4); }
+    .bible-loop {
+      background: var(--color-surface);
+      border: var(--stroke-thin) solid var(--color-surface-alt);
+      border-radius: var(--radius-sm);
+      padding: var(--space-4) var(--space-5);
+    }
+    .bible-loop__label {
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      letter-spacing: var(--letter-spacing-wide);
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: var(--space-2);
+    }
+    .bible-loop__steps {
+      font-size: var(--font-size-body);
+      color: var(--color-text-secondary);
+      line-height: var(--line-height-normal);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bible-layout">
+
+    <!-- Back -->
+    <button class="bible-back" id="btn-back">
+      <span class="bible-back__icon" id="icon-back"></span>
+      All games
+    </button>
+
+    <!-- Header -->
+    <div class="bible-header">
+      <div class="bible-header__icon">
+        <img src="./nonogram_icon.svg" alt="Nonogram icon" />
+      </div>
+      <div class="bible-header__text">
+        <span class="bible-header__title">Nonogram</span>
+        <span class="bible-header__sub">Game Bible · In Development</span>
+      </div>
+    </div>
+
+    <!-- Open prototype CTA -->
+    <a class="bible-proto-btn" href="./nonogram.html">
+      <span class="bible-proto-btn__icon" id="icon-proto"></span>
+      Open Flow Prototype
+    </a>
+
+    <!-- Primary Action -->
+    <div class="bible-section">
+      <span class="bible-section__label">Primary Action</span>
+      <div class="bible-card">
+        <p>The player is presented with a grid and a set of number clues along every row and every column. To solve the puzzle, the player taps an empty cell to fill it black. A second tap on a filled cell marks it with an X — indicating it is definitely empty. A third tap resets it to blank. The goal is to fill the correct cells so that each row's filled sequences match the row clues, and each column's filled sequences match the column clues.</p>
+      </div>
+    </div>
+
+    <!-- Match Rule -->
+    <div class="bible-section">
+      <span class="bible-section__label">Match Rule</span>
+      <div class="bible-card">
+        <p>A row or column is considered solved when its consecutive groups of filled cells — reading left-to-right or top-to-bottom — exactly match the clue numbers in order. Groups must be separated by at least one empty cell. The puzzle is won when every row and every column is solved simultaneously. Tapping a cell that contradicts any clue costs a life and triggers an error animation on the affected row or column clue.</p>
+      </div>
+    </div>
+
+    <!-- Win Conditions -->
+    <div class="bible-section">
+      <span class="bible-section__label">Win Conditions</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag bible-tag--win">Fill the Grid</span>
+        <span class="bible-tag bible-tag--win">Survive the Timer</span>
+        <span class="bible-tag bible-tag--win">Daily Challenge</span>
+        <span class="bible-tag bible-tag--win">Perfect Solve (no errors)</span>
+      </div>
+    </div>
+
+    <!-- Lose Conditions -->
+    <div class="bible-section">
+      <span class="bible-section__label">Lose Conditions</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag bible-tag--lose">Lives Depleted</span>
+        <span class="bible-tag bible-tag--lose">Timer Runs Out</span>
+      </div>
+    </div>
+
+    <!-- Cell States -->
+    <div class="bible-section">
+      <span class="bible-section__label">Cell States</span>
+      <div class="bible-mechanic-list">
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--empty"></div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Empty</span>
+            <span class="bible-mechanic__desc">Default state. The cell has not been interacted with. Shown as a light square with a subtle border.</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--filled"></div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Filled</span>
+            <span class="bible-mechanic__desc">The player has tapped this cell and believes it should be black. Shown as a solid dark square. First tap from empty.</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--marked">✕</div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Marked Empty (X)</span>
+            <span class="bible-mechanic__desc">The player is certain this cell must remain empty and places an X as a placeholder to avoid accidental fills. Second tap from filled, or long-press from empty. Does not cost a life.</span>
+          </div>
+        </div>
+
+        <div class="bible-mechanic">
+          <div class="bible-mechanic__chip bible-chip--hint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="var(--color-accent)"/>
+            </svg>
+          </div>
+          <div class="bible-mechanic__info">
+            <span class="bible-mechanic__name">Hinted Cell</span>
+            <span class="bible-mechanic__desc">When the player uses a hint, one cell that can be logically deduced is briefly highlighted in accent color. The system uses the overlap method to identify the most constrained unsolved cell. After a moment the highlight fades and the cell is auto-filled.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Hint System -->
+    <div class="bible-section">
+      <span class="bible-section__label">Hint System</span>
+      <div class="bible-card">
+        <p>Hints are available via a button in the score bar. Each hint costs one hint charge (players start with 3 per game). The engine scans all unsolved rows and columns and applies the overlap method: for each clue number, it calculates the leftmost and rightmost valid positions. Any cell that falls in both positions is guaranteed filled — the hint reveals the highest-confidence cell. If no cell can be guaranteed, the hint instead reveals which row or column is most constrained, nudging the player to examine it.</p>
+      </div>
+    </div>
+
+    <!-- Tutorial -->
+    <div class="bible-section">
+      <span class="bible-section__label">Tutorial (5 steps)</span>
+      <div class="bible-step-list">
+        <div class="bible-step"><span class="bible-step__num">1</span><span class="bible-step__text">Complete rows: To start, choose the dark square. Color the rows based on the numbers nearby.</span></div>
+        <div class="bible-step"><span class="bible-step__num">2</span><span class="bible-step__text">Sequences: Each number represents a square sequence. If an end is already filled, there is only one solution.</span></div>
+        <div class="bible-step"><span class="bible-step__num">3</span><span class="bible-step__text">Space and order: More numbers indicates that there must be at least one space. The order indicates how the squares must be arranged.</span></div>
+        <div class="bible-step"><span class="bible-step__num">4</span><span class="bible-step__text">Overlaps: If the number sequences overlap in both the columns and the rows, a black square must be placed where they touch.</span></div>
+        <div class="bible-step"><span class="bible-step__num">5</span><span class="bible-step__text">Final steps: Check the boxes that are definitely empty. Not sure? Use the other color as a placeholder and replace it at the end.</span></div>
+      </div>
+    </div>
+
+    <!-- Score Bar -->
+    <div class="bible-section">
+      <span class="bible-section__label">Score Bar</span>
+      <div class="bible-card">
+        <div class="bible-scorebar-preview">
+          <div class="bible-scorebar-item">
+            <span class="bible-scorebar-item__icon" id="icon-lives"></span>
+            Lives
+          </div>
+          <div class="bible-scorebar-item">
+            <span class="bible-scorebar-item__icon" id="icon-difficulty"></span>
+            Difficulty
+          </div>
+        </div>
+        <p style="margin-top: var(--space-3); font-size: var(--font-size-small); color: var(--color-text-secondary);">Lives are shown as a row of circles. Remaining lives are filled orange; lost lives are grey. One circle turns grey per incorrect cell tap. Difficulty is labelled (Easy / Medium / Hard) and represented by a stair-step icon.</p>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="bible-section">
+      <span class="bible-section__label">Settings</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag">Theme (Dark / Light)</span>
+        <span class="bible-tag">Sound Effects</span>
+        <span class="bible-tag">Dominant Hand</span>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="bible-section">
+      <span class="bible-section__label">Statistics</span>
+      <div class="bible-stat-grid">
+        <div class="bible-stat"><span class="bible-stat__label">Games Played</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Current Streak</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Best Streak</span><span class="bible-stat__value">—</span></div>
+        <div class="bible-stat"><span class="bible-stat__label">Best Score</span><span class="bible-stat__value">—</span></div>
+      </div>
+    </div>
+
+    <!-- Skill Expression -->
+    <div class="bible-section">
+      <span class="bible-section__label">Skill Expression</span>
+      <div class="bible-card">
+        <p>A beginner relies on trial and error — guessing cells and losing lives when wrong. An expert works deductively: using the overlap method to identify guaranteed cells first, then cross-referencing row and column constraints to eliminate possibilities without ever guessing. Experts mark definite empty cells with X to avoid accidental fills and solve complex puzzles with zero errors, unlocking perfect-solve bonuses and higher score multipliers.</p>
+      </div>
+    </div>
+
+    <!-- Depth Layer -->
+    <div class="bible-section">
+      <span class="bible-section__label">Depth Layer (Future Mechanics)</span>
+      <div class="bible-tag-list">
+        <span class="bible-tag">Coloured nonograms (multi-colour clues)</span>
+        <span class="bible-tag">Time attack — solve before timer expires</span>
+        <span class="bible-tag">Mega grids (20×20+)</span>
+        <span class="bible-tag">Daily modifier — extra constraint (e.g. no X marks allowed)</span>
+        <span class="bible-tag">Streak multiplier — consecutive correct fills build combo</span>
+      </div>
+    </div>
+
+    <!-- Animation Mood -->
+    <div class="bible-section">
+      <span class="bible-section__label">Animation Mood</span>
+      <div class="bible-card">
+        <p>Playful but precise. Cell fills have a quick pop-scale (120 ms) that feels satisfying and snappy. Incorrect taps trigger a brief red flash and a horizontal shake on the violated clue number. Completing a row or column sends a warm golden sweep across the solved line and fades the clue number to a lighter tint. Solving the full puzzle triggers a cascade ripple from the last-placed cell, spreading outward through all cells before the win screen appears.</p>
+      </div>
+    </div>
+
+    <!-- Game Variables -->
+    <div class="bible-section">
+      <span class="bible-section__label">Game Variables</span>
+      <div class="bible-vars">
+        <pre>
+<span class="comment">// ── BOARD ───────────────────────────────────────────────────</span>
+BOARD_COLS_MIN         = 5     <span class="comment">// smallest puzzle width  (onboarding)</span>
+BOARD_COLS_DEFAULT     = 10    <span class="comment">// standard grid width</span>
+BOARD_COLS_MAX         = 15    <span class="comment">// largest puzzle width   (mastery)</span>
+BOARD_ROWS_MIN         = 5     <span class="comment">// smallest puzzle height</span>
+BOARD_ROWS_DEFAULT     = 10    <span class="comment">// standard grid height</span>
+BOARD_ROWS_MAX         = 15    <span class="comment">// largest puzzle height</span>
+CELL_STATES            = 3     <span class="comment">// 0=empty · 1=filled · 2=marked-X</span>
+
+<span class="comment">// ── LIVES ────────────────────────────────────────────────────</span>
+LIVES_DEFAULT          = 3     <span class="comment">// circles shown in score bar</span>
+LIVES_MAX              = 3
+
+<span class="comment">// ── SCORING ──────────────────────────────────────────────────</span>
+SCORE_PER_CORRECT_CELL     = 10    <span class="comment">// base points per correct fill</span>
+SCORE_PER_ROW_COMPLETE     = 50    <span class="comment">// bonus when a row is solved</span>
+SCORE_PER_COL_COMPLETE     = 50    <span class="comment">// bonus when a column is solved</span>
+SCORE_PERFECT_BONUS        = 200   <span class="comment">// awarded for zero errors on solve</span>
+SCORE_TIME_BONUS_PER_SEC   = 2     <span class="comment">// remaining seconds × this</span>
+SCORE_MULTIPLIER_BASE      = 1.0   <span class="comment">// starting combo multiplier</span>
+SCORE_MULTIPLIER_MAX       = 3.0   <span class="comment">// cap</span>
+SCORE_MULTIPLIER_DECAY     = 0.5   <span class="comment">// subtracted on each error</span>
+
+<span class="comment">// ── TIMER ────────────────────────────────────────────────────</span>
+TIMER_DURATION_SEC_EASY    = 300   <span class="comment">// 5 min</span>
+TIMER_DURATION_SEC_MEDIUM  = 240   <span class="comment">// 4 min</span>
+TIMER_DURATION_SEC_HARD    = 180   <span class="comment">// 3 min</span>
+TIMER_BONUS_ROW_SEC        = 5     <span class="comment">// seconds added per completed row</span>
+TIMER_BONUS_COL_SEC        = 5     <span class="comment">// seconds added per completed column</span>
+
+<span class="comment">// ── HINTS ────────────────────────────────────────────────────</span>
+HINTS_PER_GAME             = 3     <span class="comment">// charges available each game</span>
+HINT_HIGHLIGHT_MS          = 1200  <span class="comment">// accent glow before auto-fill</span>
+
+<span class="comment">// ── DAILY CHALLENGE ──────────────────────────────────────────</span>
+DAILY_SCORE_TARGET_BASE        = 500
+DAILY_SCORE_TARGET_INCREMENT   = 50
+DAILY_SCORE_TARGET_MAX         = 2000
+DAILY_STREAK_BONUS_MULTIPLIER  = 1.1
+
+<span class="comment">// ── ANIMATION TIMING ─────────────────────────────────────────</span>
+ANIM_FILL_MS           = 120   <span class="comment">// cell pop-scale on fill</span>
+ANIM_ERROR_SHAKE_MS    = 300   <span class="comment">// clue shake on incorrect tap</span>
+ANIM_ROW_COMPLETE_MS   = 400   <span class="comment">// golden sweep across solved line</span>
+ANIM_VANISH_MS         = 500   <span class="comment">// clue fade after line solved</span>
+ANIM_SCORE_POP_MS      = 600   <span class="comment">// score bubble float-up</span>
+ANIM_CHAIN_DELAY_MS    = 80    <span class="comment">// stagger between cells in ripple</span>
+ANIM_WIN_RIPPLE_MS     = 800   <span class="comment">// full-board cascade on solve</span>
+
+<span class="comment">// ── TUTORIAL ─────────────────────────────────────────────────</span>
+TUTORIAL_SESSION_COUNT       = 2      <span class="comment">// shown on first 2 game sessions</span>
+TUTORIAL_HINT_DELAY_MS       = 1500   <span class="comment">// delay before hint arrow appears</span>
+TUTORIAL_FORCED_PUZZLE_SIZE  = 5      <span class="comment">// 5×5 forced for tutorial board</span>
+        </pre>
+      </div>
+    </div>
+
+    <!-- Difficulty Curve -->
+    <div class="bible-section">
+      <span class="bible-section__label">Difficulty Curve</span>
+      <div class="bible-card" style="padding: 0; overflow: hidden;">
+        <table class="bible-diff-table">
+          <thead>
+            <tr>
+              <th>Tier</th>
+              <th>Games</th>
+              <th>Grid</th>
+              <th>Behaviour</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="diff-tier diff-tier--1">Onboarding</span></td>
+              <td>1–3</td>
+              <td>5×5</td>
+              <td>Single-clue rows only. Timer off. Tutorial overlay active. Hints unlimited.</td>
+            </tr>
+            <tr>
+              <td><span class="diff-tier diff-tier--2">Hook</span></td>
+              <td>4–10</td>
+              <td>7×7</td>
+              <td>Multi-clue rows introduced. Timer on (Easy). 3 hint charges. X-marking introduced.</td>
+            </tr>
+            <tr>
+              <td><span class="diff-tier diff-tier--3">Engagement</span></td>
+              <td>11–25</td>
+              <td>10×10</td>
+              <td>Neutral clue distribution. Daily modifiers begin. Timer Medium. Score multiplier active.</td>
+            </tr>
+            <tr>
+              <td><span class="diff-tier diff-tier--4">Challenge</span></td>
+              <td>26–50</td>
+              <td>12×12</td>
+              <td>Dense clue sequences. Timer Hard. Bias toward complex overlap patterns. No-error bonus visible.</td>
+            </tr>
+            <tr>
+              <td><span class="diff-tier diff-tier--5">Mastery</span></td>
+              <td>51+</td>
+              <td>15×15</td>
+              <td>Skill-adaptive puzzle selection. Weekly reset challenge. Max multiplier attainable. Leaderboard eligible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Engagement Loops -->
+    <div class="bible-section">
+      <span class="bible-section__label">Engagement Loops</span>
+      <div class="bible-loop-list">
+
+        <div class="bible-loop">
+          <div class="bible-loop__label">Core Loop · ~30 sec</div>
+          <div class="bible-loop__steps">Scan clues → deduce constrained cell → tap to fill (or mark X) → match check → correct: score pop + clue progress; incorrect: shake + life lost → repeat until puzzle solved or lives/timer exhausted.</div>
+        </div>
+
+        <div class="bible-loop">
+          <div class="bible-loop__label">Session Loop · 2–4 min</div>
+          <div class="bible-loop__steps">Start puzzle → early easy deductions build momentum → mid-game intersections create tension → final constrained cells ramp up → cascade win animation → results screen (score, errors, time bonus) → CTA: Play Again or Daily Challenge.</div>
+        </div>
+
+        <div class="bible-loop">
+          <div class="bible-loop__label">Meta Loop · Daily / Weekly</div>
+          <div class="bible-loop__steps">Daily streak → daily challenge modifier → personal best chase → share score card → cosmetic unlock (future) → leaderboard position → weekly reset challenge.</div>
+        </div>
+
+      </div>
+      <div class="bible-card" style="margin-top: var(--space-4);">
+        <p><strong>Retention hooks:</strong> daily puzzle resets at midnight, streak badge on stats screen, perfect-solve badge visible to friends, increasing score target for consecutive daily wins.</p>
+      </div>
+    </div>
+
+    <!-- Daily Challenge Concept -->
+    <div class="bible-section">
+      <span class="bible-section__label">Daily Challenge Concept</span>
+      <div class="bible-card">
+        <p>One modifier per day changes the rules of a fixed shared puzzle (same grid worldwide). Examples: <strong>No Hints</strong> — hint charges removed entirely; <strong>Speed Run</strong> — timer halved, score doubled; <strong>No X Marks</strong> — placeholder marking disabled, test pure deduction; <strong>One Life</strong> — a single error ends the game; <strong>Blackout</strong> — clue numbers hidden after the first 30 seconds.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../../icons.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Icons.render(document.getElementById('icon-back'),       'chevronLeft', { size: 'sm', color: 'primary' });
+      Icons.render(document.getElementById('icon-proto'),      'play',        { size: 'sm' });
+      Icons.render(document.getElementById('icon-lives'),      'heart',       { size: 'md', color: 'primary' });
+      Icons.render(document.getElementById('icon-difficulty'), 'stairs',      { size: 'md', color: 'primary' });
+
+      document.getElementById('btn-back').addEventListener('click', () => {
+        window.location.href = '../../GamePage.html';
+      });
+    });
+  </script>
+</body>
+</html>

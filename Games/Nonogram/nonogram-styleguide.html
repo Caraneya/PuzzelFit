@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nonogram — Styleguide</title>
+  <link rel="stylesheet" href="../../tokens.css" />
+  <link rel="stylesheet" href="../../components.css" />
+  <link rel="stylesheet" href="./nonogram.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100vh;
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-normal);
+    }
+    .page-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: var(--space-12) var(--space-6) var(--space-24);
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-8);
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .back-btn:hover { background: var(--color-surface); color: var(--color-text-primary); }
+    .placeholder {
+      background: var(--color-surface);
+      border: var(--stroke-thin) dashed var(--color-text-tertiary);
+      border-radius: var(--radius-sm);
+      padding: var(--space-10) var(--space-6);
+      text-align: center;
+      color: var(--color-text-tertiary);
+      font-size: var(--font-size-body);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <a class="back-btn" href="../../GamePage.html">← All games</a>
+    <div class="placeholder">
+      Run the /game-styleguide skill to generate this page.
+    </div>
+  </div>
+</body>
+</html>

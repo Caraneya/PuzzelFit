@@ -30,9 +30,6 @@ html, body {
 }
 .bible-header__icon {
   width: 64px; height: 64px;
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
   overflow: hidden;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
@@ -50,7 +47,7 @@ html, body {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-tertiary);
+  color: var(--color-primary);
   text-transform: uppercase;
 }
 
@@ -84,7 +81,7 @@ html, body {
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-tertiary);
+  color: var(--color-primary);
   text-transform: uppercase;
   padding-bottom: var(--space-2);
   border-bottom: 1.5px solid var(--color-border);
@@ -189,7 +186,7 @@ html, body {
   font-size: 10px;
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
   text-transform: uppercase;
 }
 .bible-stat__value {

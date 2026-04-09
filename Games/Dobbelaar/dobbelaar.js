@@ -23,7 +23,7 @@ const PIP_POSITIONS = {
 
 function renderDie(value) {
   if (value === WILD_DIE) {
-    return `<div class="db-die db-die--wild"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="50" text-anchor="middle" dominant-baseline="central" font-size="54" font-family="sans-serif">★</text></svg></div>`;
+    return `<div class="db-die db-die--wild"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg></div>`;
   }
   const pips = (PIP_POSITIONS[value] || []).map(([x,y]) =>
     `<circle cx="${x}%" cy="${y}%" r="9%"/>`
@@ -46,6 +46,12 @@ const FLIP_DIE     = -3;  // flip die: inverts neighbour values when triggered
 const BOMB_DIE     = -4;  // bomb die: countdown fuse, detonates on 0
 const DISEASED_DIE = -5;  // diseased die: infects adjacent placed dice → value 6
 const WILD_DIE     =  7;  // wild die (spawner only): joins any merge group
+
+// ── SENTINEL ICONS (inline SVG strings) ──────────────────────
+const SVG_FROZEN = `<svg class="db-sentinel-icon" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.96461 21V19.0837L7.28703 20.5012L5.92399 18.9L8.96461 16.3275V12.3375L5.50459 14.3325L4.79685 18.2437L2.72608 17.8762L3.11927 15.6975L1.44168 16.6687L0.393185 14.8575L2.07077 13.8862L0 13.125L0.707733 11.1562L4.45609 12.495L7.91612 10.5L4.45609 8.505L0.707733 9.87L0 7.875L2.07077 7.14L0.393185 6.16875L1.44168 4.3575L3.11927 5.32875L2.72608 3.15L4.79685 2.7825L5.50459 6.69375L8.96461 8.68875V4.69875L5.92399 2.12625L7.28703 0.525L8.96461 1.9425V0H11.0616V1.9425L12.7392 0.525L14.1022 2.12625L11.0616 4.69875V8.68875L14.4954 6.69375L15.2031 2.7825L17.2739 3.15L16.8807 5.32875L18.5583 4.3575L19.6068 6.16875L17.9292 7.14L20 7.875L19.2923 9.87L15.5439 8.505L12.1101 10.5L15.5439 12.495L19.2923 11.1562L20 13.125L17.9292 13.8862L19.6068 14.8575L18.5583 16.6687L16.8807 15.6975L17.2739 17.8762L15.2031 18.2437L14.4954 14.3325L11.0616 12.3375V16.3275L14.1022 18.9L12.7392 20.5012L11.0616 19.0837V21H8.96461Z" fill="white"/></svg>`;
+const SVG_FLIP = `<svg class="db-sentinel-icon" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V2H14V4H12ZM12 20V18H14V20H12ZM16 4V2H18V4H16ZM16 20V18H18V20H16ZM16 16V14H18V16H16ZM16 12V10H18V12H16ZM16 8V6H18V8H16ZM6 20H0V2H6V4H2V18H6V20ZM8 22V0H10V22H8Z" fill="white"/></svg>`;
+const SVG_BOMB = `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.9297 2.03125L19.7266 2.69531C19.9089 2.77344 20 2.91667 20 3.125C19.974 3.30729 19.8828 3.4375 19.7266 3.51562L17.9297 4.17969L17.3047 5.97656C17.2266 6.15885 17.0833 6.25 16.875 6.25C16.6927 6.25 16.5625 6.15885 16.4844 5.97656L15.8203 4.17969L14.0234 3.51562C13.8411 3.4375 13.75 3.30729 13.75 3.125C13.724 2.91667 13.8151 2.77344 14.0234 2.69531L15.8203 2.03125L16.4844 0.273438C16.5625 0.0911458 16.6927 0 16.875 0C17.0573 0 17.2005 0.0911458 17.3047 0.273438L17.9297 2.03125ZM15.8984 7.22656C16.1328 7.48698 16.25 7.78646 16.25 8.125C16.25 8.46354 16.1328 8.76302 15.8984 9.02344L15.7812 9.14062C16.0937 10 16.25 10.8984 16.25 11.8359C16.1979 14.1536 15.4036 16.0807 13.8672 17.6172C12.3307 19.1536 10.4167 19.9479 8.125 20C5.83333 19.9479 3.91927 19.1536 2.38281 17.6172C0.846354 16.0807 0.0520833 14.1536 0 11.8359C0.0520833 9.54427 0.846354 7.63021 2.38281 6.09375C3.91927 4.55729 5.83333 3.76302 8.125 3.71094C9.08854 3.73698 10.013 3.90625 10.8984 4.21875L10.9766 4.10156C11.237 3.86719 11.5365 3.75 11.875 3.75C12.2135 3.75 12.513 3.86719 12.7734 4.10156L15.8984 7.22656ZM8.08594 7.5C8.47656 7.47396 8.6849 7.26562 8.71094 6.875C8.6849 6.48437 8.47656 6.27604 8.08594 6.25H7.77344C6.28906 6.27604 5.03906 6.79687 4.02344 7.8125C3.03385 8.80208 2.51302 10.0521 2.46094 11.5625V11.875C2.51302 12.2656 2.72135 12.474 3.08594 12.5C3.47656 12.474 3.6849 12.2656 3.71094 11.875V11.5625C3.73698 10.4167 4.14062 9.45312 4.92187 8.67187C5.70312 7.91667 6.65365 7.52604 7.77344 7.5H8.08594Z" fill="currentColor"/></svg>`;
+const SVG_DISEASED = `<svg class="db-sentinel-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 13.75H11.5L10 10.75L8.5 13.75ZM6.5 11C7.05 11 7.521 10.8043 7.913 10.413C8.305 10.0217 8.50067 9.55067 8.5 9C8.49934 8.44933 8.30367 7.97867 7.913 7.588C7.52234 7.19733 7.05134 7.00133 6.5 7C5.94867 6.99867 5.478 7.19467 5.088 7.588C4.698 7.98133 4.502 8.452 4.5 9C4.498 9.548 4.694 10.019 5.088 10.413C5.482 10.807 5.95267 11.0027 6.5 11ZM13.5 11C14.05 11 14.521 10.8043 14.913 10.413C15.305 10.0217 15.5007 9.55067 15.5 9C15.4993 8.44933 15.3037 7.97867 14.913 7.588C14.5223 7.19733 14.0513 7.00133 13.5 7C12.9487 6.99867 12.478 7.19467 12.088 7.588C11.698 7.98133 11.502 8.452 11.5 9C11.498 9.548 11.694 10.019 12.088 10.413C12.482 10.807 12.9527 11.0027 13.5 11ZM4 20V15.75C3.35 15.4667 2.779 15.0877 2.287 14.613C1.795 14.1383 1.37834 13.6007 1.037 13C0.69567 12.3993 0.437337 11.7577 0.262004 11.075C0.0866705 10.3923 -0.000662879 9.70067 3.78788e-06 9C3.78788e-06 6.36667 0.933337 4.20833 2.8 2.525C4.66667 0.841667 7.06667 0 10 0C12.9333 0 15.3333 0.841667 17.2 2.525C19.0667 4.20833 20 6.36667 20 9C20 9.7 19.9127 10.3917 19.738 11.075C19.5633 11.7583 19.305 12.4 18.963 13C18.621 13.6 18.2043 14.1377 17.713 14.613C17.2217 15.0883 16.6507 15.4673 16 15.75V20H13V18H11V20H9V18H7V20H4Z" fill="var(--color-surface)"/></svg>`;
 
 // chainGoal uses target = chain length, not score — use huge score so score-win never fires
 function scoreTargetFrom(ch) {
@@ -162,15 +168,15 @@ function renderBoard() {
       cell.dataset.col = c;
       const val = board[r][c];
       if      (val === NULL_BLOCK)   { cell.classList.add('db-cell--null'); }
-      else if (val === FROZEN_CELL)  { cell.classList.add('db-cell--frozen'); }
-      else if (val === FLIP_DIE)     { cell.classList.add('db-cell--flip'); }
+      else if (val === FROZEN_CELL)  { cell.classList.add('db-cell--frozen');  cell.innerHTML = SVG_FROZEN; }
+      else if (val === FLIP_DIE)     { cell.classList.add('db-cell--flip');    cell.innerHTML = SVG_FLIP; }
       else if (val === BOMB_DIE) {
         const fuse = bombFuses.get(r * GRID_COLS + c) ?? '?';
         cell.classList.add('db-cell--bomb');
         if (fuse === 1) cell.classList.add('db-cell--bomb-urgent');
-        cell.innerHTML = `<span class="db-bomb-fuse">${fuse}</span>`;
+        cell.innerHTML = `<div class="db-bomb-icon">${SVG_BOMB}</div><span class="db-bomb-fuse">${fuse}</span>`;
       }
-      else if (val === DISEASED_DIE) { cell.classList.add('db-cell--diseased'); }
+      else if (val === DISEASED_DIE) { cell.classList.add('db-cell--diseased'); cell.innerHTML = SVG_DISEASED; }
       else if (val > 0) { cell.innerHTML = renderDie(val); }
       grid.appendChild(cell);
     }

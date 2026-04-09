@@ -75,7 +75,7 @@ Create: `Games/[game-name]/`
 
 STRICTLY ENFORCED:
 - Link `../../tokens.css`, `../../components.css`, `../../utility-pages.css` — zero hardcoded hex values
-- `data-theme="light"` on html element
+- `data-theme="light"` on `<html>` — FORCED BRIGHT, never omit, never dark
 - `.back-btn` links to `../../GamePage.html`
 
 ### 5b. `Games/[game-name]/[game-name].css`
@@ -98,9 +98,30 @@ Show placeholder: "Run the /game-styleguide skill to generate this page."
 
 ## Step 6 — Update GamePage.html
 
+### 6a — Game card
 Insert a new game card in `.games-grid`, BEFORE any placeholder card.
 Use: emoji icon, game name, one-line pitch, `status-badge--active` labeled "In progress".
 Link `href` to `./Games/[game-name]/[game-name]-game-bible.html`.
+
+### 6b — Pipeline row
+Insert a new row in `.pipeline-wrap`, AFTER the Foundation row.
+Use `pipeline-track-label` = game name. Link each step to its output file.
+Mark completed steps `pipeline-step--done`, the immediate next step `pipeline-step--next`, and future steps unstyled.
+
+```html
+<div class="pipeline-row">
+  <span class="pipeline-track-label">[Game Name]</span>
+  <a class="pipeline-step pipeline-step--done"  href="./Games/[game-name]/[game-name]-game-bible.html">Bible</a>
+  <span class="pipeline-arrow">→</span>
+  <div class="pipeline-step pipeline-step--next">Styleguide</div>
+  <span class="pipeline-arrow">→</span>
+  <div class="pipeline-step">GameBuild</div>
+  <span class="pipeline-arrow">→</span>
+  <div class="pipeline-step">Challenges</div>
+  <span class="pipeline-arrow">→</span>
+  <div class="pipeline-step">QA</div>
+</div>
+```
 
 ---
 
