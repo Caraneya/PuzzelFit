@@ -1,11 +1,11 @@
 ---
 label: latest
 game: Dobbelaar
-saved: 2026-04-09
+saved: 2026-04-14
 ---
 
 ## Goal
-Full modifier mechanic implementation for Dobbelaar's 60-day daily challenge system. All 10 modifier types have working game mechanics and consistent visual design across the game board and the game bible.
+Full modifier mechanic implementation for Dobbelaar's 60-day daily challenge system. All 10 modifier types have working game mechanics and consistent visual design. This session focused on UI/UX fixes, description polish, home week wiring, and wild die mechanic rework.
 
 ## Decisions
 - Sentinel values: `NULL_BLOCK=-1`, `FROZEN_CELL=-2`, `FLIP_DIE=-3`, `BOMB_DIE=-4`, `DISEASED_DIE=-5`, `WILD_DIE=7`
@@ -13,37 +13,40 @@ Full modifier mechanic implementation for Dobbelaar's 60-day daily challenge sys
 - `SCORE_TARGET` for chainGoal is 999999 (unreachable) so score-based win never fires
 - Score bar shows `bestChainDepth/target` for chainGoal challenges instead of score/target
 - `triggerWin()` extracted from `checkWin()` — owns `chainWon` guard to prevent double-fire
-- Wild die (value 7): joins any flood-fill group but never starts one; `group_value × group.length` scoring is naturally correct
-- Flip effects run before diseased effects in `doPlace` (flip inverts pre-existing cells; diseased infects just-placed cells)
-- Bomb guard: only calls `detonateBomb` when `!isMerging` to avoid mid-animation lose trigger
-- `surviveTimer` + non-timer modifier → default 90 s countdown clock applied in `rebuildTimer`
-- Frozen cells use fixed corner/edge positions; flip/diseased use random positions
-- Goal popup paragraph now has `id="db-goal-desc"` and is set dynamically by `describeGoal(ch)` in `startLoading`
-- Sentinel visual design: each modifier has a distinct solid-color background + SVG icon (no emoji), matching the Figma reference chips
-- Null Block: grey hatched (CSS repeating-linear-gradient, no JS icon); Frozen: teal + snowflake SVG; Flip: plum + bracket SVG; Bomb: peach + bomb icon SVG + fuse number; Diseased: dark tooltip bg + skull SVG; Wild: yellow bg + coral star SVG path
-- SVG icon fills use CSS custom properties (`var(--color-surface)`, `var(--color-error)`, etc.) — not hardcoded hex values
-- Bomb cell: icon SVG in top portion via `.db-bomb-icon`, fuse number in bottom via `.db-bomb-fuse` badge
+- Wild die: probability-based spawn (modValue × 10% per spawn), always singular, `WILD_MIN=1` / `WILD_MAX=3` per game; guaranteed by spawn #7 if min not met
+- Null block stripe: `rgba(0,0,0,0.25)` dark stripes (was white — invisible in dark mode)
+- Inline chips: `.db-inline-cell` (1.2em square, position relative) + modifier class; all modifier descriptions show a chip next to the type name
+- Home week: dynamically built by `buildHomeWeek()` from JS; correct day names + ISO dates; completed days show muted "Done" pill but remain playable
+- Calendar always resets to today when opened via `calCtrl.resetToToday()` returned by `initCalendar`
+- "Board is full" false trigger fix: when `hasAnyValidMove` fails for a 2-die spawn but a single die fits, reduce to 1 die instead of triggering lose
+- M-dashes removed from all challenge descriptions and flavor texts
+- `game-utils.js` `initCalendar` now returns `{ resetToToday() }` — backward compatible
+- cal-challenge component removed; challenge info merged into cal-info row
+- Badge state colours, trophy by difficulty, fixed-width badge — all from prior session
 
 ## Work completed
-- `dobbelaar.js` — Added sentinel constants + SVG icon string constants (`SVG_FROZEN`, `SVG_FLIP`, `SVG_BOMB`, `SVG_DISEASED`); updated `renderDie` (wild = yellow bg + coral star path SVG), `renderBoard` (injects SVG icons for frozen/flip/bomb/diseased cells), `floodFill` (wild joins any group), `findMergeGroups` (skips `val <= 0 || val === WILD_DIE`), `triggerMergeCheck` (chainDepth tracking + chainGoal win), `doPlace` (chainDepth reset + flip/diseased effects), `spawnDice` (wild distribution + bomb tick), `rebuildTimer` (default 90 s for surviveTimer), `updateScoreBar` (chain display), `startLoading` (all modifier init), `checkWin` (delegates to triggerWin), `describeGoal` (win condition + per-modifier mechanic explanation sentence); new functions: `triggerWin`, `placeFrozenCells`, `placeFlipDice`, `placeBombDice`, `placeDiseasedDice`, `applyFlipEffects`, `applyDiseasedEffects`, `tickBombs`, `detonateBomb`, `describeGoal`
-- `dobbelaar.css` — Sentinel cells now use solid token-based backgrounds (no color-mix tints); null block uses CSS diagonal stripe pattern; frozen/flip/diseased icons sized via `.db-sentinel-icon`; bomb uses `.db-bomb-icon` + `.db-bomb-fuse` layout; wild die uses `--color-yellow` bg; removed emoji `::after` pseudo-elements for all sentinels
-- `dobbelaar.html` — Added `id="db-goal-desc"` to goal popup paragraph
-- `dobbelaar-bible.html` — Added "Board Modifiers" section with styled chips and mechanic descriptions for all 6 modifier types; chip styles mirror in-game sentinel visuals using token colors and matching SVG icons; skull SVG uses corrected single-path version with `fill="var(--color-surface)"`
+- `dobbelaar.css` — Null block stripe color fixed (dark stripes); `.db-inline-cell` base class added; `.db-inline-cell--wild` modifier (yellow bg, star SVG 65%)
+- `dobbelaar.js` — `describeGoal()`: all 6 modifier cases have inline chips + m-dashes removed; `onTurnEnd()`: 2-die fallback to 1-die instead of false lose; `buildHomeWeek()`: generates last-6-days rows with correct dates and completion state; `spawnDice()`: wild die logic reworked (probability + min/max guards + spawn counter); `startLoading()`: resets `wildSpawned` and `wildSpawnNum`; init wires `calCtrl.resetToToday()` on calendar sheet open
+- `dobbelaar.html` — Static home week rows replaced with `<div id="db-home-week-list">` populated by JS
+- `dobbelaar-challenges.js` — Removed m-dashes from 3 flavor texts (Mar 10, Mar 17, Apr 1)
+- `components.css` — Added `.btn--pill--done` variant (transparent bg, secondary color, 60% opacity)
+- `game-utils.js` — `initCalendar` returns `{ resetToToday() }` which calls internal `navCal(today)`
 
 ## Open threads
-- Visual QA not yet done in browser — all 6 new modifier types need hands-on testing with new icon designs
-- `Challenges.html` static preview page still shows `chainGoal` target as "N merges" — verify it reads correctly
-- Win screen "Play again" from a chainGoal challenge resets to today — may need confirmation it resets `chainWon`
-- Wild die bridging two adjacent groups of different values: accepted behavior (wild joins whichever group's flood-fill reaches it first)
-- git push still pending (local commits not pushed)
+- Visual QA not yet done — inline chips, wild die singular spawn behavior, home week list, calendar today-reset, and all 6 modifier types need browser testing
+- Win screen "Play again" from a chainGoal challenge — verify `chainWon` resets correctly
+- `Challenges.html` static preview page may show chainGoal target incorrectly — verify
+- Wild die bridging two adjacent groups: accepted behavior (whichever flood-fill reaches it first)
+- Git push still pending (local commits not pushed)
 
 ## Constraints
 - Never use PowerShell `WriteAllText` with complex string interpolation — use Edit tool only
 - No hardcoded hex colors or px sizes — tokens and cqw only; SVG fills must use `var(--color-*)` not hex
 - `game-utils.js` changes must remain backward compatible
-- `placeNullBlocks` still uses `NULL_BLOCK` constant (was `-1` literal) — consistent
 - `/populate-challenges` must never auto-apply wiring changes — always present diff and wait for approval
-- SVG icon strings live as JS constants near the sentinel value declarations, not inlined per-call
+- SVG icon strings live as JS constants near sentinel declarations, not inlined per-call (wild die star SVG is the exception — inlined in `describeGoal` since no named constant exists)
+- Wild die constants: `WILD_MIN=1`, `WILD_MAX=3` — adjust only with explicit user sign-off
+- Dark mode component overrides go in the existing dark-mode block at the bottom of `components.css`
 
 ## Next step
-Open `dobbelaar.html` in a browser and QA each modifier type visually: confirm new icon designs render correctly at game cell size, bomb shows icon + fuse number, wild die shows yellow + coral star, and all backgrounds match the Figma reference chips.
+Open `dobbelaar.html` in a browser and QA: inline chips render at correct size in the goal popup, wild die spawns alone at appropriate frequency (1–3 per game), home week shows correct day names with Done/Play states, and calendar snaps to today on open.

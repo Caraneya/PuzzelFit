@@ -102,7 +102,11 @@ let isMerging     = false;
 let hintTimeout   = null;
 
 // ── MODIFIER STATE ───────────────────────────────────────────
-let wildRemaining  = 0;          // wild dice left to distribute this game
+// wildDice modifier: wild dice appear randomly, always alone, min 1 / max 3 per game
+const WILD_MIN = 1;
+const WILD_MAX = 3;
+let wildSpawned = 0;  // wild dice spawned this game
+let wildSpawnNum = 0; // total spawns this game (used for min guarantee)
 let bombFuses      = new Map();  // cellKey → remaining turns until detonation
 let chainDepth     = 0;          // cascade waves resolved in current placement
 let bestChainDepth = 0;          // best cascade achieved this game (for display)
@@ -123,14 +127,22 @@ function randomDie() {
 
 // ── SPAWN ────────────────────────────────────────────────────
 function spawnDice() {
-  const count = Math.random() < 0.35 ? 1 : 2;
-  spawnerDice = Array.from({ length: count }, () => {
-    if (wildRemaining > 0 && Math.random() < 0.45) {
-      wildRemaining--;
-      return { value: WILD_DIE };
+  if (activeChallenge.modifier === 'wildDice') {
+    wildSpawnNum++;
+    const capped     = wildSpawned >= WILD_MAX;
+    const guaranteed = wildSpawned < WILD_MIN && wildSpawnNum >= 7;
+    const chanceHit  = !capped && Math.random() < activeChallenge.modValue * 0.1;
+    if (guaranteed || chanceHit) {
+      wildSpawned++;
+      spawnerDice = [{ value: WILD_DIE }];
+      spawnerRotDeg = 0;
+      tickBombs();
+      renderSpawner();
+      return;
     }
-    return randomDie();
-  });
+  }
+  const count = Math.random() < 0.35 ? 1 : 2;
+  spawnerDice = Array.from({ length: count }, () => randomDie());
   spawnerRotDeg = 0;
   tickBombs(); // decrement fuses; may trigger lose (before renderSpawner so board is fresh)
   renderSpawner();
@@ -527,9 +539,16 @@ function onTurnEnd() {
   if (checkLose()) return;
   if (!spawnerDice.length) {
     spawnDice();
-    // After spawning, verify the player has at least one valid placement
+    // After spawning, verify the player has at least one valid placement.
+    // If a 2-die spawn can't fit but a single die can (isolated cells remain),
+    // reduce to 1 die rather than triggering a false "board full" lose.
     if (!hasAnyValidMove(spawnerDice)) {
-      triggerLose();
+      if (spawnerDice.length === 2 && hasAnyValidMove([spawnerDice[0]])) {
+        spawnerDice = [spawnerDice[0]];
+        renderSpawner();
+      } else {
+        triggerLose();
+      }
     }
   }
 }
@@ -956,26 +975,38 @@ const CAL_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 function onCalDaySelect(iso) {
   activeChallengeDate = iso;
-  const ch       = CHALLENGES[iso] ?? DEFAULT_CHALLENGE;
-  const d        = new Date(iso + 'T12:00:00');
-  const isToday  = iso === TODAY_ISO;
-
-  const prefixEl = document.getElementById('db-cal-sel-prefix');
-  const badgeEl  = document.getElementById('db-cal-badge-text');
-  const labelEl  = document.getElementById('db-cal-ch-label');
-  const targetEl = document.getElementById('db-cal-ch-target');
-  const rowEl    = document.getElementById('db-cal-ch');
-
-  if (prefixEl) prefixEl.textContent = isToday ? 'Today,' : `${CAL_DAYS[d.getDay()]},`;
-
+  const ch        = CHALLENGES[iso] ?? DEFAULT_CHALLENGE;
+  const d         = new Date(iso + 'T12:00:00');
+  const isToday   = iso === TODAY_ISO;
+  const isFuture  = iso > TODAY_ISO;
   const completed = getCompletedDates().has(iso);
-  if (badgeEl) badgeEl.textContent = completed ? 'Completed' : isToday ? 'In progress' : 'Not played';
 
-  if (labelEl)  labelEl.textContent  = ch.label;
-  if (targetEl) targetEl.textContent = ch.winType === 'chainGoal'
-    ? `${ch.target} merges`
-    : `${ch.target} pts`;
-  if (rowEl) rowEl.hidden = false;
+  const prefixEl     = document.getElementById('db-cal-sel-prefix');
+  const todayLabelEl = document.getElementById('db-cal-today-label');
+  const badgeTextEl  = document.getElementById('db-cal-badge-text');
+  const badgeEl      = document.getElementById('db-cal-badge');
+  const trophyEl     = document.getElementById('db-cal-trophy');
+
+  function ordinal(n) { const s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
+  const MONTHS = GameUtils.MONTH_NAMES;
+
+  const hasName = ch !== DEFAULT_CHALLENGE && ch.label;
+  if (hasName) {
+    if (prefixEl) prefixEl.textContent = ch.label;
+    const dayName  = isToday ? 'Today' : CAL_DAYS[d.getDay()];
+    const fullDate = `${ordinal(d.getDate())} of ${MONTHS[d.getMonth()]}`;
+    if (todayLabelEl) todayLabelEl.textContent = `${dayName}, ${fullDate}`;
+  } else {
+    if (prefixEl) prefixEl.textContent = isToday ? 'Today,' : `${CAL_DAYS[d.getDay()]},`;
+  }
+
+  const state = isFuture ? 'unavailable' : completed ? 'played' : isToday ? 'in-progress' : 'available';
+  if (badgeEl) badgeEl.dataset.state = state;
+
+  const iconMap   = { easy: 'trophyBronze', medium: 'trophySilver', hard: 'trophyGold' };
+  const pts = ch.winType === 'chainGoal' ? `${ch.target} chains` : `${ch.target} pts`;
+  if (badgeTextEl) badgeTextEl.textContent = pts;
+  if (trophyEl)    Icons.render(trophyEl, iconMap[ch.difficulty] ?? 'trophyBronze', { size: 'md' });
 }
 
 // ── NAVIGATION ───────────────────────────────────────────────
@@ -1156,26 +1187,26 @@ function describeGoal(ch) {
   switch (ch.modifier) {
     case 'nullBlock': {
       const n = ch.modValue;
-      mechanic = ` <strong>${n}</strong> null block${n > 1 ? 's' : ''} permanently occupy cells on the board — you cannot place dice on them.`;
+      mechanic = ` <strong>${n}</strong> <span class="db-inline-cell db-cell--null" aria-hidden="true"></span> null block${n > 1 ? 's' : ''} permanently occupy cells on the board. You cannot place dice on them.`;
       break;
     }
     case 'frozenCell': {
       const n = ch.modValue;
-      mechanic = ` <strong>${n}</strong> frozen cell${n > 1 ? 's' : ''} (❄) are locked solid — you cannot place dice on them.`;
+      mechanic = ` <strong>${n}</strong> <span class="db-inline-cell db-cell--frozen" aria-hidden="true">${SVG_FROZEN}</span> frozen cell${n > 1 ? 's' : ''} are locked solid. You cannot place dice on them.`;
       break;
     }
     case 'flipDice':
-      mechanic = ` Flip dice (⇆) sit on the board. Place a die next to one and it inverts all its neighbours' values (7 − value), then vanishes.`;
+      mechanic = ` <span class="db-inline-cell db-cell--flip" aria-hidden="true">${SVG_FLIP}</span> Flip dice sit on the board. Place a die next to one and it inverts all its neighbours' values (7 minus the die value), then vanishes.`;
       break;
     case 'bombDice':
-      mechanic = ` A bomb (💣) is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down — when it hits zero, it detonates and you lose.`;
+      mechanic = ` A <span class="db-inline-cell db-cell--bomb" aria-hidden="true"></span> bomb is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down. When it hits zero, it detonates and you lose.`;
       break;
     case 'diseasedDice':
-      mechanic = ` Diseased dice (☣) infect any die you place next to them, forcing its value to 6. Plan your placements carefully.`;
+      mechanic = ` <span class="db-inline-cell db-cell--diseased" aria-hidden="true">${SVG_DISEASED}</span> Diseased dice infect any die you place next to them, forcing its value to 6. Plan your placements carefully.`;
       break;
     case 'wildDice': {
-      const n = ch.modValue;
-      mechanic = ` You have <strong>${n}</strong> wild die${n > 1 ? 's' : ''} (★) in your spawner. They join any merge group regardless of value, but cannot start a merge on their own.`;
+      const chipWild = `<span class="db-inline-cell db-inline-cell--wild" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg></span>`;
+      mechanic = ` ${chipWild} Wild dice appear randomly as single spawns. They join any merge group regardless of value but cannot start a merge on their own.`;
       break;
     }
   }
@@ -1188,8 +1219,9 @@ function startLoading() {
   chainDepth        = 0;
   bestChainDepth    = 0;
   chainWon          = false;
-  wildRemaining     = activeChallenge.modifier === 'wildDice' ? activeChallenge.modValue : 0;
-  bombFuses         = new Map();
+  wildSpawned  = 0;
+  wildSpawnNum = 0;
+  bombFuses    = new Map();
 
   rebuildTimer(activeChallenge);
 
@@ -1263,6 +1295,35 @@ function setTheme(theme) {
   GameUtils.setTheme(theme, 'db-stt-theme', 'db-theme');
 }
 
+// ── HOME WEEK LIST ────────────────────────────────────────────
+function buildHomeWeek() {
+  const list = document.getElementById('db-home-week-list');
+  if (!list) return;
+  const completed = getCompletedDates();
+  const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const rows = [];
+  for (let i = 1; i <= 6; i++) {
+    const d = new Date(TODAY_ISO + 'T12:00:00');
+    d.setDate(d.getDate() - i);
+    const iso  = d.toISOString().slice(0, 10);
+    const name = i === 1 ? 'Yesterday' : DAY_NAMES[d.getDay()];
+    const done = completed.has(iso);
+    rows.push(`<div class="home-day-row">
+      <span class="home-day-row__name">${name}</span>
+      <button class="btn btn--pill${done ? ' btn--pill--done' : ''}" data-date="${iso}">${done ? 'Done' : 'Play'}</button>
+    </div>`);
+    if (i < 6) rows.push('<div class="divider"></div>');
+  }
+  list.innerHTML = rows.join('');
+  list.querySelectorAll('.btn--pill[data-date]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeChallenge     = CHALLENGES[btn.dataset.date] ?? DEFAULT_CHALLENGE;
+      activeChallengeDate = btn.dataset.date;
+      startLoading();
+    });
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -1320,11 +1381,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Shared utilities
-  GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
+  const calCtrl = GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
   GameUtils.initFeedbackForm('db');
   GameUtils.initHomeDate('db');
   const homeDateEl = document.getElementById('db-home-date');
   if (homeDateEl) homeDateEl.textContent += ' · ' + todayChallenge.label;
+  buildHomeWeek();
   GameUtils.buildStreakGrid('db-stat-streak-grid');
 
   // Sheet scrollbars
@@ -1385,6 +1447,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-sheet]').forEach(btn =>
     btn.addEventListener('click', () => {
       if (timerObj?.isRunning()) timerObj.pause();
+      if (btn.dataset.sheet === 'sheet-calendar') calCtrl.resetToToday();
       GameUtils.openSheet(btn.dataset.sheet);
     })
   );

@@ -268,6 +268,20 @@ html, body {
   opacity: 1;
 }
 
+/* ── INLINE CELL CHIP (goal description text) ── */
+.db-inline-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.2em;
+  border-radius: 2px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
 /* ── SENTINEL ICON (shared by all board modifier cells) ── */
 .db-sentinel-icon {
   position: absolute;
@@ -285,8 +299,8 @@ html, body {
     -45deg,
     transparent,
     transparent 3px,
-    rgba(255,255,255,0.25) 3px,
-    rgba(255,255,255,0.25) 7px
+    rgba(0,0,0,0.25) 3px,
+    rgba(0,0,0,0.25) 7px
   );
   border-color: transparent;
   cursor: not-allowed;
@@ -363,6 +377,14 @@ html, body {
 }
 .db-die--wild svg {
   width: 60%; height: 60%;
+}
+
+/* Wild die inline chip (goal description text) */
+.db-inline-cell--wild {
+  background: var(--color-yellow);
+}
+.db-inline-cell--wild svg {
+  width: 65%; height: 65%;
 }
 
 /* ── DROP HIGHLIGHT ── */

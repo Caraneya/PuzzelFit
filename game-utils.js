@@ -292,6 +292,9 @@ const GameUtils = {
     Icons.render(document.getElementById(`${prefix}-cal-trophy`), 'trophyBronze', { size: 'md' });
     renderCal();
     if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()));
+    return {
+      resetToToday() { navCal(TODAY.getFullYear(), TODAY.getMonth()); },
+    };
   },
 
   // ── FEEDBACK FORM ───────────────────────────────────────────

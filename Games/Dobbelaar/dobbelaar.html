@@ -43,19 +43,7 @@
 
         <div class="home-week">
           <h3 class="home-week__heading">Last week</h3>
-          <div class="home-week__list">
-            <div class="home-day-row"><span class="home-day-row__name">Yesterday</span><button class="btn btn--pill">Play</button></div>
-            <div class="divider"></div>
-            <div class="home-day-row"><span class="home-day-row__name">Saturday</span><button class="btn btn--pill">Play</button></div>
-            <div class="divider"></div>
-            <div class="home-day-row"><span class="home-day-row__name">Friday</span><button class="btn btn--pill">Play</button></div>
-            <div class="divider"></div>
-            <div class="home-day-row"><span class="home-day-row__name">Thursday</span><button class="btn btn--pill">Play</button></div>
-            <div class="divider"></div>
-            <div class="home-day-row"><span class="home-day-row__name">Wednesday</span><button class="btn btn--pill">Play</button></div>
-            <div class="divider"></div>
-            <div class="home-day-row"><span class="home-day-row__name">Tuesday</span><button class="btn btn--pill">Play</button></div>
-          </div>
+          <div class="home-week__list" id="db-home-week-list"></div>
         </div>
       </div>
 
@@ -584,14 +572,10 @@
             <strong id="db-cal-today-label"></strong>
           </div>
           <div class="cal-info__sep"></div>
-          <div class="cal-info__badge">
+          <div class="cal-info__badge" id="db-cal-badge">
             <div class="cal-info__badge-icon" id="db-cal-trophy"></div>
-            <span class="cal-info__badge-text" id="db-cal-badge-text">In progress</span>
+            <span class="cal-info__badge-text" id="db-cal-badge-text">Bronze</span>
           </div>
-        </div>
-        <div class="cal-challenge" id="db-cal-ch" hidden>
-          <span class="cal-challenge__label" id="db-cal-ch-label"></span>
-          <span class="cal-challenge__target" id="db-cal-ch-target"></span>
         </div>
       </div>
       <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-cal-thumb"></div></div>
