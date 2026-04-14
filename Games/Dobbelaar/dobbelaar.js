@@ -197,9 +197,9 @@ const SVG_FLIP = `<svg class="db-sentinel-icon" viewBox="0 0 18 22" fill="none" 
 const SVG_BOMB = `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.9297 2.03125L19.7266 2.69531C19.9089 2.77344 20 2.91667 20 3.125C19.974 3.30729 19.8828 3.4375 19.7266 3.51562L17.9297 4.17969L17.3047 5.97656C17.2266 6.15885 17.0833 6.25 16.875 6.25C16.6927 6.25 16.5625 6.15885 16.4844 5.97656L15.8203 4.17969L14.0234 3.51562C13.8411 3.4375 13.75 3.30729 13.75 3.125C13.724 2.91667 13.8151 2.77344 14.0234 2.69531L15.8203 2.03125L16.4844 0.273438C16.5625 0.0911458 16.6927 0 16.875 0C17.0573 0 17.2005 0.0911458 17.3047 0.273438L17.9297 2.03125ZM15.8984 7.22656C16.1328 7.48698 16.25 7.78646 16.25 8.125C16.25 8.46354 16.1328 8.76302 15.8984 9.02344L15.7812 9.14062C16.0937 10 16.25 10.8984 16.25 11.8359C16.1979 14.1536 15.4036 16.0807 13.8672 17.6172C12.3307 19.1536 10.4167 19.9479 8.125 20C5.83333 19.9479 3.91927 19.1536 2.38281 17.6172C0.846354 16.0807 0.0520833 14.1536 0 11.8359C0.0520833 9.54427 0.846354 7.63021 2.38281 6.09375C3.91927 4.55729 5.83333 3.76302 8.125 3.71094C9.08854 3.73698 10.013 3.90625 10.8984 4.21875L10.9766 4.10156C11.237 3.86719 11.5365 3.75 11.875 3.75C12.2135 3.75 12.513 3.86719 12.7734 4.10156L15.8984 7.22656ZM8.08594 7.5C8.47656 7.47396 8.6849 7.26562 8.71094 6.875C8.6849 6.48437 8.47656 6.27604 8.08594 6.25H7.77344C6.28906 6.27604 5.03906 6.79687 4.02344 7.8125C3.03385 8.80208 2.51302 10.0521 2.46094 11.5625V11.875C2.51302 12.2656 2.72135 12.474 3.08594 12.5C3.47656 12.474 3.6849 12.2656 3.71094 11.875V11.5625C3.73698 10.4167 4.14062 9.45312 4.92187 8.67187C5.70312 7.91667 6.65365 7.52604 7.77344 7.5H8.08594Z" fill="currentColor"/></svg>`;
 const SVG_DISEASED = `<svg class="db-sentinel-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 13.75H11.5L10 10.75L8.5 13.75ZM6.5 11C7.05 11 7.521 10.8043 7.913 10.413C8.305 10.0217 8.50067 9.55067 8.5 9C8.49934 8.44933 8.30367 7.97867 7.913 7.588C7.52234 7.19733 7.05134 7.00133 6.5 7C5.94867 6.99867 5.478 7.19467 5.088 7.588C4.698 7.98133 4.502 8.452 4.5 9C4.498 9.548 4.694 10.019 5.088 10.413C5.482 10.807 5.95267 11.0027 6.5 11ZM13.5 11C14.05 11 14.521 10.8043 14.913 10.413C15.305 10.0217 15.5007 9.55067 15.5 9C15.4993 8.44933 15.3037 7.97867 14.913 7.588C14.5223 7.19733 14.0513 7.00133 13.5 7C12.9487 6.99867 12.478 7.19467 12.088 7.588C11.698 7.98133 11.502 8.452 11.5 9C11.498 9.548 11.694 10.019 12.088 10.413C12.482 10.807 12.9527 11.0027 13.5 11ZM4 20V15.75C3.35 15.4667 2.779 15.0877 2.287 14.613C1.795 14.1383 1.37834 13.6007 1.037 13C0.69567 12.3993 0.437337 11.7577 0.262004 11.075C0.0866705 10.3923 -0.000662879 9.70067 3.78788e-06 9C3.78788e-06 6.36667 0.933337 4.20833 2.8 2.525C4.66667 0.841667 7.06667 0 10 0C12.9333 0 15.3333 0.841667 17.2 2.525C19.0667 4.20833 20 6.36667 20 9C20 9.7 19.9127 10.3917 19.738 11.075C19.5633 11.7583 19.305 12.4 18.963 13C18.621 13.6 18.2043 14.1377 17.713 14.613C17.2217 15.0883 16.6507 15.4673 16 15.75V20H13V18H11V20H9V18H7V20H4Z" fill="var(--color-surface)"/></svg>`;
 
-// chainGoal uses target = chain length, not score — use huge score so score-win never fires
+// chainGoal / clearBoard don't use a score target — use huge value so score-win never fires
 function scoreTargetFrom(ch) {
-  return ch.winType === 'chainGoal' ? 999999 : ch.target;
+  return (ch.winType === 'chainGoal' || ch.winType === 'clearBoard') ? 999999 : ch.target;
 }
 let SCORE_TARGET = scoreTargetFrom(todayChallenge);
 
@@ -257,9 +257,54 @@ let chainDepth     = 0;          // cascade waves resolved in current placement
 let bestChainDepth = 0;          // best cascade achieved this game (for display)
 let chainWon       = false;      // prevents double-win on chainGoal
 
+// ── STREAK & TURN STATE ──────────────────────────────────────
+let mergeStreak          = 0;     // consecutive turns that ended with a merge
+let turnHadPlacement     = false; // a die was placed on the board this turn
+let turnHadMerge         = false; // at least one merge fired this turn
+let rewardWordShownThisTurn = false; // big-game word already shown; skip streak word
+let turnMergedDiceCount  = 0;    // total dice cleared this turn (across all waves)
+
+// ── HOT-ZONE STATE ───────────────────────────────────────────
+let hotZoneCells = new Set(); // cellKey (r * GRID_COLS + c) of hot-zone cells
+
 // ── DRAG STATE ───────────────────────────────────────────────
 // pending = pointerdown received, but hasn't moved past threshold yet
 const drag = { active: false, pending: false, source: null, startX: 0, startY: 0, ghostEl: null, hiddenInner: null, dropTarget: null };
+
+// ── REWARD WORD ──────────────────────────────────────────────
+function showRewardWord(text) {
+  const el = document.getElementById('db-reward-word');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove('db-reward-word--show');
+  void el.offsetWidth; // force reflow to restart animation
+  el.classList.add('db-reward-word--show');
+}
+
+// ── STREAK HELPERS ────────────────────────────────────────────
+// Returns the score multiplier for merges made during a turn
+// where mergeStreak consecutive-merge turns have already been completed.
+function streakMultiplier(streak) {
+  if (streak <= 1) return 1;
+  if (streak === 2) return 1.2;
+  if (streak === 3) return 1.5;
+  return 2;
+}
+
+
+// ── HOT-ZONE PLACEMENT ────────────────────────────────────────
+function placeHotZones(n) {
+  const candidates = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === 0) candidates.push([r, c]);
+  // Fisher-Yates shuffle
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  candidates.slice(0, n).forEach(([r, c]) => hotZoneCells.add(r * GRID_COLS + c));
+}
 
 // ── BOARD HELPERS ────────────────────────────────────────────
 function initBoard() {
@@ -302,9 +347,14 @@ function popEl(el, newText) {
   el.classList.add('db-score-pop');
 }
 function updateScoreBar() {
-  const scoreDisplay = activeChallenge.winType === 'chainGoal'
-    ? `${bestChainDepth}/${activeChallenge.target}`
-    : `${score}/${SCORE_TARGET}`;
+  let scoreDisplay;
+  if (activeChallenge.winType === 'chainGoal') {
+    scoreDisplay = `${bestChainDepth}/${activeChallenge.target}`;
+  } else if (activeChallenge.winType === 'clearBoard') {
+    scoreDisplay = String(score);
+  } else {
+    scoreDisplay = `${score}/${SCORE_TARGET}`;
+  }
   popEl(document.getElementById('db-score-value'), scoreDisplay);
   const mergeLabel = activeChallenge.modifier === 'maxMerges'
     ? `${merges}/${activeChallenge.modValue}`
@@ -335,6 +385,7 @@ function renderBoard() {
       }
       else if (val === DISEASED_DIE) { cell.classList.add('db-cell--diseased'); cell.innerHTML = SVG_DISEASED; }
       else if (val > 0) { cell.innerHTML = renderDie(val); }
+      if (hotZoneCells.has(r * GRID_COLS + c)) cell.classList.add('db-cell--hot-zone');
       grid.appendChild(cell);
     }
   }
@@ -450,6 +501,10 @@ function canPlace(cells) {
 function doPlace(cells, dicesToPlace) {
   cells.forEach(([r, c], i) => { board[r][c] = dicesToPlace[i].value; });
   chainDepth = 0; // reset cascade counter for this new placement
+  turnHadPlacement = true;
+  turnHadMerge     = false;
+  rewardWordShownThisTurn = false;
+  turnMergedDiceCount = 0;
   clearHintHighlights();
   clearTimeout(hintTimeout);
   document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');
@@ -633,11 +688,22 @@ function triggerMergeCheck() {
   setTimeout(() => {
     const newDice = [];
     let earned = 0;
+    const sMult = streakMultiplier(mergeStreak); // multiplier earned this turn from streak
+
+    // Track the best reward word to show for this wave (priority: jackpot > high roller > loaded)
+    let waveWord = null;
+    const WORD_PRIORITY = { 'Jackpot!': 3, 'High roller!': 2, 'Loaded!': 1 };
 
     groups.forEach(({ group, value }) => {
-      const sum = value * group.length;
-      earned += sum;
+      const sum      = value * group.length;
+      const gMult    = group.length >= 5 ? 2 : group.length === 4 ? 1.5 : 1;
+      const hasHot   = group.some(([r, c]) => hotZoneCells.has(r * GRID_COLS + c));
+      const bonusMult = gMult * (hasHot ? 2 : 1);
+      const groupEarned = Math.round(sum * bonusMult * sMult);
+
+      earned += groupEarned;
       merges++;
+      turnMergedDiceCount += group.length;
       group.forEach(([r, c]) => { board[r][c] = 0; });
 
       if (sum <= 6) {
@@ -647,10 +713,20 @@ function triggerMergeCheck() {
       }
 
       const [fr, fc] = group[Math.floor(group.length / 2)];
-      floatScore(fr, fc, `+${sum}`);
+      floatScore(fr, fc, `+${groupEarned}`);
+
+      // Determine reward word for this group
+      let groupWord = null;
+      if (hasHot)              groupWord = 'Jackpot!';
+      else if (group.length >= 5) groupWord = 'High roller!';
+      else if (group.length === 4) groupWord = 'Loaded!';
+      if (groupWord && (!waveWord || WORD_PRIORITY[groupWord] > WORD_PRIORITY[waveWord])) {
+        waveWord = groupWord;
+      }
     });
 
     score += earned;
+    turnHadMerge = true;
 
     // chainGoal: count this resolved wave
     chainDepth++;
@@ -660,6 +736,12 @@ function triggerMergeCheck() {
 
     updateScoreBar();
     renderBoard();
+
+    // Show reward word if a notable group was resolved and enough dice merged
+    if (waveWord && !rewardWordShownThisTurn && turnMergedDiceCount >= 5) {
+      showRewardWord(waveWord);
+      rewardWordShownThisTurn = true;
+    }
 
     // Merge SFX — fired once per wave based on what resolved
     const hasMergeClear = groups.some(({ group, value }) => value * group.length > 6);
@@ -694,6 +776,26 @@ function triggerMergeCheck() {
 }
 
 function onTurnEnd() {
+  // Update streak based on whether this turn had a board placement and a merge
+  if (turnHadPlacement) {
+    if (turnHadMerge) {
+      mergeStreak++;
+      // Show milestone word only if no big-game word was already shown this turn
+      if (!rewardWordShownThisTurn && turnMergedDiceCount >= 5) {
+        if      (mergeStreak === 2) showRewardWord('Rolling!');
+        else if (mergeStreak === 3) showRewardWord('Hot dice!');
+        else if (mergeStreak === 4) showRewardWord('Boxcars!');
+        else if (mergeStreak >= 5)  showRewardWord("Can't stop!");
+      }
+    } else {
+      mergeStreak = 0;
+    }
+    turnHadPlacement = false;
+    turnHadMerge     = false;
+    rewardWordShownThisTurn = false;
+    turnMergedDiceCount = 0;
+  }
+
   if (checkWin()) return;
   if (checkLose()) return;
   if (!spawnerDice.length) {
@@ -761,6 +863,14 @@ function triggerWin(reason = 'score') {
 
 function checkWin() {
   if (chainWon) return true;
+  if (activeChallenge.winType === 'clearBoard') {
+    if (board.flat().every(v => v <= 0)) {
+      showRewardWord('Clean sweep!');
+      triggerWin('score');
+      return true;
+    }
+    return false;
+  }
   if (score >= SCORE_TARGET) {
     const reason = activeChallenge.winType === 'surviveTimer' ? 'survive' : 'score';
     triggerWin(reason);
@@ -1354,6 +1464,9 @@ function describeGoal(ch) {
     case 'surviveTimer':
       goal = `Reach <strong>${ch.target}</strong> points before the timer runs out.`;
       break;
+    case 'clearBoard':
+      goal = `Clear every die from the board to win. You still receive new dice each turn — merge them all away!`;
+      break;
     default:
       goal = `Reach <strong>${ch.target}</strong> points before the board fills up.`;
   }
@@ -1382,7 +1495,13 @@ function describeGoal(ch) {
       break;
     case 'wildDice': {
       const chipWild = `<span class="db-inline-cell db-inline-cell--wild" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg></span>`;
-      mechanic = ` ${chipWild} Wild dice appear randomly as single spawns. They join any merge group regardless of value but cannot start a merge on their own.`;
+      mechanic = ` ${chipWild} Wild dice join any merge group regardless of value but cannot start a merge on their own.`;
+      break;
+    }
+    case 'hotZone': {
+      const n = ch.modValue;
+      const chipHot = `<span class="db-inline-cell db-inline-cell--hot-zone" aria-hidden="true"></span>`;
+      mechanic = ` <strong>${n}</strong> ${chipHot} hot zone${n > 1 ? 's' : ''} are marked on the board. Any merge group that includes a hot zone cell scores double for that group.`;
       break;
     }
   }
@@ -1399,6 +1518,12 @@ function startLoading() {
   wildSpawned  = 0;
   wildSpawnNum = 0;
   bombFuses    = new Map();
+  mergeStreak  = 0;
+  turnHadPlacement = false;
+  turnHadMerge     = false;
+  rewardWordShownThisTurn = false;
+  turnMergedDiceCount = 0;
+  hotZoneCells = new Set();
 
   rebuildTimer(activeChallenge);
 
@@ -1423,6 +1548,14 @@ function startLoading() {
   if (m === 'flipDice'     && mv > 0) placeFlipDice(mv);
   if (m === 'bombDice'     && mv > 0) placeBombDice(mv);
   if (m === 'diseasedDice' && mv > 0) placeDiseasedDice(mv);
+  if (m === 'hotZone'      && mv > 0) placeHotZones(mv);
+
+  // clearBoard: pre-place initial dice from challenge definition
+  if (activeChallenge.winType === 'clearBoard' && Array.isArray(activeChallenge.initialBoard)) {
+    activeChallenge.initialBoard.forEach(([r, c, v]) => {
+      if (board[r][c] === 0) board[r][c] = v;
+    });
+  }
 
   spawnerDice = []; parkedDice = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
@@ -1471,6 +1604,17 @@ function closeTutorial() {
 // ── THEME ─────────────────────────────────────────────────────
 function setTheme(theme) {
   GameUtils.setTheme(theme, 'db-stt-theme', 'db-theme');
+}
+
+// ── DOMINANT HAND ─────────────────────────────────────────────
+function setHand(hand) {
+  document.body.classList.toggle('db--right-hand', hand === 'right');
+  localStorage.setItem('db-hand', hand);
+  const group = document.getElementById('db-stt-hand');
+  if (!group) return;
+  group.querySelectorAll('.stt-segment__option').forEach(b => {
+    b.classList.toggle('stt-segment__option--active', b.dataset.value === hand);
+  });
 }
 
 // ── HOME WEEK LIST ────────────────────────────────────────────
@@ -1576,6 +1720,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Theme
   setTheme(localStorage.getItem('db-theme') || 'auto');
+
+  // Dominant hand (default: right)
+  setHand(localStorage.getItem('db-hand') || 'right');
 
   // ── SOUND & MUSIC PREFERENCES ────────────────────────────────
   // Apply persisted preferences before any sound can fire.
@@ -1700,6 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
       group.querySelectorAll('.stt-segment__option').forEach(b => b.classList.remove('stt-segment__option--active'));
       btn.classList.add('stt-segment__option--active');
       if (group.id === 'db-stt-theme') setTheme(btn.dataset.value);
+      if (group.id === 'db-stt-hand')  setHand(btn.dataset.value);
     })
   );
 
@@ -1708,7 +1856,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => GameUtils.openSheet('sheet-stats')));
   document.getElementById('db-stt-btn-bible').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
   document.getElementById('db-btn-save-settings').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
-  document.getElementById('db-btn-reset-settings').addEventListener('click', () => GameUtils.showToast('db-toast', 'Settings reset to defaults.'));
+  document.getElementById('db-btn-reset-settings').addEventListener('click', () => {
+    setHand('right');
+    setTheme('auto');
+    SoundUtils.setEnabled(true);
+    document.getElementById('db-toggle-sfx').checked = true;
+    localStorage.setItem('db-sfx', 'true');
+    Music.setEnabled(false);
+    document.getElementById('db-toggle-music').checked = false;
+    localStorage.setItem('db-music', 'false');
+    GameUtils.showToast('db-toast', 'Settings reset to defaults.');
+  });
 
   // Win / lose actions
   document.getElementById('db-win-btn-share').addEventListener('click', () => GameUtils.showToast('db-toast', 'Sharing…'));

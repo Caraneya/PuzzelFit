@@ -157,6 +157,7 @@
         <div class="game-board">
           <div class="db-grid-outer">
             <div class="db-grid" id="db-board-grid"></div>
+            <div id="db-reward-word" class="db-reward-word" aria-live="polite" aria-atomic="true"></div>
           </div>
           <div class="db-tray-wrap">
             <div class="db-tray">
@@ -730,8 +731,8 @@
             </div>
             <div class="stt-segment" role="group" aria-label="Dominant hand" id="db-stt-hand">
               <div class="stt-segment-wrap">
-                <button class="stt-segment__option stt-segment__option--active" data-value="left"  id="db-stt-hand-left"></button>
-                <button class="stt-segment__option" data-value="right" id="db-stt-hand-right" style="transform:scaleX(-1)"></button>
+                <button class="stt-segment__option" data-value="left"  id="db-stt-hand-left"></button>
+                <button class="stt-segment__option stt-segment__option--active" data-value="right" id="db-stt-hand-right" style="transform:scaleX(-1)"></button>
               </div>
             </div>
           </div>

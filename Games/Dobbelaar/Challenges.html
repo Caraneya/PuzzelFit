@@ -4,549 +4,136 @@
   <meta charset="UTF-8">
   <title>Dobbelaar — Challenges</title>
   <style>
-    body  { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #111; }
-    h1    { font-size: 1.4rem; margin-bottom: 0.25rem; }
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #111; }
+    h1   { font-size: 1.4rem; margin-bottom: 0.25rem; }
     .meta { color: #666; font-size: 0.85rem; margin-bottom: 2rem; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    th    { text-align: left; padding: 0.5rem 0.75rem; background: #f4f4f4; border-bottom: 2px solid #ddd; white-space: nowrap; }
-    td    { padding: 0.45rem 0.75rem; border-bottom: 1px solid #eee; vertical-align: top; }
+    .month { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.5rem; color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    th   { text-align: left; padding: 0.5rem 0.75rem; background: #f4f4f4; border-bottom: 2px solid #ddd; white-space: nowrap; }
+    td   { padding: 0.5rem 0.75rem; border-bottom: 1px solid #eee; vertical-align: top; }
     tr:hover td { background: #fafafa; }
-    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
     .easy   { background: #d1fae5; color: #065f46; }
     .medium { background: #fef3c7; color: #92400e; }
     .hard   { background: #fee2e2; color: #991b1b; }
     .mod    { font-size: 0.8rem; color: #555; }
-    .flavor { color: #555; font-style: italic; font-size: 0.83rem; }
-    .day-name { font-size: 0.72rem; color: #aaa; display: block; }
-    .wk   { background: #f9f9f9; }
-    .wk td { border-top: 2px solid #e0e0e0; font-weight: 600; font-size: 0.75rem; color: #888; padding: 0.25rem 0.75rem; }
+    .flavor { color: #444; font-style: italic; font-size: 0.82rem; }
+    .day-name { font-size: 0.72rem; color: #999; display: block; }
+    .today td { background: #fffbeb; }
+    .today td:first-child { border-left: 3px solid #f59e0b; }
   </style>
 </head>
 <body>
   <h1>Dobbelaar — Daily Challenges</h1>
-  <p class="meta">Feb 7 – Apr 7 2026 &middot; 60 days &middot; Edit <code>dobbelaar-challenges.js</code> to change values</p>
+  <p class="meta">Feb 7 – Apr 30 2026 · 83 days · Edit <code>dobbelaar-challenges.js</code> to change values</p>
 
+  <div class="month">February 2026</div>
   <table>
     <thead>
-      <tr>
-        <th>Date</th>
-        <th>Challenge</th>
-        <th>Difficulty</th>
-        <th>Target</th>
-        <th>Modifier</th>
-        <th>Bonus</th>
-      </tr>
+      <tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Target</th><th>Modifier</th><th>Bonus</th></tr>
     </thead>
     <tbody>
-      <!-- ── WEEK 1 (partial) ── -->
-      <tr class="wk"><td colspan="6">Week 1 — Feb 7–8</td></tr>
-      <tr>
-        <td>Feb 7<span class="day-name">Saturday</span></td>
-        <td><strong>Cascade Master</strong><br><span class="flavor">Trigger four merges in a chain to claim the day.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Chain: 4 merges</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 8<span class="day-name">Sunday</span></td>
-        <td><strong>Sunday Reset</strong><br><span class="flavor">Clear your mind and hit the target at your own pace.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>160 pts</td>
-        <td class="mod">—</td>
-        <td>240 pts</td>
-      </tr>
+      <tr><td>Feb 7<span class="day-name">Saturday</span></td><td><strong>Cascade Master</strong><br><span class="flavor">Trigger four merges in a chain to claim the day.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Chain goal: 4</td><td>—</td></tr>
+      <tr><td>Feb 8<span class="day-name">Sunday</span></td><td><strong>Sunday Reset</strong><br><span class="flavor">Clear your mind and hit the target at your own pace.</span></td><td><span class="badge easy">Easy</span></td><td>160 pts</td><td class="mod">—</td><td>240 pts</td></tr>
+      <tr><td>Feb 9<span class="day-name">Monday</span></td><td><strong>Gentle Start</strong><br><span class="flavor">Ease into the week with a modest score target.</span></td><td><span class="badge easy">Easy</span></td><td>200 pts</td><td class="mod">—</td><td>280 pts</td></tr>
+      <tr><td>Feb 10<span class="day-name">Tuesday</span></td><td><strong>Merge Quota</strong><br><span class="flavor">Hit the score before your tenth merge runs out.</span></td><td><span class="badge medium">Medium</span></td><td>240 pts</td><td class="mod">Max merges: 10</td><td>300 pts</td></tr>
+      <tr><td>Feb 11<span class="day-name">Wednesday</span></td><td><strong>Steady Climb</strong><br><span class="flavor">Build your score steadily through careful dice placement.</span></td><td><span class="badge medium">Medium</span></td><td>280 pts</td><td class="mod">—</td><td>350 pts</td></tr>
+      <tr><td>Feb 12<span class="day-name">Thursday</span></td><td><strong>Beat the Clock</strong><br><span class="flavor">Race to your score before the 75-second timer expires.</span></td><td><span class="badge hard">Hard</span></td><td>325 pts</td><td class="mod">Timer: 75s</td><td>—</td></tr>
+      <tr><td>Feb 13<span class="day-name">Friday</span></td><td><strong>Blocked Out</strong><br><span class="flavor">Score big despite two null blockers filling your board.</span></td><td><span class="badge hard">Hard</span></td><td>375 pts</td><td class="mod">Null blocks: 2</td><td>450 pts</td></tr>
+      <tr><td>Feb 14<span class="day-name">Saturday</span></td><td><strong>Heartbeat Chains</strong><br><span class="flavor">Trigger a chain of four merges in a single turn.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Chain goal: 4</td><td>—</td></tr>
+      <tr><td>Feb 15<span class="day-name">Sunday</span></td><td><strong>Lazy Sunday</strong><br><span class="flavor">Take it slow and reach the target comfortably.</span></td><td><span class="badge easy">Easy</span></td><td>175 pts</td><td class="mod">—</td><td>240 pts</td></tr>
+      <tr><td>Feb 16<span class="day-name">Monday</span></td><td><strong>Monday Merges</strong><br><span class="flavor">Score your target within fifteen efficient merges.</span></td><td><span class="badge easy">Easy</span></td><td>210 pts</td><td class="mod">Max merges: 15</td><td>280 pts</td></tr>
+      <tr><td>Feb 17<span class="day-name">Tuesday</span></td><td><strong>Numbers Game</strong><br><span class="flavor">Let the numbers stack naturally and reach the goal.</span></td><td><span class="badge medium">Medium</span></td><td>250 pts</td><td class="mod">—</td><td>310 pts</td></tr>
+      <tr><td>Feb 18<span class="day-name">Wednesday</span></td><td><strong>Stone and Clock</strong><br><span class="flavor">Survive the clock while two null blockers crowd your grid.</span></td><td><span class="badge medium">Medium</span></td><td>290 pts</td><td class="mod">Null blocks: 2</td><td>—</td></tr>
+      <tr><td>Feb 19<span class="day-name">Thursday</span></td><td><strong>Clean Sweep</strong><br><span class="flavor">Clear the board efficiently and hit your score target.</span></td><td><span class="badge hard">Hard</span></td><td>340 pts</td><td class="mod">—</td><td>420 pts</td></tr>
+      <tr><td>Feb 20<span class="day-name">Friday</span></td><td><strong>Overtime</strong><br><span class="flavor">Push past the target before the 75-second buzzer sounds.</span></td><td><span class="badge hard">Hard</span></td><td>395 pts</td><td class="mod">Timer: 75s</td><td>—</td></tr>
+      <tr><td>Feb 21<span class="day-name">Saturday</span></td><td><strong>Domino Effect</strong><br><span class="flavor">Set off a chain of four merges to win.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Chain goal: 4</td><td>—</td></tr>
+      <tr><td>Feb 22<span class="day-name">Sunday</span></td><td><strong>Easy Does It</strong><br><span class="flavor">A gentle Sunday score to send off the week.</span></td><td><span class="badge easy">Easy</span></td><td>180 pts</td><td class="mod">—</td><td>250 pts</td></tr>
+      <tr><td>Feb 23<span class="day-name">Monday</span></td><td><strong>Fresh Week</strong><br><span class="flavor">Start the week by scoring within fifteen efficient merges.</span></td><td><span class="badge easy">Easy</span></td><td>215 pts</td><td class="mod">Max merges: 15</td><td>280 pts</td></tr>
+      <tr><td>Feb 24<span class="day-name">Tuesday</span></td><td><strong>Smooth Run</strong><br><span class="flavor">Play clean dice and reach today's score target.</span></td><td><span class="badge medium">Medium</span></td><td>255 pts</td><td class="mod">—</td><td>320 pts</td></tr>
+      <tr><td>Feb 25<span class="day-name">Wednesday</span></td><td><strong>Tick Tock</strong><br><span class="flavor">Hit your score before eighty seconds run out.</span></td><td><span class="badge medium">Medium</span></td><td>300 pts</td><td class="mod">Timer: 80s</td><td>—</td></tr>
+      <tr><td>Feb 26<span class="day-name">Thursday</span></td><td><strong>Clean Slate</strong><br><span class="flavor">Score big on a fresh board with no tricks.</span></td><td><span class="badge hard">Hard</span></td><td>350 pts</td><td class="mod">—</td><td>430 pts</td></tr>
+      <tr><td>Feb 27<span class="day-name">Friday</span></td><td><strong>Pressure Cooker</strong><br><span class="flavor">Survive the timer while null blockers fill your grid.</span></td><td><span class="badge hard">Hard</span></td><td>405 pts</td><td class="mod">Null blocks: 2</td><td>—</td></tr>
+      <tr><td>Feb 28<span class="day-name">Saturday</span></td><td><strong>Leap of Faith</strong><br><span class="flavor">Chain four merges and end February with a flourish.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Chain goal: 4</td><td>—</td></tr>
+    </tbody>
+  </table>
 
-      <!-- ── WEEK 2 ── -->
-      <tr class="wk"><td colspan="6">Week 2 — Feb 9–15</td></tr>
-      <tr>
-        <td>Feb 9<span class="day-name">Monday</span></td>
-        <td><strong>Gentle Start</strong><br><span class="flavor">Ease into the week with a modest score target.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>200 pts</td>
-        <td class="mod">—</td>
-        <td>280 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 10<span class="day-name">Tuesday</span></td>
-        <td><strong>Merge Quota</strong><br><span class="flavor">Hit the score before your tenth merge runs out.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>240 pts</td>
-        <td class="mod">Max merges: 10</td>
-        <td>300 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 11<span class="day-name">Wednesday</span></td>
-        <td><strong>Steady Climb</strong><br><span class="flavor">Build your score steadily through careful dice placement.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>280 pts</td>
-        <td class="mod">—</td>
-        <td>350 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 12<span class="day-name">Thursday</span></td>
-        <td><strong>Beat the Clock</strong><br><span class="flavor">Race to your score before the 75-second timer expires.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>325 pts</td>
-        <td class="mod">Timer: 75s</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 13<span class="day-name">Friday</span></td>
-        <td><strong>Blocked Out</strong><br><span class="flavor">Score big despite two null blockers filling your board.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>375 pts</td>
-        <td class="mod">2 blockers</td>
-        <td>450 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 14<span class="day-name">Saturday</span></td>
-        <td><strong>Heartbeat Chains</strong><br><span class="flavor">Trigger a chain of four merges in a single turn.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Chain: 4 merges</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 15<span class="day-name">Sunday</span></td>
-        <td><strong>Lazy Sunday</strong><br><span class="flavor">Take it slow and reach the target comfortably.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>175 pts</td>
-        <td class="mod">—</td>
-        <td>240 pts</td>
-      </tr>
+  <div class="month">March 2026</div>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Target</th><th>Modifier</th><th>Bonus</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mar 1<span class="day-name">Sunday</span></td><td><strong>Spring Opener</strong><br><span class="flavor">Welcome March with an easy score on a clean board.</span></td><td><span class="badge easy">Easy</span></td><td>185 pts</td><td class="mod">—</td><td>255 pts</td></tr>
+      <tr><td>Mar 2<span class="day-name">Monday</span></td><td><strong>Rolling Start</strong><br><span class="flavor">Score within fourteen merges to kick off the week.</span></td><td><span class="badge easy">Easy</span></td><td>220 pts</td><td class="mod">Max merges: 14</td><td>290 pts</td></tr>
+      <tr><td>Mar 3<span class="day-name">Tuesday</span></td><td><strong>Build Up</strong><br><span class="flavor">Stack your dice carefully and climb to the target.</span></td><td><span class="badge medium">Medium</span></td><td>260 pts</td><td class="mod">—</td><td>325 pts</td></tr>
+      <tr><td>Mar 4<span class="day-name">Wednesday</span></td><td><strong>Double Trouble</strong><br><span class="flavor">Trigger a chain with a blocker dice crowding your grid.</span></td><td><span class="badge medium">Medium</span></td><td>3 chains</td><td class="mod">Null blocks: 1</td><td>—</td></tr>
+      <tr><td>Mar 5<span class="day-name">Thursday</span></td><td><strong>Grind Session</strong><br><span class="flavor">Push hard mid-week and hit the biggest target yet.</span></td><td><span class="badge hard">Hard</span></td><td>355 pts</td><td class="mod">—</td><td>440 pts</td></tr>
+      <tr><td>Mar 6<span class="day-name">Friday</span></td><td><strong>Race the Grid</strong><br><span class="flavor">Beat the clock before the board and timer run out.</span></td><td><span class="badge hard">Hard</span></td><td>410 pts</td><td class="mod">Timer: 75s</td><td>—</td></tr>
+      <tr><td>Mar 7<span class="day-name">Saturday</span></td><td><strong>Chain Gang</strong><br><span class="flavor">Set off a five-merge cascade to take the day.</span></td><td><span class="badge hard">Hard</span></td><td>5 chains</td><td class="mod">Chain goal: 5</td><td>—</td></tr>
+      <tr><td>Mar 8<span class="day-name">Sunday</span></td><td><strong>Sunday Stroll</strong><br><span class="flavor">A gentle roll through Sunday with no pressure.</span></td><td><span class="badge easy">Easy</span></td><td>190 pts</td><td class="mod">—</td><td>260 pts</td></tr>
+      <tr><td>Mar 9<span class="day-name">Monday</span></td><td><strong>Wild Cards</strong><br><span class="flavor">Use wild dice to set up a three-merge chain.</span></td><td><span class="badge easy">Easy</span></td><td>3 chains</td><td class="mod">Wild dice: 2</td><td>—</td></tr>
+      <tr><td>Mar 10<span class="day-name">Tuesday</span></td><td><strong>Standard Issue</strong><br><span class="flavor">No tricks today. Just score on a clean board.</span></td><td><span class="badge medium">Medium</span></td><td>265 pts</td><td class="mod">—</td><td>330 pts</td></tr>
+      <tr><td>Mar 11<span class="day-name">Wednesday</span></td><td><strong>Mirror World</strong><br><span class="flavor">Survive the timer while flip dice invert your neighbours.</span></td><td><span class="badge medium">Medium</span></td><td>310 pts</td><td class="mod">Flip dice: 2</td><td>—</td></tr>
+      <tr><td>Mar 12<span class="day-name">Thursday</span></td><td><strong>Tight Squeeze</strong><br><span class="flavor">Score your target with three cells permanently frozen.</span></td><td><span class="badge hard">Hard</span></td><td>360 pts</td><td class="mod">Frozen cells: 3</td><td>440 pts</td></tr>
+      <tr><td>Mar 13<span class="day-name">Friday</span></td><td><strong>Outbreak</strong><br><span class="flavor">Chain merges to contain the spreading diseased dice.</span></td><td><span class="badge hard">Hard</span></td><td>3 chains</td><td class="mod">Diseased dice: 2</td><td>—</td></tr>
+      <tr><td>Mar 14<span class="day-name">Saturday</span></td><td><strong>Defuse</strong><br><span class="flavor">Score big before the bomb detonates in three turns.</span></td><td><span class="badge hard">Hard</span></td><td>480 pts</td><td class="mod">Bomb: 3t fuse</td><td>—</td></tr>
+      <tr><td>Mar 15<span class="day-name">Sunday</span></td><td><strong>Loose Rolls</strong><br><span class="flavor">Roll freely and hit the target within your merge count.</span></td><td><span class="badge easy">Easy</span></td><td>195 pts</td><td class="mod">Max merges: 20</td><td>—</td></tr>
+      <tr><td>Mar 16<span class="day-name">Monday</span></td><td><strong>Flip Side</strong><br><span class="flavor">Place flip dice wisely to exploit the inversion mechanic.</span></td><td><span class="badge easy">Easy</span></td><td>230 pts</td><td class="mod">Flip dice: 1</td><td>295 pts</td></tr>
+      <tr><td>Mar 17<span class="day-name">Tuesday</span></td><td><strong>Lucky Chain</strong><br><span class="flavor">Wild dice open the door. Chain three merges to win.</span></td><td><span class="badge medium">Medium</span></td><td>3 chains</td><td class="mod">Wild dice: 2</td><td>—</td></tr>
+      <tr><td>Mar 18<span class="day-name">Wednesday</span></td><td><strong>Midweek Push</strong><br><span class="flavor">Grind through the middle of the week and hit your mark.</span></td><td><span class="badge medium">Medium</span></td><td>315 pts</td><td class="mod">—</td><td>390 pts</td></tr>
+      <tr><td>Mar 19<span class="day-name">Thursday</span></td><td><strong>Ticking Bomb</strong><br><span class="flavor">Survive the timer while a four-turn bomb ticks down.</span></td><td><span class="badge hard">Hard</span></td><td>365 pts</td><td class="mod">Bomb: 4t fuse</td><td>—</td></tr>
+      <tr><td>Mar 20<span class="day-name">Friday</span></td><td><strong>Spreading Fast</strong><br><span class="flavor">Score before diseased dice infect your entire grid.</span></td><td><span class="badge hard">Hard</span></td><td>420 pts</td><td class="mod">Diseased dice: 2</td><td>—</td></tr>
+      <tr><td>Mar 21<span class="day-name">Saturday</span></td><td><strong>Frozen Fury</strong><br><span class="flavor">Chain four merges around four permanently frozen cells.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Frozen cells: 4</td><td>—</td></tr>
+      <tr><td>Mar 22<span class="day-name">Sunday</span></td><td><strong>Gentle Sunday</strong><br><span class="flavor">A calm score target to round off a tough week.</span></td><td><span class="badge easy">Easy</span></td><td>200 pts</td><td class="mod">—</td><td>265 pts</td></tr>
+      <tr><td>Mar 23<span class="day-name">Monday</span></td><td><strong>Count 'Em Up</strong><br><span class="flavor">Score within fifteen merges on a clean Monday board.</span></td><td><span class="badge easy">Easy</span></td><td>235 pts</td><td class="mod">Max merges: 15</td><td>300 pts</td></tr>
+      <tr><td>Mar 24<span class="day-name">Tuesday</span></td><td><strong>Even Keel</strong><br><span class="flavor">Steady placement wins today's straightforward score target.</span></td><td><span class="badge medium">Medium</span></td><td>275 pts</td><td class="mod">—</td><td>345 pts</td></tr>
+      <tr><td>Mar 25<span class="day-name">Wednesday</span></td><td><strong>Wild Fire</strong><br><span class="flavor">Wild dice fuel a chain of three merges.</span></td><td><span class="badge medium">Medium</span></td><td>3 chains</td><td class="mod">Wild dice: 3</td><td>—</td></tr>
+      <tr><td>Mar 26<span class="day-name">Thursday</span></td><td><strong>Narrow Path</strong><br><span class="flavor">Score through the gaps left by three frozen cells.</span></td><td><span class="badge hard">Hard</span></td><td>375 pts</td><td class="mod">Frozen cells: 3</td><td>460 pts</td></tr>
+      <tr><td>Mar 27<span class="day-name">Friday</span></td><td><strong>Contagion</strong><br><span class="flavor">Survive the timer as three diseased dice spread.</span></td><td><span class="badge hard">Hard</span></td><td>435 pts</td><td class="mod">Diseased dice: 3</td><td>—</td></tr>
+      <tr><td>Mar 28<span class="day-name">Saturday</span></td><td><strong>Point of No Return</strong><br><span class="flavor">Chain four merges before the bomb detonates.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Bomb: 2t fuse</td><td>—</td></tr>
+      <tr><td>Mar 29<span class="day-name">Sunday</span></td><td><strong>Sunday Drift</strong><br><span class="flavor">Drift through Sunday with a gentle score target.</span></td><td><span class="badge easy">Easy</span></td><td>205 pts</td><td class="mod">—</td><td>—</td></tr>
+      <tr><td>Mar 30<span class="day-name">Monday</span></td><td><strong>Fresh Roll</strong><br><span class="flavor">Score within eighteen merges to open the final stretch.</span></td><td><span class="badge easy">Easy</span></td><td>240 pts</td><td class="mod">Max merges: 18</td><td>305 pts</td></tr>
+      <tr><td>Mar 31<span class="day-name">Tuesday</span></td><td><strong>End of March</strong><br><span class="flavor">Chain three merges to close out the month strong.</span></td><td><span class="badge medium">Medium</span></td><td>3 chains</td><td class="mod">—</td><td>—</td></tr>
+    </tbody>
+  </table>
 
-      <!-- ── WEEK 3 ── -->
-      <tr class="wk"><td colspan="6">Week 3 — Feb 16–22</td></tr>
-      <tr>
-        <td>Feb 16<span class="day-name">Monday</span></td>
-        <td><strong>Monday Merges</strong><br><span class="flavor">Score your target within fifteen efficient merges.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>210 pts</td>
-        <td class="mod">Max merges: 15</td>
-        <td>280 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 17<span class="day-name">Tuesday</span></td>
-        <td><strong>Numbers Game</strong><br><span class="flavor">Let the numbers stack naturally and reach the goal.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>250 pts</td>
-        <td class="mod">—</td>
-        <td>310 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 18<span class="day-name">Wednesday</span></td>
-        <td><strong>Stone and Clock</strong><br><span class="flavor">Survive the clock while two null blockers crowd your grid.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>290 pts</td>
-        <td class="mod">2 blockers + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 19<span class="day-name">Thursday</span></td>
-        <td><strong>Clean Sweep</strong><br><span class="flavor">Clear the board efficiently and hit your score target.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>340 pts</td>
-        <td class="mod">—</td>
-        <td>420 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 20<span class="day-name">Friday</span></td>
-        <td><strong>Overtime</strong><br><span class="flavor">Push past the target before the 75-second buzzer sounds.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>395 pts</td>
-        <td class="mod">Timer: 75s</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 21<span class="day-name">Saturday</span></td>
-        <td><strong>Domino Effect</strong><br><span class="flavor">Set off a chain of four merges to win.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Chain: 4 merges</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 22<span class="day-name">Sunday</span></td>
-        <td><strong>Easy Does It</strong><br><span class="flavor">A gentle Sunday score to send off the week.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>180 pts</td>
-        <td class="mod">—</td>
-        <td>250 pts</td>
-      </tr>
-
-      <!-- ── WEEK 4 ── -->
-      <tr class="wk"><td colspan="6">Week 4 — Feb 23 – Mar 1</td></tr>
-      <tr>
-        <td>Feb 23<span class="day-name">Monday</span></td>
-        <td><strong>Fresh Week</strong><br><span class="flavor">Start the week by scoring within fifteen efficient merges.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>215 pts</td>
-        <td class="mod">Max merges: 15</td>
-        <td>280 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 24<span class="day-name">Tuesday</span></td>
-        <td><strong>Smooth Run</strong><br><span class="flavor">Play clean dice and reach today's score target.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>255 pts</td>
-        <td class="mod">—</td>
-        <td>320 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 25<span class="day-name">Wednesday</span></td>
-        <td><strong>Tick Tock</strong><br><span class="flavor">Hit your score before eighty seconds run out.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>300 pts</td>
-        <td class="mod">Timer: 80s</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 26<span class="day-name">Thursday</span></td>
-        <td><strong>Clean Slate</strong><br><span class="flavor">Score big on a fresh board with no tricks.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>350 pts</td>
-        <td class="mod">—</td>
-        <td>430 pts</td>
-      </tr>
-      <tr>
-        <td>Feb 27<span class="day-name">Friday</span></td>
-        <td><strong>Pressure Cooker</strong><br><span class="flavor">Survive the timer while null blockers fill your grid.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>405 pts</td>
-        <td class="mod">2 blockers + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Feb 28<span class="day-name">Saturday</span></td>
-        <td><strong>Leap of Faith</strong><br><span class="flavor">Chain four merges and end February with a flourish.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Chain: 4 merges</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 1<span class="day-name">Sunday</span></td>
-        <td><strong>Spring Opener</strong><br><span class="flavor">Welcome March with an easy score on a clean board.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>185 pts</td>
-        <td class="mod">—</td>
-        <td>255 pts</td>
-      </tr>
-
-      <!-- ── WEEK 5 ── -->
-      <tr class="wk"><td colspan="6">Week 5 — Mar 2–8</td></tr>
-      <tr>
-        <td>Mar 2<span class="day-name">Monday</span></td>
-        <td><strong>Rolling Start</strong><br><span class="flavor">Score within fourteen merges to kick off the week.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>220 pts</td>
-        <td class="mod">Max merges: 14</td>
-        <td>290 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 3<span class="day-name">Tuesday</span></td>
-        <td><strong>Build Up</strong><br><span class="flavor">Stack your dice carefully and climb to the target.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>260 pts</td>
-        <td class="mod">—</td>
-        <td>325 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 4<span class="day-name">Wednesday</span></td>
-        <td><strong>Double Trouble</strong><br><span class="flavor">Trigger a chain with a blocker dice crowding your grid.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>3 merges</td>
-        <td class="mod">1 blocker</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 5<span class="day-name">Thursday</span></td>
-        <td><strong>Grind Session</strong><br><span class="flavor">Push hard mid-week and hit the biggest target yet.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>355 pts</td>
-        <td class="mod">—</td>
-        <td>440 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 6<span class="day-name">Friday</span></td>
-        <td><strong>Race the Grid</strong><br><span class="flavor">Beat the clock before the board and timer run out.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>410 pts</td>
-        <td class="mod">Timer: 75s</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 7<span class="day-name">Saturday</span></td>
-        <td><strong>Chain Gang</strong><br><span class="flavor">Set off a five-merge cascade to take the day.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>5 merges</td>
-        <td class="mod">Chain: 5 merges</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 8<span class="day-name">Sunday</span></td>
-        <td><strong>Sunday Stroll</strong><br><span class="flavor">A gentle roll through Sunday with no pressure.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>190 pts</td>
-        <td class="mod">—</td>
-        <td>260 pts</td>
-      </tr>
-
-      <!-- ── WEEK 6 ── -->
-      <tr class="wk"><td colspan="6">Week 6 — Mar 9–15</td></tr>
-      <tr>
-        <td>Mar 9<span class="day-name">Monday</span></td>
-        <td><strong>Wild Cards</strong><br><span class="flavor">Use wild dice to set up a three-merge chain.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>3 merges</td>
-        <td class="mod">2 wild dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 10<span class="day-name">Tuesday</span></td>
-        <td><strong>Standard Issue</strong><br><span class="flavor">No tricks today — just score on a clean board.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>265 pts</td>
-        <td class="mod">—</td>
-        <td>330 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 11<span class="day-name">Wednesday</span></td>
-        <td><strong>Mirror World</strong><br><span class="flavor">Survive the timer while flip dice invert your neighbours.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>310 pts</td>
-        <td class="mod">2 flip dice + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 12<span class="day-name">Thursday</span></td>
-        <td><strong>Tight Squeeze</strong><br><span class="flavor">Score your target with three cells permanently frozen.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>360 pts</td>
-        <td class="mod">3 frozen cells</td>
-        <td>440 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 13<span class="day-name">Friday</span></td>
-        <td><strong>Outbreak</strong><br><span class="flavor">Chain merges to contain the spreading diseased dice.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>3 merges</td>
-        <td class="mod">2 diseased dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 14<span class="day-name">Saturday</span></td>
-        <td><strong>Defuse</strong><br><span class="flavor">Score big before the bomb detonates in three turns.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>480 pts</td>
-        <td class="mod">Bomb: 3-turn fuse</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 15<span class="day-name">Sunday</span></td>
-        <td><strong>Loose Rolls</strong><br><span class="flavor">Roll freely and hit the target within your merge count.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>195 pts</td>
-        <td class="mod">Max merges: 20</td>
-        <td>—</td>
-      </tr>
-
-      <!-- ── WEEK 7 ── -->
-      <tr class="wk"><td colspan="6">Week 7 — Mar 16–22</td></tr>
-      <tr>
-        <td>Mar 16<span class="day-name">Monday</span></td>
-        <td><strong>Flip Side</strong><br><span class="flavor">Place flip dice wisely to exploit the inversion mechanic.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>230 pts</td>
-        <td class="mod">1 flip die</td>
-        <td>295 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 17<span class="day-name">Tuesday</span></td>
-        <td><strong>Lucky Chain</strong><br><span class="flavor">Wild dice open the door — chain three merges to win.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>3 merges</td>
-        <td class="mod">2 wild dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 18<span class="day-name">Wednesday</span></td>
-        <td><strong>Midweek Push</strong><br><span class="flavor">Grind through the middle of the week and hit your mark.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>315 pts</td>
-        <td class="mod">—</td>
-        <td>390 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 19<span class="day-name">Thursday</span></td>
-        <td><strong>Ticking Bomb</strong><br><span class="flavor">Survive the timer while a four-turn bomb ticks down.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>365 pts</td>
-        <td class="mod">Bomb: 4-turn fuse + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 20<span class="day-name">Friday</span></td>
-        <td><strong>Spreading Fast</strong><br><span class="flavor">Score before diseased dice infect your entire grid.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>420 pts</td>
-        <td class="mod">2 diseased dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 21<span class="day-name">Saturday</span></td>
-        <td><strong>Frozen Fury</strong><br><span class="flavor">Chain four merges around four permanently frozen cells.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">4 frozen cells</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 22<span class="day-name">Sunday</span></td>
-        <td><strong>Gentle Sunday</strong><br><span class="flavor">A calm score target to round off a tough week.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>200 pts</td>
-        <td class="mod">—</td>
-        <td>265 pts</td>
-      </tr>
-
-      <!-- ── WEEK 8 ── -->
-      <tr class="wk"><td colspan="6">Week 8 — Mar 23–29</td></tr>
-      <tr>
-        <td>Mar 23<span class="day-name">Monday</span></td>
-        <td><strong>Count 'Em Up</strong><br><span class="flavor">Score within fifteen merges on a clean Monday board.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>235 pts</td>
-        <td class="mod">Max merges: 15</td>
-        <td>300 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 24<span class="day-name">Tuesday</span></td>
-        <td><strong>Even Keel</strong><br><span class="flavor">Steady placement wins today's straightforward score target.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>275 pts</td>
-        <td class="mod">—</td>
-        <td>345 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 25<span class="day-name">Wednesday</span></td>
-        <td><strong>Wild Fire</strong><br><span class="flavor">Wild dice fuel a chain of three merges.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>3 merges</td>
-        <td class="mod">3 wild dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 26<span class="day-name">Thursday</span></td>
-        <td><strong>Narrow Path</strong><br><span class="flavor">Score through the gaps left by three frozen cells.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>375 pts</td>
-        <td class="mod">3 frozen cells</td>
-        <td>460 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 27<span class="day-name">Friday</span></td>
-        <td><strong>Contagion</strong><br><span class="flavor">Survive the timer as three diseased dice spread.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>435 pts</td>
-        <td class="mod">3 diseased dice + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 28<span class="day-name">Saturday</span></td>
-        <td><strong>Point of No Return</strong><br><span class="flavor">Chain four merges before the bomb detonates.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Bomb: 2-turn fuse</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Mar 29<span class="day-name">Sunday</span></td>
-        <td><strong>Sunday Drift</strong><br><span class="flavor">Drift through Sunday with a gentle score target.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>205 pts</td>
-        <td class="mod">—</td>
-        <td>—</td>
-      </tr>
-
-      <!-- ── WEEK 9 ── -->
-      <tr class="wk"><td colspan="6">Week 9 — Mar 30 – Apr 5</td></tr>
-      <tr>
-        <td>Mar 30<span class="day-name">Monday</span></td>
-        <td><strong>Fresh Roll</strong><br><span class="flavor">Score within eighteen merges to open the final stretch.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>240 pts</td>
-        <td class="mod">Max merges: 18</td>
-        <td>305 pts</td>
-      </tr>
-      <tr>
-        <td>Mar 31<span class="day-name">Tuesday</span></td>
-        <td><strong>End of March</strong><br><span class="flavor">Chain three merges to close out the month strong.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>3 merges</td>
-        <td class="mod">—</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Apr 1<span class="day-name">Wednesday</span></td>
-        <td><strong>Fool's Gold</strong><br><span class="flavor">Wild dice look generous — don't be fooled, score big.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>325 pts</td>
-        <td class="mod">3 wild dice</td>
-        <td>400 pts</td>
-      </tr>
-      <tr>
-        <td>Apr 2<span class="day-name">Thursday</span></td>
-        <td><strong>Gridlock</strong><br><span class="flavor">Survive the timer with three null blockers clogging the grid.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>380 pts</td>
-        <td class="mod">3 blockers + 90s clock</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Apr 3<span class="day-name">Friday</span></td>
-        <td><strong>Fever Pitch</strong><br><span class="flavor">Score before diseased dice spread across the grid.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>440 pts</td>
-        <td class="mod">2 diseased dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Apr 4<span class="day-name">Saturday</span></td>
-        <td><strong>Blast Wave</strong><br><span class="flavor">Chain four merges before the bomb blows.</span></td>
-        <td><span class="badge hard">Hard</span></td>
-        <td>4 merges</td>
-        <td class="mod">Bomb: 3-turn fuse</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Apr 5<span class="day-name">Sunday</span></td>
-        <td><strong>April Ease</strong><br><span class="flavor">A clean Sunday score to start April gently.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>210 pts</td>
-        <td class="mod">—</td>
-        <td>275 pts</td>
-      </tr>
-
-      <!-- ── WEEK 10 (partial) ── -->
-      <tr class="wk"><td colspan="6">Week 10 — Apr 6–7</td></tr>
-      <tr>
-        <td>Apr 6<span class="day-name">Monday</span></td>
-        <td><strong>Wildcard Monday</strong><br><span class="flavor">Use wild dice to trigger a three-merge chain.</span></td>
-        <td><span class="badge easy">Easy</span></td>
-        <td>3 merges</td>
-        <td class="mod">2 wild dice</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Apr 7<span class="day-name">Tuesday</span></td>
-        <td><strong>Full Circle</strong><br><span class="flavor">Return to basics and hit the standard score target.</span></td>
-        <td><span class="badge medium">Medium</span></td>
-        <td>300 pts</td>
-        <td class="mod">—</td>
-        <td>400 pts</td>
-      </tr>
+  <div class="month">April 2026</div>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Challenge</th><th>Difficulty</th><th>Target</th><th>Modifier</th><th>Bonus</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Apr 1<span class="day-name">Wednesday</span></td><td><strong>Fool's Gold</strong><br><span class="flavor">Wild dice look generous. Don't be fooled, score big.</span></td><td><span class="badge medium">Medium</span></td><td>325 pts</td><td class="mod">Wild dice: 3</td><td>400 pts</td></tr>
+      <tr><td>Apr 2<span class="day-name">Thursday</span></td><td><strong>Gridlock</strong><br><span class="flavor">Survive the timer with three null blockers clogging the grid.</span></td><td><span class="badge hard">Hard</span></td><td>380 pts</td><td class="mod">Null blocks: 3</td><td>—</td></tr>
+      <tr><td>Apr 3<span class="day-name">Friday</span></td><td><strong>Fever Pitch</strong><br><span class="flavor">Score before diseased dice spread across the grid.</span></td><td><span class="badge hard">Hard</span></td><td>440 pts</td><td class="mod">Diseased dice: 2</td><td>—</td></tr>
+      <tr><td>Apr 4<span class="day-name">Saturday</span></td><td><strong>Blast Wave</strong><br><span class="flavor">Chain four merges before the bomb blows.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Bomb: 3t fuse</td><td>—</td></tr>
+      <tr><td>Apr 5<span class="day-name">Sunday</span></td><td><strong>April Ease</strong><br><span class="flavor">A clean Sunday score to start April gently.</span></td><td><span class="badge easy">Easy</span></td><td>210 pts</td><td class="mod">—</td><td>275 pts</td></tr>
+      <tr><td>Apr 6<span class="day-name">Monday</span></td><td><strong>Wildcard Monday</strong><br><span class="flavor">Use wild dice to trigger a three-merge chain.</span></td><td><span class="badge easy">Easy</span></td><td>3 chains</td><td class="mod">Wild dice: 2</td><td>—</td></tr>
+      <tr><td>Apr 7<span class="day-name">Tuesday</span></td><td><strong>Full Circle</strong><br><span class="flavor">Return to basics and hit the standard score target.</span></td><td><span class="badge medium">Medium</span></td><td>300 pts</td><td class="mod">—</td><td>400 pts</td></tr>
+      <tr><td>Apr 8<span class="day-name">Wednesday</span></td><td><strong>Measured Steps</strong><br><span class="flavor">Score your target within eighteen efficient merges.</span></td><td><span class="badge medium">Medium</span></td><td>280 pts</td><td class="mod">Max merges: 18</td><td>345 pts</td></tr>
+      <tr><td>Apr 9<span class="day-name">Thursday</span></td><td><strong>Glass Board</strong><br><span class="flavor">Flip dice invert your neighbours; score big anyway.</span></td><td><span class="badge hard">Hard</span></td><td>340 pts</td><td class="mod">Flip dice: 2</td><td>—</td></tr>
+      <tr><td>Apr 10<span class="day-name">Friday</span></td><td><strong>Final Stretch</strong><br><span class="flavor">Race to the score before eighty seconds expire.</span></td><td><span class="badge hard">Hard</span></td><td>395 pts</td><td class="mod">Timer: 80s</td><td>—</td></tr>
+      <tr><td>Apr 11<span class="day-name">Saturday</span></td><td><strong>Countdown</strong><br><span class="flavor">Chain four merges before the bomb detonates.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Bomb: 3t fuse</td><td>—</td></tr>
+      <tr><td>Apr 12<span class="day-name">Sunday</span></td><td><strong>Spring Sunday</strong><br><span class="flavor">A gentle Sunday score with no distractions.</span></td><td><span class="badge easy">Easy</span></td><td>220 pts</td><td class="mod">—</td><td>285 pts</td></tr>
+      <tr><td>Apr 13<span class="day-name">Monday</span></td><td><strong>Wild Monday</strong><br><span class="flavor">Wild dice open the door to a three-merge chain.</span></td><td><span class="badge easy">Easy</span></td><td>3 chains</td><td class="mod">Wild dice: 2</td><td>—</td></tr>
+      <tr class="today"><td>Apr 14<span class="day-name">Tuesday · Today</span></td><td><strong>Steady Ground</strong><br><span class="flavor">Solid fundamentals win today's straightforward score target.</span></td><td><span class="badge easy">Easy</span></td><td>245 pts</td><td class="mod">—</td><td>310 pts</td></tr>
+      <tr><td>Apr 15<span class="day-name">Wednesday</span></td><td><strong>Merge Window</strong><br><span class="flavor">Hit your target within sixteen carefully placed merges.</span></td><td><span class="badge medium">Medium</span></td><td>285 pts</td><td class="mod">Max merges: 16</td><td>360 pts</td></tr>
+      <tr><td>Apr 16<span class="day-name">Thursday</span></td><td><strong>Block Party</strong><br><span class="flavor">Score big while two null blockers crowd the grid.</span></td><td><span class="badge hard">Hard</span></td><td>355 pts</td><td class="mod">Null blocks: 2</td><td>—</td></tr>
+      <tr><td>Apr 17<span class="day-name">Friday</span></td><td><strong>Viral Spread</strong><br><span class="flavor">Survive the timer as two diseased dice spread.</span></td><td><span class="badge hard">Hard</span></td><td>415 pts</td><td class="mod">Diseased dice: 2</td><td>—</td></tr>
+      <tr><td>Apr 18<span class="day-name">Saturday</span></td><td><strong>Ice Grip</strong><br><span class="flavor">Score through the gaps left by three frozen cells.</span></td><td><span class="badge hard">Hard</span></td><td>480 pts</td><td class="mod">Frozen cells: 3</td><td>—</td></tr>
+      <tr><td>Apr 19<span class="day-name">Sunday</span></td><td><strong>Sunday Link</strong><br><span class="flavor">Trigger three cascading merges for a relaxed Sunday win.</span></td><td><span class="badge easy">Easy</span></td><td>3 chains</td><td class="mod">—</td><td>—</td></tr>
+      <tr><td>Apr 20<span class="day-name">Monday</span></td><td><strong>Flip Start</strong><br><span class="flavor">One flip die adds a twist to Monday's score.</span></td><td><span class="badge easy">Easy</span></td><td>250 pts</td><td class="mod">Flip dice: 1</td><td>315 pts</td></tr>
+      <tr><td>Apr 21<span class="day-name">Tuesday</span></td><td><strong>Merge Budget</strong><br><span class="flavor">Build your score within seventeen efficient merges.</span></td><td><span class="badge medium">Medium</span></td><td>295 pts</td><td class="mod">Max merges: 17</td><td>—</td></tr>
+      <tr><td>Apr 22<span class="day-name">Wednesday</span></td><td><strong>Clean Wednesday</strong><br><span class="flavor">No tricks today, just hit the clean score target.</span></td><td><span class="badge medium">Medium</span></td><td>345 pts</td><td class="mod">—</td><td>425 pts</td></tr>
+      <tr><td>Apr 23<span class="day-name">Thursday</span></td><td><strong>Wild Chain</strong><br><span class="flavor">Wild dice fuel a chain of four merges.</span></td><td><span class="badge hard">Hard</span></td><td>4 chains</td><td class="mod">Wild dice: 3</td><td>—</td></tr>
+      <tr><td>Apr 24<span class="day-name">Friday</span></td><td><strong>Speed Drill</strong><br><span class="flavor">Beat the clock and reach your score in seventy seconds.</span></td><td><span class="badge hard">Hard</span></td><td>430 pts</td><td class="mod">Timer: 70s</td><td>—</td></tr>
+      <tr><td>Apr 25<span class="day-name">Saturday</span></td><td><strong>Live Wire</strong><br><span class="flavor">Score big before a three-turn bomb detonates.</span></td><td><span class="badge hard">Hard</span></td><td>500 pts</td><td class="mod">Bomb: 3t fuse</td><td>—</td></tr>
+      <tr><td>Apr 26<span class="day-name">Sunday</span></td><td><strong>Gentle Roll</strong><br><span class="flavor">Ease into Sunday with a generous merge allowance.</span></td><td><span class="badge easy">Easy</span></td><td>215 pts</td><td class="mod">Max merges: 22</td><td>—</td></tr>
+      <tr><td>Apr 27<span class="day-name">Monday</span></td><td><strong>Wild Opener</strong><br><span class="flavor">Wild dice give you a head start on Monday.</span></td><td><span class="badge easy">Easy</span></td><td>255 pts</td><td class="mod">Wild dice: 2</td><td>320 pts</td></tr>
+      <tr><td>Apr 28<span class="day-name">Tuesday</span></td><td><strong>Triple Link</strong><br><span class="flavor">Set off a chain of three merges to win.</span></td><td><span class="badge easy">Easy</span></td><td>3 chains</td><td class="mod">—</td><td>—</td></tr>
+      <tr><td>Apr 29<span class="day-name">Wednesday</span></td><td><strong>Merge Count</strong><br><span class="flavor">Count your merges and hit the target within eighteen.</span></td><td><span class="badge medium">Medium</span></td><td>300 pts</td><td class="mod">Max merges: 18</td><td>—</td></tr>
+      <tr><td>Apr 30<span class="day-name">Thursday</span></td><td><strong>Month's End</strong><br><span class="flavor">End April with a flip-dice flourish and high score.</span></td><td><span class="badge hard">Hard</span></td><td>370 pts</td><td class="mod">Flip dice: 2</td><td>—</td></tr>
     </tbody>
   </table>
 </body>

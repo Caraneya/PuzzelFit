@@ -13,6 +13,10 @@
 //   "bombDice"      – bomb die with modValue-turn fuse; clear it or it detonates (any winType)
 //   "frozenCell"    – modValue cells permanently blocked as wall tiles (any winType)
 //   "flipDice"      – modValue flip dice; invert neighbour value 1↔6 2↔5 3↔4 (any winType)
+//   "hotZone"       – modValue cells glow gold; merges through them score ×2 (any winType)
+//
+// clearBoard winType → target unused (set 0); add initialBoard: [[r,c,value],...] for pre-placed dice
+//                      win when every positive die value is gone from the board
 //
 // chainGoal winType  → target = chain length required (not a score)
 // scoreInMerges      → target = score, modValue = merge limit (modifier always "maxMerges")
@@ -97,6 +101,50 @@ const CHALLENGES = {
   "2026-04-05": { label: "April Ease",        flavor: "A clean Sunday score to start April gently.",                target: 210, modifier: null,           modValue: null, bonusTarget: 275,  difficulty: "easy",   winType: "scoreTarget"  },
   "2026-04-06": { label: "Wildcard Monday",   flavor: "Use wild dice to trigger a three-merge chain.",              target: 3,   modifier: "wildDice",     modValue: 2,    bonusTarget: null, difficulty: "easy",   winType: "chainGoal"    },
   "2026-04-07": { label: "Full Circle",       flavor: "Return to basics and hit the standard score target.",         target: 300, modifier: null,           modValue: null, bonusTarget: 400,  difficulty: "medium", winType: "scoreTarget"  },
+
+  // ── APRIL (cont.) ───────────────────────────────────────────
+  "2026-04-08": { label: "Measured Steps",   flavor: "Score your target within eighteen efficient merges.",          target: 280, modifier: "maxMerges",    modValue: 18,   bonusTarget: 345,  difficulty: "medium", winType: "scoreInMerges"},
+  "2026-04-09": { label: "Glass Board",      flavor: "Flip dice invert your neighbours; score big anyway.",         target: 340, modifier: "flipDice",     modValue: 2,    bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+  "2026-04-10": { label: "Final Stretch",    flavor: "Race to the score before eighty seconds expire.",             target: 395, modifier: "timer",        modValue: 80,   bonusTarget: null, difficulty: "hard",   winType: "surviveTimer" },
+  "2026-04-11": { label: "Countdown",        flavor: "Chain four merges before the bomb detonates.",                target: 4,   modifier: "bombDice",     modValue: 3,    bonusTarget: null, difficulty: "hard",   winType: "chainGoal"    },
+  "2026-04-12": { label: "Spring Sunday",    flavor: "A gentle Sunday score with no distractions.",                 target: 220, modifier: null,           modValue: null, bonusTarget: 285,  difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-04-13": { label: "Wild Monday",      flavor: "Wild dice open the door to a three-merge chain.",             target: 3,   modifier: "wildDice",     modValue: 2,    bonusTarget: null, difficulty: "easy",   winType: "chainGoal"    },
+  "2026-04-14": { label: "Steady Ground",    flavor: "Solid fundamentals win today's straightforward score target.",target: 245, modifier: null,           modValue: null, bonusTarget: 310,  difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-04-15": { label: "Merge Window",     flavor: "Hit your target within sixteen carefully placed merges.",     target: 285, modifier: "maxMerges",    modValue: 16,   bonusTarget: 360,  difficulty: "medium", winType: "scoreInMerges"},
+  "2026-04-16": { label: "Block Party",      flavor: "Score big while two null blockers crowd the grid.",           target: 355, modifier: "nullBlock",    modValue: 2,    bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+  "2026-04-17": { label: "Viral Spread",     flavor: "Survive the timer as two diseased dice spread.",              target: 415, modifier: "diseasedDice", modValue: 2,    bonusTarget: null, difficulty: "hard",   winType: "surviveTimer" },
+  "2026-04-18": { label: "Ice Grip",         flavor: "Score through the gaps left by three frozen cells.",          target: 480, modifier: "frozenCell",   modValue: 3,    bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+  "2026-04-19": { label: "Sunday Link",      flavor: "Trigger three cascading merges for a relaxed Sunday win.",    target: 3,   modifier: null,           modValue: null, bonusTarget: null, difficulty: "easy",   winType: "chainGoal"    },
+  "2026-04-20": { label: "Flip Start",       flavor: "One flip die adds a twist to Monday's score.",                target: 250, modifier: "flipDice",     modValue: 1,    bonusTarget: 315,  difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-04-21": { label: "Merge Budget",     flavor: "Build your score within seventeen efficient merges.",         target: 295, modifier: "maxMerges",    modValue: 17,   bonusTarget: null, difficulty: "medium", winType: "scoreInMerges"},
+  "2026-04-22": { label: "Clean Wednesday",  flavor: "No tricks today, just hit the clean score target.",           target: 345, modifier: null,           modValue: null, bonusTarget: 425,  difficulty: "medium", winType: "scoreTarget"  },
+  "2026-04-23": { label: "Wild Chain",       flavor: "Wild dice fuel a chain of four merges.",                      target: 4,   modifier: "wildDice",     modValue: 3,    bonusTarget: null, difficulty: "hard",   winType: "chainGoal"    },
+  "2026-04-24": { label: "Speed Drill",      flavor: "Beat the clock and reach your score in seventy seconds.",     target: 430, modifier: "timer",        modValue: 70,   bonusTarget: null, difficulty: "hard",   winType: "surviveTimer" },
+  "2026-04-25": { label: "Live Wire",        flavor: "Score big before a three-turn bomb detonates.",               target: 500, modifier: "bombDice",     modValue: 3,    bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+  "2026-04-26": { label: "Gentle Roll",      flavor: "Ease into Sunday with a generous merge allowance.",           target: 215, modifier: "maxMerges",    modValue: 22,   bonusTarget: null, difficulty: "easy",   winType: "scoreInMerges"},
+  "2026-04-27": { label: "Wild Opener",      flavor: "Wild dice give you a head start on Monday.",                  target: 255, modifier: "wildDice",     modValue: 2,    bonusTarget: 320,  difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-04-28": { label: "Triple Link",      flavor: "Set off a chain of three merges to win.",                     target: 3,   modifier: null,           modValue: null, bonusTarget: null, difficulty: "easy",   winType: "chainGoal"    },
+  "2026-04-29": { label: "Merge Count",      flavor: "Count your merges and hit the target within eighteen.",       target: 300, modifier: "maxMerges",    modValue: 18,   bonusTarget: null, difficulty: "medium", winType: "scoreInMerges"},
+  "2026-04-30": { label: "Month's End",      flavor: "End April with a flip-dice flourish and high score.",         target: 370, modifier: "flipDice",     modValue: 2,    bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+
+  // ── MAY ────────────────────────────────────────────────────
+  "2026-05-01": { label: "Hot Spots",        flavor: "Two hot zones glow on the board. Merge through them for double points.", target: 280, modifier: "hotZone", modValue: 2, bonusTarget: 360, difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-05-02": { label: "Clean Slate",      flavor: "Four dice wait on the board. Clear every last one to win.",             target: 0,   modifier: null,       modValue: null, bonusTarget: null, difficulty: "easy",   winType: "clearBoard",
+    initialBoard: [[0,1,4],[0,3,4],[4,1,4],[4,3,4]] },
+  "2026-05-03": { label: "Sunday Score",     flavor: "A calm Sunday with no tricks. Score and enjoy the roll.",              target: 230, modifier: null,           modValue: null, bonusTarget: 295,  difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-05-04": { label: "Fire Sale",        flavor: "Three hot zones triple your scoring chances. Hit the target.",         target: 320, modifier: "hotZone",  modValue: 3, bonusTarget: 400, difficulty: "medium", winType: "scoreTarget"  },
+  "2026-05-05": { label: "Merge Budget",     flavor: "Score your target within seventeen efficient merges.",                 target: 295, modifier: "maxMerges",    modValue: 17,   bonusTarget: null, difficulty: "medium", winType: "scoreInMerges"},
+  "2026-05-06": { label: "Scattered Threes", flavor: "Six threes wait in the corners. Clear the board to win.",             target: 0,   modifier: null,       modValue: null, bonusTarget: null, difficulty: "medium", winType: "clearBoard",
+    initialBoard: [[0,0,3],[0,4,3],[2,2,3],[4,0,3],[4,4,3],[1,2,3]] },
+  "2026-05-07": { label: "Hot Timer",        flavor: "Two hot zones and a ticking clock — score big before time runs out.", target: 360, modifier: "hotZone",  modValue: 2, bonusTarget: null, difficulty: "hard",   winType: "surviveTimer"  },
+  "2026-05-08": { label: "Speed Run",        flavor: "Race to the score before seventy-five seconds expire.",               target: 420, modifier: "timer",        modValue: 75,   bonusTarget: null, difficulty: "hard",   winType: "surviveTimer" },
+  "2026-05-09": { label: "Nine Lives",       flavor: "Nine fives fill the board at the even squares. Clear them all.",      target: 0,   modifier: null,       modValue: null, bonusTarget: null, difficulty: "hard",   winType: "clearBoard",
+    initialBoard: [[0,0,5],[0,2,5],[0,4,5],[2,0,5],[2,2,5],[2,4,5],[4,0,5],[4,2,5],[4,4,5]] },
+  "2026-05-10": { label: "Sunday Glow",      flavor: "One hot zone sits waiting. A gentle score to close the week.",        target: 200, modifier: "hotZone",  modValue: 1, bonusTarget: 265, difficulty: "easy",   winType: "scoreTarget"  },
+  "2026-05-11": { label: "Hot Chain",        flavor: "Two hot zones fuel a chain of four merges.",                          target: 4,   modifier: "hotZone",  modValue: 2, bonusTarget: null, difficulty: "medium", winType: "chainGoal"    },
+  "2026-05-12": { label: "Null and Void",    flavor: "Score big while two null blockers box you in.",                       target: 355, modifier: "nullBlock",    modValue: 2,    bonusTarget: null, difficulty: "medium", winType: "scoreTarget"  },
+  "2026-05-13": { label: "Wildfire",         flavor: "Wild dice and hot zones together — exploit them both.",               target: 380, modifier: "hotZone",  modValue: 2, bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
+  "2026-05-14": { label: "Ticking Hot",      flavor: "A bomb ticks while hot zones await. Defuse and double your score.",   target: 440, modifier: "hotZone",  modValue: 3, bonusTarget: null, difficulty: "hard",   winType: "scoreTarget"  },
 };
 
 function getTodayChallenge() {
