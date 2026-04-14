@@ -1011,6 +1011,7 @@ function onCalDaySelect(iso) {
 
 // ── NAVIGATION ───────────────────────────────────────────────
 function rebuildTimer(ch) {
+  timerObj?.pause();
   let opts = {};
   if (ch.modifier === 'timer') {
     opts = { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } };
