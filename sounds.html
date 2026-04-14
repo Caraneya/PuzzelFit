@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PuzzleFit — Sound Design</title>
+  <style>
+    /* ── TOKEN MAP (hardcoded from tokens.css) ── */
+    :root {
+      --bg:        #F5F1ED;
+      --surface:   #FFFFFF;
+      --surface2:  #EAE6E2;
+      --primary:   #004046;
+      --accent:    #49DE71;
+      --text:      #004046;
+      --text2:     #737373;
+      --border:    #CCCCCC;
+      --error:     #F26837;
+      --warning:   #FF9000;
+      --success:   #34C759;
+      --tooltip:   #363534;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
+    }
+    [data-theme="dark"] {
+      --bg:       #1C1C1E;
+      --surface:  #313133;
+      --surface2: #3A3A3C;
+      --primary:  #F0FEFF;
+      --accent:   #39D961;
+      --text:     #F0FEFF;
+      --text2:    #D1D1D1;
+      --border:   #3A3A3C;
+      --tooltip:  #4D4C4A;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 64px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    /* ── HEADER ── */
+    .page-header {
+      background: var(--primary);
+      color: #F5F1ED;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    [data-theme="dark"] .page-header { background: #252527; color: #F0FEFF; }
+    .page-header h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.02em; }
+    .page-header p  { font-size: 0.72rem; opacity: 0.65; margin-top: 2px; }
+    .theme-toggle {
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: inherit;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,0.24); }
+
+    /* ── GAME SECTION ── */
+    .game-section { padding: 0 24px; max-width: 900px; margin: 0 auto; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 12px;
+      border-bottom: 1.5px solid var(--border);
+      margin-bottom: 20px;
+      position: sticky;
+      top: 65px;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .section-title { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+    .btn-play-all {
+      background: var(--accent);
+      color: #004046;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    [data-theme="dark"] .btn-play-all { color: #1C1C1E; }
+    .btn-play-all:hover { opacity: 0.82; }
+
+    /* ── CARD GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    /* ── SOUND CARD ── */
+    .sound-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      transition: border-color 0.15s;
+    }
+    .sound-card:hover { border-color: var(--primary); }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn-play {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: #F5F1ED;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+    [data-theme="dark"] .btn-play { color: #1C1C1E; }
+    .btn-play:hover  { opacity: 0.8; }
+    .btn-play:active { transform: scale(0.9); }
+
+    .card-meta { flex: 1; min-width: 0; }
+    .card-id {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .card-valence {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-left: 5px;
+      vertical-align: middle;
+      text-transform: uppercase;
+    }
+    .valence-positive       { background: #E8F8ED; color: #1A9E42; }
+    .valence-positive-peak  { background: #D6F5E1; color: #0E7A30; font-weight: 800; }
+    .valence-neutral        { background: var(--surface2); color: var(--text2); }
+    .valence-negative       { background: #FEF0EB; color: #D4400A; }
+    .valence-alert          { background: #FFF5E6; color: #CC7400; }
+    .valence-alert-urgent   { background: #FFE8D6; color: #B83A00; font-weight: 800; }
+    [data-theme="dark"] .valence-positive      { background: #0E2E18; color: #39D961; }
+    [data-theme="dark"] .valence-positive-peak { background: #0A2412; color: #4DFF7A; }
+    [data-theme="dark"] .valence-neutral       { background: var(--surface2); color: var(--text2); }
+    [data-theme="dark"] .valence-negative      { background: #3B1508; color: #FF7A50; }
+    [data-theme="dark"] .valence-alert         { background: #2E1E00; color: #FFA733; }
+    [data-theme="dark"] .valence-alert-urgent  { background: #3A1200; color: #FF8C42; }
+
+    .card-desc {
+      font-size: 0.72rem;
+      color: var(--text2);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+    .card-trigger {
+      font-size: 0.64rem;
+      color: var(--text2);
+      margin-top: 2px;
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    /* ── SLIDERS ── */
+    .sliders { display: flex; flex-direction: column; gap: 5px; }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .slider-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text2);
+      width: 34px;
+      flex-shrink: 0;
+    }
+    input[type=range] {
+      flex: 1;
+      height: 3px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    .slider-val {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.62rem;
+      color: var(--text2);
+      width: 50px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .param-summary {
+      font-size: 0.6rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: var(--text2);
+      margin-top: 8px;
+      opacity: 0.75;
+      line-height: 1.5;
+    }
+
+    /* ── MUSIC SECTION ── */
+    .music-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 24px 0;
+    }
+    .music-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .music-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 32px;
+    }
+    .music-play-btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary);
+      color: #F5F1ED;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, background 0.2s;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .music-play-btn { color: #1C1C1E; }
+    .music-play-btn:hover { opacity: 0.85; }
+    .music-play-btn:active { transform: scale(0.92); }
+    .music-play-btn.is-playing { background: var(--accent); color: #004046; }
+    [data-theme="dark"] .music-play-btn.is-playing { color: #1C1C1E; }
+
+    .music-controls { display: flex; flex-direction: column; gap: 10px; }
+    .music-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .music-title { font-size: 0.85rem; font-weight: 700; }
+    .music-chord-display {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      background: var(--surface2);
+      padding: 3px 10px;
+      border-radius: 999px;
+      min-width: 60px;
+      text-align: center;
+    }
+    [data-theme="dark"] .music-chord-display { color: var(--accent); }
+    .music-sliders { display: flex; flex-direction: column; gap: 5px; }
+    .music-melody-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .music-melody-label { font-size: 0.68rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .melody-toggle {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 999px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .melody-toggle button {
+      border: none;
+      background: transparent;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text2);
+      transition: background 0.15s, color 0.15s;
+    }
+    .melody-toggle button.active {
+      background: var(--primary);
+      color: #F5F1ED;
+    }
+    [data-theme="dark"] .melody-toggle button.active { color: #1C1C1E; }
+
+    .state-test-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .state-test-label { font-size: 0.62rem; color: var(--text2); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; align-self: center; }
+    .state-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .state-btn:hover { background: var(--border); }
+    .state-btn.active-state { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <h1>PuzzleFit — Sound Design</h1>
+    <p>Click ▶ to preview a sound. Drag sliders to tune live. Say "sounds approved" to proceed to implementation.</p>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle theme</button>
+</header>
+
+<!-- ── MUSIC ──────────────────────────────────────────── -->
+<section class="music-section">
+  <div class="music-section-title">Background Music</div>
+  <div class="music-card">
+    <button class="music-play-btn" id="music-play-btn" onclick="toggleMusic()" title="Start / Stop">▶</button>
+    <div class="music-controls">
+      <div class="music-top-row">
+        <span class="music-title">Ambient Pads — D major pentatonic</span>
+        <span class="music-chord-display" id="music-chord">—</span>
+      </div>
+      <div class="music-sliders">
+        <div class="slider-row">
+          <span class="slider-label">Vol</span>
+          <input type="range" min="0.02" max="0.40" step="0.01" value="0.18" id="music-vol"
+            oninput="Music.setVolume(+this.value); this.nextElementSibling.textContent=Math.round(this.value*100)+'%'">
+          <span class="slider-val">18%</span>
+        </div>
+        <div class="slider-row">
+          <span class="slider-label">BPM</span>
+          <input type="range" min="40" max="110" step="1" value="72" id="music-bpm"
+            oninput="Music.setBpm(+this.value); this.nextElementSibling.textContent=this.value">
+          <span class="slider-val">72</span>
+        </div>
+      </div>
+      <div class="music-melody-row">
+        <span class="music-melody-label">Melody layer</span>
+        <div class="melody-toggle">
+          <button class="active" onclick="setMelody(true,this)">On</button>
+          <button onclick="setMelody(false,this)">Off</button>
+        </div>
+      </div>
+      <div class="state-test-row">
+        <span class="state-test-label">Test states →</span>
+        <button class="state-btn" id="state-normal"   onclick="testState('normal')">Normal</button>
+        <button class="state-btn" id="state-timerlow" onclick="testState('timer-low')">Timer Low</button>
+        <button class="state-btn" id="state-win"      onclick="testState('win')">Win Flourish</button>
+        <button class="state-btn" id="state-pause"    onclick="testState('pause')">Pause</button>
+        <button class="state-btn" id="state-resume"   onclick="testState('resume')">Resume</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SOUND FX ────────────────────────────────────────── -->
+<section class="game-section">
+  <div class="section-header">
+    <span class="section-title">Dobbelaar — 24 sound effects</span>
+    <button class="btn-play-all" onclick="playAll()">▶ Play all in sequence</button>
+  </div>
+  <div class="cards-grid" id="cards"></div>
+</section>
+
+<script>
+// ── AUDIO CONTEXT ─────────────────────────────────────────────
+let ctx = null;
+function getCtx() {
+  if (!ctx) ctx = new AudioContext();
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+
+// ── CORE SYNTH ────────────────────────────────────────────────
+function synth({ freq, duration, type = 'sine', gain = 0.2, attack = 0.005, sweep = null, delay = 0 }) {
+  const c = getCtx();
+  const osc = c.createOscillator();
+  const vol = c.createGain();
+  osc.connect(vol);
+  vol.connect(c.destination);
+  osc.type = type;
+  const t = c.currentTime + delay;
+  osc.frequency.setValueAtTime(freq, t);
+  if (sweep != null) osc.frequency.linearRampToValueAtTime(sweep, t + duration);
+  vol.gain.setValueAtTime(0.001, t);
+  vol.gain.linearRampToValueAtTime(gain, t + Math.max(attack, 0.005));
+  vol.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  osc.start(t);
+  osc.stop(t + duration + 0.02);
+}
+
+function seq(steps) { steps.forEach(s => synth(s)); }
+
+// ── MUSIC ENGINE ──────────────────────────────────────────────
+const Music = (() => {
+  // D major pentatonic — exact Hz
+  const P = {
+    D3:146.83, E3:164.81, Fs3:185.00, A3:220.00, B3:246.94,
+    D4:293.66, E4:329.63, Fs4:369.99, A4:440.00, B4:493.88,
+    D5:587.33, E5:659.26, Fs5:739.99, A5:880.00,
+  };
+
+  // Four chord shapes — all notes in pentatonic, no clashes
+  const CHORDS = [
+    { name: 'Dmaj',  notes: [P.D3, P.A3, P.D4, P.Fs4] },
+    { name: 'Bm',    notes: [P.B3, P.Fs4, P.B4, P.D5]  },
+    { name: 'Asus2', notes: [P.A3, P.E4, P.A4, P.B4]   },
+    { name: 'Em7',   notes: [P.E3, P.B3, P.E4, P.A4]   },
+  ];
+  // Sparse melody note sequence drawn from pentatonic high register
+  const MELODY = [P.D5, P.Fs5, P.A5, P.E5, P.B4, P.A5, P.Fs5, P.D5, P.E5, P.A5, P.B4, P.Fs5];
+  // Gain weight per pad voice (root is loudest)
+  const PAD_GAINS = [0.52, 0.38, 0.28, 0.18];
+
+  let running = false, tension = false, melodyOn = true;
+  let bpmBase = 72, bpmCurrent = 72, volume = 0.18;
+  let chordIdx = 0, beatCount = 0, melodyIdx = 0;
+  let timerId = null, masterGain = null;
+
+  function getMaster() {
+    const c = getCtx();
+    if (!masterGain || masterGain.context !== c) {
+      masterGain = c.createGain();
+      masterGain.gain.setValueAtTime(volume, c.currentTime);
+      masterGain.connect(c.destination);
+    }
+    return masterGain;
+  }
+
+  function pad(freq, duration, g, attack = 0.7, delay = 0) {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const vol = c.createGain();
+    osc.connect(vol);
+    vol.connect(getMaster());
+    osc.type = 'sine';
+    const t = c.currentTime + delay;
+    // Tension: micro-detune upward for unease
+    const f = tension ? freq * 1.008 : freq;
+    osc.frequency.setValueAtTime(f, t);
+    vol.gain.setValueAtTime(0.001, t);
+    vol.gain.linearRampToValueAtTime(g, t + attack);
+    vol.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.start(t);
+    osc.stop(t + duration + 0.1);
+  }
+
+  function playChord() {
+    const chord = CHORDS[chordIdx % CHORDS.length];
+    const beatSec = 60 / bpmCurrent;
+    const dur = beatSec * 8;                       // hold 8 beats
+    const atk = Math.min(0.8, dur * 0.18);
+    chord.notes.forEach((f, i) => pad(f, dur, PAD_GAINS[i] ?? 0.14, atk));
+    document.getElementById('music-chord').textContent = chord.name;
+    chordIdx++;
+  }
+
+  function playMelodyNote() {
+    if (!melodyOn || Math.random() > 0.50) return;
+    const note = MELODY[melodyIdx % MELODY.length];
+    melodyIdx++;
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const vol = c.createGain();
+    osc.connect(vol);
+    vol.connect(getMaster());
+    osc.type = 'triangle';
+    const t = c.currentTime;
+    const f = tension ? note * 1.008 : note;
+    osc.frequency.setValueAtTime(f, t);
+    osc.frequency.linearRampToValueAtTime(f * 1.015, t + 0.18);
+    vol.gain.setValueAtTime(0.001, t);
+    vol.gain.linearRampToValueAtTime(0.20, t + 0.012);
+    vol.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    osc.start(t);
+    osc.stop(t + 0.32);
+  }
+
+  function tick() {
+    if (!running) return;
+    if (beatCount % 8 === 0) playChord();
+    if (beatCount % 2 === 0) playMelodyNote();
+    beatCount++;
+    timerId = setTimeout(tick, (60 / bpmCurrent) * 1000);
+  }
+
+  return {
+    start() {
+      if (running) return;
+      running = true; beatCount = 0; chordIdx = 0; melodyIdx = 0;
+      bpmCurrent = bpmBase;
+      tick();
+      const btn = document.getElementById('music-play-btn');
+      if (btn) { btn.textContent = '■'; btn.classList.add('is-playing'); }
+    },
+    stop() {
+      running = false;
+      clearTimeout(timerId);
+      if (masterGain) {
+        const c = getCtx();
+        masterGain.gain.setValueAtTime(masterGain.gain.value, c.currentTime);
+        masterGain.gain.linearRampToValueAtTime(0.001, c.currentTime + 1.4);
+        setTimeout(() => { masterGain = null; }, 1500);
+      }
+      const btn = document.getElementById('music-play-btn');
+      if (btn) { btn.textContent = '▶'; btn.classList.remove('is-playing'); }
+      document.getElementById('music-chord').textContent = '—';
+    },
+    isRunning() { return running; },
+    setVolume(v) {
+      volume = v;
+      if (masterGain) masterGain.gain.setTargetAtTime(v, getCtx().currentTime, 0.08);
+    },
+    setBpm(b) {
+      bpmBase = b;
+      if (!tension) bpmCurrent = b;
+    },
+    setMelody(on) { melodyOn = on; },
+    // State reactions
+    setTension(on) {
+      tension = on;
+      bpmCurrent = on ? bpmBase * 1.35 : bpmBase;
+    },
+    fadePause() {
+      if (!masterGain) return;
+      const c = getCtx();
+      masterGain.gain.setValueAtTime(masterGain.gain.value, c.currentTime);
+      masterGain.gain.linearRampToValueAtTime(0.001, c.currentTime + 0.4);
+    },
+    fadeResume() {
+      if (!masterGain) return;
+      const c = getCtx();
+      masterGain.gain.setValueAtTime(masterGain.gain.value, c.currentTime);
+      masterGain.gain.linearRampToValueAtTime(volume, c.currentTime + 0.5);
+    },
+    winFlourish() {
+      // Ascending arpeggio then stop
+      [P.D5, P.Fs5, P.A5, P.D5 * 2].forEach((f, i) => {
+        setTimeout(() => pad(f, 0.7, 0.22, 0.04), i * 110);
+      });
+      setTimeout(() => this.stop(), 700);
+    },
+  };
+})();
+
+function toggleMusic() {
+  Music.isRunning() ? Music.stop() : Music.start();
+}
+
+function setMelody(on, btn) {
+  Music.setMelody(on);
+  btn.closest('.melody-toggle').querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function testState(state) {
+  document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active-state'));
+  document.getElementById('state-' + state.replace('-low','low'))?.classList.add('active-state');
+  if (!Music.isRunning()) Music.start();
+  if (state === 'normal')     Music.setTension(false);
+  if (state === 'timer-low')  Music.setTension(true);
+  if (state === 'win')        Music.winFlourish();
+  if (state === 'pause')      Music.fadePause();
+  if (state === 'resume')     Music.fadeResume();
+}
+
+// ── SOUND LIBRARY ─────────────────────────────────────────────
+// params = { freq, duration, gain, type, sweep? }  — bound to sliders
+// extras = additional per-sound knobs (e.g. depth for cascade)
+// fn(params, extras) — plays the sound using current param values
+
+const SOUNDS = [
+
+  // ── GAMEPLAY ──────────────────────────────────────────────────
+
+  {
+    id: 'die-place',
+    desc: 'Player successfully drops dice onto the board grid',
+    trigger: 'doPlace() → after renderBoard()',
+    valence: 'positive',
+    // Soft sine thud — low attack, slight upward pitch to feel "settled"
+    params: { freq: 260, duration: 0.14, gain: 0.18, type: 'sine', sweep: 320 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.007 });
+      // Subtle harmonic layer — makes it feel physical without adding buzz
+      synth({ freq: p.freq * 2, duration: p.duration * 0.55, gain: p.gain * 0.22, type: 'sine', attack: 0.007 });
+    },
+  },
+
+  {
+    id: 'die-rotate',
+    desc: 'Player taps to rotate a dice pair',
+    trigger: 'rotatePair() when dice.length >= 2',
+    valence: 'neutral',
+    // Crisp high sine — like a gentle UI click
+    params: { freq: 680, duration: 0.06, gain: 0.09, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.12, attack: 0.003 });
+    },
+  },
+
+  {
+    id: 'die-park',
+    desc: 'Player moves dice into or out of the parking slot',
+    trigger: 'handleParkDrop() / handleParkToSpawnerDrop()',
+    valence: 'neutral',
+    // Slightly lower than die-rotate — different tonal register for parking
+    params: { freq: 480, duration: 0.09, gain: 0.10, type: 'sine', sweep: 420 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.005 });
+    },
+  },
+
+  {
+    id: 'merge',
+    desc: 'Merge wave resolves — pitch rises with each cascade wave (depth slider)',
+    trigger: 'triggerMergeCheck() after merge animation settles; called with chainDepth',
+    valence: 'positive',
+    // Clean sine chime — depth shifts the root upward and adds a harmonic
+    params: { freq: 520, duration: 0.20, gain: 0.20, type: 'sine' },
+    extras: { depth: 1 },
+    fn(p, e) {
+      const d = e.depth || 1;
+      const f = p.freq + (d - 1) * 100;
+      const g = Math.min(p.gain + (d - 1) * 0.02, 0.34);
+      synth({ freq: f,        duration: p.duration,        gain: g,         type: p.type, attack: 0.010, sweep: f * 1.06 });
+      synth({ freq: f * 1.50, duration: p.duration * 0.55, gain: g * 0.28,  type: p.type, attack: 0.010 });
+    },
+  },
+
+  {
+    id: 'merge-clear',
+    desc: 'Merge group vanishes entirely — sum > 6, cells cleared from the board',
+    trigger: 'triggerMergeCheck() when sum > 6 (no replacement die placed)',
+    valence: 'positive-peak',
+    // Gentle triad chord — sparkling, airy, not brash
+    params: { freq: 660, duration: 0.30, gain: 0.17, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain,        type: p.type, attack: 0.010, sweep: p.freq * 1.03 });
+      synth({ freq: p.freq * 1.25, duration: p.duration * 0.80, gain: p.gain * 0.65, type: p.type, attack: 0.010 });
+      synth({ freq: p.freq * 1.50, duration: p.duration * 0.60, gain: p.gain * 0.48, type: p.type, attack: 0.010 });
+      // Sparkle octave
+      synth({ freq: p.freq * 2.00, duration: p.duration * 0.35, gain: p.gain * 0.25, type: 'triangle', attack: 0.005, delay: 0.05 });
+    },
+  },
+
+  {
+    id: 'six-spawn',
+    desc: 'A 6-die lands on the board as a merge result — needs attention',
+    trigger: 'triggerMergeCheck() when sum === 6 and a replacement die is placed',
+    valence: 'alert',
+    // Two-tone: warm low pulse + clean high ding — "heads up" without being harsh
+    params: { freq: 220, duration: 0.20, gain: 0.16, type: 'sine', sweep: 200 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain * 0.55, type: p.type,      sweep: p.sweep, attack: 0.008 });
+      synth({ freq: p.freq * 2.25, duration: p.duration * 0.55, gain: p.gain * 0.42, type: 'triangle',  attack: 0.012, delay: 0.06 });
+    },
+  },
+
+  // ── MODIFIERS ─────────────────────────────────────────────────
+
+  {
+    id: 'bomb-tick',
+    desc: 'Bomb fuse decrements on each new dice spawn',
+    trigger: 'tickBombs() inside spawnDice() — fires once per turn when a bomb is on board',
+    valence: 'alert',
+    // Precise sine click — like a sleek digital metronome
+    params: { freq: 660, duration: 0.04, gain: 0.11, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 0.85, attack: 0.002 });
+    },
+  },
+
+  {
+    id: 'bomb-urgent',
+    desc: 'Bomb fuse = 1 — one turn remaining before detonation',
+    trigger: 'tickBombs() when newFuse === 1',
+    valence: 'alert-urgent',
+    // Double sine pulse — same clean register, just doubled for urgency
+    params: { freq: 880, duration: 0.05, gain: 0.18, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,       duration: p.duration,       gain: p.gain,        type: p.type, sweep: p.freq * 0.88, attack: 0.002 });
+      synth({ freq: p.freq * 1.5, duration: p.duration * 0.8, gain: p.gain * 0.65, type: p.type, sweep: p.freq * 1.2,  attack: 0.002, delay: 0.09 });
+    },
+  },
+
+  {
+    id: 'bomb-detonate',
+    desc: 'Bomb hits zero and explodes — detonateBomb() fires before triggerLose()',
+    trigger: 'detonateBomb(r, c) — before the 700ms triggerLose delay',
+    valence: 'negative',
+    // Sub-bass triangle drop + mid sine body + high triangle decay — impactful, no buzz
+    params: { freq: 90, duration: 0.55, gain: 0.24, type: 'triangle', sweep: 28 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,  duration: p.duration,        gain: p.gain,        type: p.type,     sweep: p.sweep, attack: 0.003 });
+      synth({ freq: 240,     duration: p.duration * 0.50, gain: p.gain * 0.45, type: 'sine',     sweep: 90,      attack: 0.003 });
+      synth({ freq: 580,     duration: 0.16,              gain: 0.10,          type: 'triangle', sweep: 180,     attack: 0.002, delay: 0.02 });
+    },
+  },
+
+  {
+    id: 'flip-trigger',
+    desc: 'Flip die activates — inverts all neighbouring die values, then vanishes',
+    trigger: 'applyFlipEffects() when flipKeys.size > 0',
+    valence: 'neutral',
+    // Smooth sine arc: rises then mirrors back — feels like a reflection
+    params: { freq: 400, duration: 0.13, gain: 0.15, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,       duration: p.duration,       gain: p.gain,        type: p.type, sweep: p.freq * 1.9, attack: 0.005 });
+      synth({ freq: p.freq * 1.9, duration: p.duration,       gain: p.gain * 0.75, type: p.type, sweep: p.freq * 0.8, attack: 0.005, delay: p.duration * 0.85 });
+    },
+  },
+
+  {
+    id: 'disease-infect',
+    desc: 'Placed die is forced to value 6 by an adjacent diseased cell',
+    trigger: 'applyDiseasedEffects() when board[r][c] is overwritten to 6',
+    valence: 'negative',
+    // Descending sine with a dissonant second — unsettling but clean
+    params: { freq: 420, duration: 0.30, gain: 0.16, type: 'sine', sweep: 200 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,       duration: p.duration,        gain: p.gain,        type: p.type, sweep: p.sweep, attack: 0.012 });
+      // Minor second above — tension without harshness
+      synth({ freq: p.freq * 1.06, duration: p.duration * 0.65, gain: p.gain * 0.40, type: 'triangle', sweep: p.sweep * 1.06, attack: 0.012 });
+    },
+  },
+
+  // ── WIN ───────────────────────────────────────────────────────
+
+  {
+    id: 'win-score',
+    desc: 'Score target reached — standard win condition',
+    trigger: 'triggerWin("score") from checkWin()',
+    valence: 'positive-peak',
+    // Clean rising arpeggio — sine, pentatonic intervals, airy feel
+    params: { freq: 520, duration: 0.13, gain: 0.20, type: 'sine' },
+    extras: {},
+    fn(p) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.25, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.11 },
+        { freq: b * 1.50, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.22 },
+        { freq: b * 2.00, duration: p.duration * 1.8, gain: p.gain * 0.82, type: p.type, attack: 0.010, delay: 0.33 },
+      ]);
+    },
+  },
+
+  {
+    id: 'win-chain',
+    desc: 'Chain cascade goal hit — a more spectacular fanfare',
+    trigger: 'triggerWin("chain") when chainDepth >= target',
+    valence: 'positive-peak',
+    // Five-note arpeggio + triangle shimmer on top
+    params: { freq: 520, duration: 0.11, gain: 0.20, type: 'sine' },
+    extras: {},
+    fn(p) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.25, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.09 },
+        { freq: b * 1.50, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.18 },
+        { freq: b * 2.00, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.27 },
+        { freq: b * 2.50, duration: p.duration * 2.2, gain: p.gain * 0.78, type: p.type, attack: 0.010, delay: 0.36 },
+      ]);
+      synth({ freq: b * 4,   duration: 0.10, gain: 0.08, type: 'triangle', attack: 0.005, delay: 0.38 });
+      synth({ freq: b * 3,   duration: 0.10, gain: 0.07, type: 'triangle', attack: 0.005, delay: 0.44 });
+    },
+  },
+
+  {
+    id: 'win-survive',
+    desc: 'Score reached before the countdown timer expired',
+    trigger: 'triggerWin("survive")',
+    valence: 'positive-peak',
+    // Three-note resolve — relief in a compact phrase
+    params: { freq: 440, duration: 0.13, gain: 0.20, type: 'sine' },
+    extras: {},
+    fn(p) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,        gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.50, duration: p.duration,        gain: p.gain,        type: p.type, attack: 0.010, delay: 0.11 },
+        { freq: b * 2.00, duration: p.duration * 2.0,  gain: p.gain * 0.84, type: p.type, attack: 0.010, delay: 0.22 },
+      ]);
+      synth({ freq: b * 3, duration: 0.09, gain: 0.07, type: 'triangle', attack: 0.005, delay: 0.26 });
+    },
+  },
+
+  // ── LOSE ──────────────────────────────────────────────────────
+
+  {
+    id: 'lose-board-full',
+    desc: 'Board fills up with no valid moves remaining',
+    trigger: 'triggerLose("board-full") from checkLose() or onTurnEnd()',
+    valence: 'negative',
+    // Two descending triangle tones — heavy, slow, inevitable
+    params: { freq: 300, duration: 0.48, gain: 0.20, type: 'triangle', sweep: 130 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain,        type: p.type, sweep: p.sweep,        attack: 0.015 });
+      synth({ freq: p.freq * 0.74, duration: p.duration * 0.78, gain: p.gain * 0.48, type: p.type, sweep: p.sweep * 0.74, attack: 0.015, delay: 0.08 });
+    },
+  },
+
+  {
+    id: 'lose-timer',
+    desc: 'Countdown timer hits zero before score target was reached',
+    trigger: 'triggerLose("timer") via onExpire callback in makeTimer',
+    valence: 'negative',
+    // Single clean sine drop — like time just ran out, sharp but not buzzy
+    params: { freq: 500, duration: 0.40, gain: 0.20, type: 'sine', sweep: 220 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.006 });
+    },
+  },
+
+  {
+    id: 'lose-merges',
+    desc: 'Merge budget exhausted before score target (maxMerges modifier)',
+    trigger: 'triggerLose("merges") in triggerMergeCheck when merges >= modValue',
+    valence: 'negative',
+    // Slow triangle exhale — strategic defeat, deflation not explosion
+    params: { freq: 360, duration: 0.44, gain: 0.17, type: 'triangle', sweep: 190 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.022 });
+    },
+  },
+
+  // ── TIMER ─────────────────────────────────────────────────────
+
+  {
+    id: 'timer-tick',
+    desc: 'Each second tick on a countdown timer (seconds > 10)',
+    trigger: 'makeTimer tick() callback — only when countdownFrom != null and seconds > 10',
+    valence: 'alert',
+    // Quiet, clinical sine — present but unobtrusive
+    params: { freq: 520, duration: 0.04, gain: 0.07, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, attack: 0.002 });
+    },
+  },
+
+  {
+    id: 'timer-low',
+    desc: 'Timer enters the last 10 seconds — heightened urgency',
+    trigger: 'makeTimer tick() when seconds <= 10 (replaces timer-tick)',
+    valence: 'alert-urgent',
+    // Same sine register, higher + slightly louder — clearly escalated
+    params: { freq: 940, duration: 0.05, gain: 0.14, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, attack: 0.002 });
+    },
+  },
+
+  // ── UI ────────────────────────────────────────────────────────
+
+  {
+    id: 'btn-tap',
+    desc: 'Generic UI button press',
+    trigger: 'Any button click handler in DOMContentLoaded event listeners',
+    valence: 'neutral',
+    // Very short, barely-there sine — iOS-style micro-feedback
+    params: { freq: 440, duration: 0.055, gain: 0.08, type: 'sine' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.08, attack: 0.003 });
+    },
+  },
+
+  {
+    id: 'sheet-open',
+    desc: 'Any sheet or popup opens',
+    trigger: 'GameUtils.openSheet() / GameUtils.openPopup()',
+    valence: 'neutral',
+    // Gentle upward sine glide — content arriving
+    params: { freq: 300, duration: 0.14, gain: 0.10, type: 'sine', sweep: 420 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.008 });
+    },
+  },
+
+  {
+    id: 'sheet-close',
+    desc: 'Any sheet or popup closes',
+    trigger: 'GameUtils.closeSheet() / GameUtils.closePopup()',
+    valence: 'neutral',
+    // Mirror of sheet-open — same register, descending
+    params: { freq: 420, duration: 0.11, gain: 0.09, type: 'sine', sweep: 300 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.006 });
+    },
+  },
+
+  {
+    id: 'toast',
+    desc: 'Toast notification appears',
+    trigger: 'GameUtils.showToast()',
+    valence: 'neutral',
+    // Soft triangle ping — informational, not alarming
+    params: { freq: 560, duration: 0.12, gain: 0.11, type: 'triangle' },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.08, attack: 0.008 });
+    },
+  },
+
+  {
+    id: 'hint-open',
+    desc: 'Hint banner opens and shows contextual hint',
+    trigger: 'hint icon click → showHint()',
+    valence: 'neutral',
+    // Curious rising sine — "here's an idea"
+    params: { freq: 500, duration: 0.18, gain: 0.11, type: 'sine', sweep: 640 },
+    extras: {},
+    fn(p) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.012 });
+    },
+  },
+
+];
+
+// ── SLIDER CONFIG ─────────────────────────────────────────────
+const SLIDER_DEFS = [
+  { key: 'freq',     min: 50,   max: 1200, step: 1,    unit: ' Hz', label: 'Freq' },
+  { key: 'duration', min: 0.02, max: 1.0,  step: 0.01, unit: 's',   label: 'Dur'  },
+  { key: 'gain',     min: 0.01, max: 0.40, step: 0.01, unit: '',    label: 'Gain' },
+];
+
+// ── BUILD UI ──────────────────────────────────────────────────
+function buildCards() {
+  const container = document.getElementById('cards');
+
+  SOUNDS.forEach(sound => {
+    const card = document.createElement('div');
+    card.className = 'sound-card';
+    card.dataset.id = sound.id;
+
+    const hasDepth = 'depth' in (sound.extras || {});
+
+    const slidersHTML = SLIDER_DEFS.map(def => {
+      const val = sound.params[def.key] ?? (def.key === 'freq' ? 440 : def.key === 'duration' ? 0.1 : 0.15);
+      return `<div class="slider-row">
+        <span class="slider-label">${def.label}</span>
+        <input type="range" min="${def.min}" max="${def.max}" step="${def.step}" value="${val}" data-key="${def.key}">
+        <span class="slider-val">${formatVal(val, def.unit)}</span>
+      </div>`;
+    }).join('');
+
+    const depthHTML = hasDepth ? `<div class="slider-row">
+      <span class="slider-label">Depth</span>
+      <input type="range" min="1" max="6" step="1" value="${sound.extras.depth}" data-key="depth">
+      <span class="slider-val">${sound.extras.depth}</span>
+    </div>` : '';
+
+    card.innerHTML = `
+      <div class="card-top">
+        <button class="btn-play" title="Play">▶</button>
+        <div class="card-meta">
+          <div>
+            <span class="card-id">${sound.id}</span>
+            <span class="card-valence valence-${sound.valence}">${sound.valence}</span>
+          </div>
+          <div class="card-desc">${sound.desc}</div>
+          <div class="card-trigger">${sound.trigger}</div>
+        </div>
+      </div>
+      <div class="sliders">${slidersHTML}${depthHTML}</div>
+      <div class="param-summary"></div>
+    `;
+
+    // Slider interactions — live preview on drag
+    card.querySelectorAll('input[type=range]').forEach(input => {
+      const key = input.dataset.key;
+      input.addEventListener('input', () => {
+        const val = parseFloat(input.value);
+        const valEl = input.nextElementSibling;
+        if (key === 'depth') {
+          sound.extras.depth = val;
+          if (valEl) valEl.textContent = val;
+        } else {
+          sound.params[key] = val;
+          const def = SLIDER_DEFS.find(d => d.key === key);
+          if (valEl) valEl.textContent = formatVal(val, def?.unit || '');
+        }
+        updateSummary(card, sound);
+        sound.fn(sound.params, sound.extras);
+      });
+    });
+
+    card.querySelector('.btn-play').addEventListener('click', () => {
+      sound.fn(sound.params, sound.extras);
+    });
+
+    updateSummary(card, sound);
+    container.appendChild(card);
+  });
+}
+
+function formatVal(val, unit) {
+  const n = Number(val);
+  const s = unit === 's' ? n.toFixed(2) : unit === '' ? n.toFixed(2) : Math.round(n);
+  return s + unit;
+}
+
+function updateSummary(card, sound) {
+  const p = sound.params;
+  const parts = [
+    `type:${p.type}`,
+    `freq:${Math.round(p.freq)}Hz`,
+    p.sweep != null ? `→${Math.round(p.sweep)}Hz` : null,
+    `dur:${Number(p.duration).toFixed(2)}s`,
+    `gain:${Number(p.gain).toFixed(2)}`,
+  ].filter(Boolean);
+  const el = card.querySelector('.param-summary');
+  if (el) el.textContent = parts.join(' · ');
+}
+
+// ── PLAY ALL ──────────────────────────────────────────────────
+function playAll() {
+  SOUNDS.forEach((s, i) => setTimeout(() => s.fn(s.params, s.extras), i * 420));
+}
+
+// ── THEME ────────────────────────────────────────────────────
+function toggleTheme() {
+  document.documentElement.dataset.theme =
+    document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+buildCards();
+</script>
+</body>
+</html>

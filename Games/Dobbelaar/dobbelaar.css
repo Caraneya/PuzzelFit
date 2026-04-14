@@ -1671,3 +1671,121 @@ html, body {
   .ta4-pair   { opacity: 1; transform: translate(-50cqw, 0); } /* settled in left reg tray */
   .ta4-merged3, .ta4-score--r, .ta4-score--g { opacity: 0; }
 }
+
+/* ============================================================
+   SHEET ILLUSTRATION ANIMATIONS
+   Triggered when sheet-overlay gets .is-open.
+   animation-fill-mode: both keeps elements invisible during
+   delay and holds the final state when the animation ends.
+   ============================================================ */
+
+.sheet__illustration .db-illus-svg { width: 100%; max-height: 100%; }
+
+/* ── WIN ── */
+.db-win-box, .db-win-notebook { transform-box: fill-box; transform-origin: center; }
+.db-win-chart                  { transform-box: fill-box; transform-origin: left center; }
+.db-win-arrow                  { transform-box: fill-box; transform-origin: left center; }
+
+/* entry then continuous dance — comma-chained so box/notebook never go still */
+#sheet-win.is-open .db-win-chart {
+  animation: db-win-flag-wave 1.4s ease-in-out 0.3s infinite;
+}
+#sheet-win.is-open .db-win-box {
+  animation:
+    db-win-box-in   0.55s cubic-bezier(0.34,1.56,0.64,1) 0.30s both,
+    db-win-box-jump 1.10s ease-in-out                     0.90s infinite;
+}
+#sheet-win.is-open .db-win-notebook {
+  animation:
+    db-win-notebook-in  0.45s ease-out       0.40s both,
+    db-win-notebook-bob 1.80s ease-in-out    0.90s infinite;
+}
+#sheet-win.is-open .db-win-arrow {
+  animation: db-win-arrow-nudge 0.75s ease-in-out 0.50s infinite;
+}
+
+@keyframes db-win-flag-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(9deg); }
+  65%      { transform: rotate(-7deg); }
+}
+@keyframes db-win-box-in {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes db-win-box-jump {
+  0%, 100% { transform: translateY(0); }
+  30%      { transform: translateY(-16px); }
+  50%      { transform: translateY(-12px); }
+  65%      { transform: translateY(4px); }
+  80%      { transform: translateY(-3px); }
+  92%      { transform: translateY(0); }
+}
+@keyframes db-win-notebook-in {
+  from { transform: translateX(14px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes db-win-notebook-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40%      { transform: translateY(-7px) rotate(-4deg); }
+  70%      { transform: translateY(3px) rotate(2deg); }
+}
+@keyframes db-win-arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(9px); }
+}
+
+/* ── LOSE ── */
+.db-lose-board-top, .db-lose-stairs, .db-lose-board-bottom {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.db-lose-hand { transform-box: fill-box; transform-origin: center top; }
+
+#sheet-lose.is-open .db-lose-board-bottom { animation: db-lose-board-in 0.45s ease-out                       0.10s both; }
+#sheet-lose.is-open .db-lose-stairs       { animation: db-lose-board-in 0.45s ease-out                       0.20s both; }
+#sheet-lose.is-open .db-lose-board-top    { animation: db-lose-board-in 0.45s ease-out                       0.30s both; }
+#sheet-lose.is-open .db-lose-hand         { animation: db-lose-hand-in  0.60s cubic-bezier(0.34,1.56,0.64,1) 0.50s both; }
+
+@keyframes db-lose-board-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes db-lose-hand-in {
+  from { transform: translateY(-14px) rotate(10deg); opacity: 0; }
+  to   { transform: translateY(0)     rotate(0deg);  opacity: 1; }
+}
+
+/* ── PAUSE ── */
+#sheet-pause.is-open .sheet__illustration svg {
+  animation: db-pause-float 2s ease-in-out infinite;
+}
+@keyframes db-pause-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+.db-pause-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+#sheet-pause.is-open .db-pause-eye {
+  /* same 2s period keeps blink locked to top (50%) and bottom (0%/100%) */
+  animation: db-pause-blink 2s linear infinite;
+}
+@keyframes db-pause-blink {
+  0%, 44%, 56%, 100% { transform: scaleY(1); }
+  50%                { transform: scaleY(0.06); }
+}
+
+/* ── REDUCED MOTION OVERRIDES ── */
+@media (prefers-reduced-motion: reduce) {
+  .db-win-chart, .db-win-box, .db-win-notebook, .db-win-arrow,
+  .db-lose-board-top, .db-lose-stairs, .db-lose-board-bottom, .db-lose-hand {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  #sheet-pause.is-open .sheet__illustration svg { animation: none; }
+  .db-pause-eye { animation: none !important; transform: none !important; }
+}

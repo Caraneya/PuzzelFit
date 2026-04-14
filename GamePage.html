@@ -359,6 +359,8 @@
         <span class="pipeline-arrow">→</span>
         <a class="pipeline-step pipeline-step--done" href="./Games/Dobbelaar/Challenges.html">Challenges</a>
         <span class="pipeline-arrow">→</span>
+        <div class="pipeline-step pipeline-step--next">Sound</div>
+        <span class="pipeline-arrow">→</span>
         <div class="pipeline-step">QA</div>
       </div>
       <div class="pipeline-row">
@@ -416,6 +418,7 @@
       <div class="section-header">
         <div class="section-badge">1</div>
         <div class="section-title">Screen Flow</div>
+
       </div>
       <div class="flow-diagram">
         <div class="flow-node">Home Screen</div>
@@ -478,6 +481,81 @@
       </ul>
     </div>
 
+    <!-- SOUND DESIGN -->
+    <div class="section-card" id="sec-sound">
+      <div class="section-header">
+        <div class="section-badge">3</div>
+        <div class="section-title">Sound Design</div>
+      </div>
+      <p>Synthesized audio via Web Audio API — no external files. Two shared modules at the project root:</p>
+      <ul>
+        <li><code>sound-utils.js</code> — SFX engine. Games call <code>SoundUtils.play(id)</code>. Game-specific sounds registered via <code>SoundUtils.register({})</code>.</li>
+        <li><code>music-utils.js</code> — Background music engine. Ambient D-major-pentatonic pads. State-reactive: tempo/pitch respond to timer urgency, win, and pause.</li>
+        <li><code>sounds.html</code> — Interactive palette for auditioning and tuning every sound. Open in browser to adjust sliders.</li>
+      </ul>
+
+      <details style="margin-top: var(--space-5);">
+        <summary style="cursor:pointer; font-weight: var(--font-weight-semibold); color: var(--color-text-primary); font-size: var(--font-size-body); list-style: none; display: flex; align-items: center; gap: var(--space-2);">
+          <span>▸</span> Dobbelaar — Sound trigger map (24 SFX + music)
+        </summary>
+        <div style="margin-top: var(--space-4); overflow-x: auto;">
+          <table style="width:100%; border-collapse: collapse; font-size: var(--font-size-small);">
+            <thead>
+              <tr style="border-bottom: 1.5px solid var(--color-surface-alt);">
+                <th style="text-align:left; padding: var(--space-2) var(--space-3); color: var(--color-text-secondary); font-weight: var(--font-weight-semibold);">Sound ID</th>
+                <th style="text-align:left; padding: var(--space-2) var(--space-3); color: var(--color-text-secondary); font-weight: var(--font-weight-semibold);">Trigger point in code</th>
+                <th style="text-align:left; padding: var(--space-2) var(--space-3); color: var(--color-text-secondary); font-weight: var(--font-weight-semibold);">Condition</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Gameplay</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>die-place</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>doPlace()</code> → after <code>renderBoard()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always on successful drop</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>die-rotate</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>rotatePair(source)</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>dice.length &gt;= 2</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>die-park</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>handleParkDrop()</code> / <code>handleParkToSpawnerDrop()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>merge</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerMergeCheck()</code> after merge animation, pass <code>chainDepth</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Every merge wave; pitch + gain scale with depth</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>merge-clear</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerMergeCheck()</code> when <code>sum &gt; 6</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">No replacement die placed</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>six-spawn</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerMergeCheck()</code> when <code>sum === 6</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Replacement die is a 6; fires alongside <code>merge</code></td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Modifiers</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>bomb-tick</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>tickBombs()</code> inside <code>spawnDice()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>newFuse &gt; 1</code> — bomb on board</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>bomb-urgent</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>tickBombs()</code> inside <code>spawnDice()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>newFuse === 1</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>bomb-detonate</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>detonateBomb(r, c)</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Before the 700ms <code>triggerLose</code> delay</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>flip-trigger</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>applyFlipEffects()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>flipKeys.size &gt; 0</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>disease-infect</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>applyDiseasedEffects()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">When <code>board[r][c]</code> overwritten to 6</td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Win</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>win-score</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerWin("score")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>score &gt;= SCORE_TARGET</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>win-chain</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerWin("chain")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>chainDepth &gt;= target</code> and <code>winType === "chainGoal"</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>win-survive</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerWin("survive")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>winType === "surviveTimer"</code></td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Lose</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>lose-board-full</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerLose("board-full")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">From <code>checkLose()</code> or <code>onTurnEnd()</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>lose-timer</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerLose("timer")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>onExpire</code> callback in <code>makeTimer</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>lose-merges</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerLose("merges")</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>merges &gt;= modValue</code> and <code>score &lt; SCORE_TARGET</code></td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Timer</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>timer-tick</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>makeTimer</code> → <code>tick()</code> callback</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>countdownFrom != null</code> and <code>seconds &gt; 10</code></td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>timer-low</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>makeTimer</code> → <code>tick()</code> callback</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>seconds &lt;= 10</code> — replaces <code>timer-tick</code></td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">UI (shared)</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>btn-tap</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Any button click handler</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>sheet-open</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>GameUtils.openSheet()</code> / <code>openPopup()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>sheet-close</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>GameUtils.closeSheet()</code> / <code>closePopup()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>toast</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>GameUtils.showToast()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+              <tr><td style="padding:var(--space-2) var(--space-3)"><code>hint-open</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Hint icon click → <code>showHint()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always</td></tr>
+
+              <tr><td colspan="3" style="padding: var(--space-3) var(--space-3) var(--space-1); font-weight:700; color:var(--color-text-primary); font-size:11px; text-transform:uppercase; letter-spacing:0.06em;">Background Music</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>music.start()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">After <code>popup-goal</code> closes → timer starts</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">If sound setting is on</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>music.setTension(true)</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>makeTimer tick()</code> when <code>seconds &lt;= 10</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Countdown challenges only</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>music.fadePause()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Timer group click → sheet-pause opens</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always when music is on</td></tr>
+              <tr style="border-bottom:1px solid var(--color-surface-alt)"><td style="padding:var(--space-2) var(--space-3)"><code>music.fadeResume()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Pause continue / sheet dismiss callback</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always when music is on</td></tr>
+              <tr><td style="padding:var(--space-2) var(--space-3)"><code>music.winFlourish()</code></td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)"><code>triggerWin()</code> before sheet opens</td><td style="padding:var(--space-2) var(--space-3); color:var(--color-text-secondary)">Always when music is on</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+
     <!-- FOOTER -->
     <div class="page-footer">
       <div class="footer-meta">PuzzleFit · DendaGames</div>
@@ -491,6 +569,7 @@
     <a class="nav-link" href="#sec-games">Games</a>
     <a class="nav-link" href="#sec-screen-flow">Screen Flow</a>
     <a class="nav-link" href="#sec-tech">Technical Notes</a>
+    <a class="nav-link" href="#sec-sound">Sound Design</a>
 
     <div class="nav-group-label">Theme</div>
     <div class="nav-theme-btns">

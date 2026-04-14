@@ -47,6 +47,150 @@ const BOMB_DIE     = -4;  // bomb die: countdown fuse, detonates on 0
 const DISEASED_DIE = -5;  // diseased die: infects adjacent placed dice → value 6
 const WILD_DIE     =  7;  // wild die (spawner only): joins any merge group
 
+// ── SOUND DEFINITIONS ────────────────────────────────────────
+// Registered immediately — SoundUtils.setEnabled() applied in DOMContentLoaded
+// from localStorage so no sounds fire before the preference is read.
+SoundUtils.register([
+  // GAMEPLAY
+  { id: 'die-place',   params: { freq: 260, duration: 0.14, gain: 0.18, type: 'sine', sweep: 320 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.007 });
+      synth({ freq: p.freq * 2, duration: p.duration * 0.55, gain: p.gain * 0.22, type: 'sine', attack: 0.007 });
+    } },
+  { id: 'die-rotate',  params: { freq: 680, duration: 0.06, gain: 0.09, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.12, attack: 0.003 });
+    } },
+  { id: 'die-park',    params: { freq: 480, duration: 0.09, gain: 0.10, type: 'sine', sweep: 420 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.005 });
+    } },
+  { id: 'merge',       params: { freq: 520, duration: 0.20, gain: 0.20, type: 'sine' }, extras: { depth: 1 },
+    fn(p, e, synth) {
+      const d = e.depth || 1;
+      const f = p.freq + (d - 1) * 100;
+      const g = Math.min(p.gain + (d - 1) * 0.02, 0.34);
+      synth({ freq: f,        duration: p.duration,        gain: g,        type: p.type, attack: 0.010, sweep: f * 1.06 });
+      synth({ freq: f * 1.50, duration: p.duration * 0.55, gain: g * 0.28, type: p.type, attack: 0.010 });
+    } },
+  { id: 'merge-clear', params: { freq: 660, duration: 0.30, gain: 0.17, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain,        type: p.type, attack: 0.010, sweep: p.freq * 1.03 });
+      synth({ freq: p.freq * 1.25, duration: p.duration * 0.80, gain: p.gain * 0.65, type: p.type, attack: 0.010 });
+      synth({ freq: p.freq * 1.50, duration: p.duration * 0.60, gain: p.gain * 0.48, type: p.type, attack: 0.010 });
+      synth({ freq: p.freq * 2.00, duration: p.duration * 0.35, gain: p.gain * 0.25, type: 'triangle', attack: 0.005, delay: 0.05 });
+    } },
+  { id: 'six-spawn',   params: { freq: 220, duration: 0.20, gain: 0.16, type: 'sine', sweep: 200 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain * 0.55, type: p.type,     sweep: p.sweep, attack: 0.008 });
+      synth({ freq: p.freq * 2.25, duration: p.duration * 0.55, gain: p.gain * 0.42, type: 'triangle', attack: 0.012, delay: 0.06 });
+    } },
+  // MODIFIERS
+  { id: 'bomb-tick',     params: { freq: 660, duration: 0.04, gain: 0.11, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 0.85, attack: 0.002 });
+    } },
+  { id: 'bomb-urgent',   params: { freq: 880, duration: 0.05, gain: 0.18, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,       duration: p.duration,       gain: p.gain,        type: p.type, sweep: p.freq * 0.88, attack: 0.002 });
+      synth({ freq: p.freq * 1.5, duration: p.duration * 0.8, gain: p.gain * 0.65, type: p.type, sweep: p.freq * 1.2,  attack: 0.002, delay: 0.09 });
+    } },
+  { id: 'bomb-detonate', params: { freq: 90, duration: 0.55, gain: 0.24, type: 'triangle', sweep: 28 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration,        gain: p.gain,        type: p.type,     sweep: p.sweep, attack: 0.003 });
+      synth({ freq: 240,    duration: p.duration * 0.50, gain: p.gain * 0.45, type: 'sine',     sweep: 90,      attack: 0.003 });
+      synth({ freq: 580,    duration: 0.16,              gain: 0.10,          type: 'triangle', sweep: 180,     attack: 0.002, delay: 0.02 });
+    } },
+  { id: 'flip-trigger',  params: { freq: 400, duration: 0.13, gain: 0.15, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,       duration: p.duration, gain: p.gain,        type: p.type, sweep: p.freq * 1.9, attack: 0.005 });
+      synth({ freq: p.freq * 1.9, duration: p.duration, gain: p.gain * 0.75, type: p.type, sweep: p.freq * 0.8, attack: 0.005, delay: p.duration * 0.85 });
+    } },
+  { id: 'disease-infect', params: { freq: 420, duration: 0.30, gain: 0.16, type: 'sine', sweep: 200 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain,        type: p.type,     sweep: p.sweep,        attack: 0.012 });
+      synth({ freq: p.freq * 1.06, duration: p.duration * 0.65, gain: p.gain * 0.40, type: 'triangle', sweep: p.sweep * 1.06, attack: 0.012 });
+    } },
+  // WIN
+  { id: 'win-score',   params: { freq: 520, duration: 0.13, gain: 0.20, type: 'sine' }, extras: {},
+    fn(p, e, synth, seq) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.25, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.11 },
+        { freq: b * 1.50, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.22 },
+        { freq: b * 2.00, duration: p.duration * 1.8, gain: p.gain * 0.82, type: p.type, attack: 0.010, delay: 0.33 },
+      ]);
+    } },
+  { id: 'win-chain',   params: { freq: 520, duration: 0.11, gain: 0.20, type: 'sine' }, extras: {},
+    fn(p, e, synth, seq) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.25, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.09 },
+        { freq: b * 1.50, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.18 },
+        { freq: b * 2.00, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.27 },
+        { freq: b * 2.50, duration: p.duration * 2.2, gain: p.gain * 0.78, type: p.type, attack: 0.010, delay: 0.36 },
+      ]);
+      synth({ freq: b * 4, duration: 0.10, gain: 0.08, type: 'triangle', attack: 0.005, delay: 0.38 });
+      synth({ freq: b * 3, duration: 0.10, gain: 0.07, type: 'triangle', attack: 0.005, delay: 0.44 });
+    } },
+  { id: 'win-survive', params: { freq: 440, duration: 0.13, gain: 0.20, type: 'sine' }, extras: {},
+    fn(p, e, synth, seq) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.00 },
+        { freq: b * 1.50, duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.010, delay: 0.11 },
+        { freq: b * 2.00, duration: p.duration * 2.0, gain: p.gain * 0.84, type: p.type, attack: 0.010, delay: 0.22 },
+      ]);
+      synth({ freq: b * 3, duration: 0.09, gain: 0.07, type: 'triangle', attack: 0.005, delay: 0.26 });
+    } },
+  // LOSE
+  { id: 'lose-board-full', params: { freq: 300, duration: 0.48, gain: 0.20, type: 'triangle', sweep: 130 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq,        duration: p.duration,        gain: p.gain,        type: p.type, sweep: p.sweep,        attack: 0.015 });
+      synth({ freq: p.freq * 0.74, duration: p.duration * 0.78, gain: p.gain * 0.48, type: p.type, sweep: p.sweep * 0.74, attack: 0.015, delay: 0.08 });
+    } },
+  { id: 'lose-timer',  params: { freq: 500, duration: 0.40, gain: 0.20, type: 'sine', sweep: 220 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.006 });
+    } },
+  { id: 'lose-merges', params: { freq: 360, duration: 0.44, gain: 0.17, type: 'triangle', sweep: 190 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.022 });
+    } },
+  // TIMER
+  { id: 'timer-tick', params: { freq: 520, duration: 0.04, gain: 0.07, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, attack: 0.002 });
+    } },
+  { id: 'timer-low',  params: { freq: 940, duration: 0.05, gain: 0.14, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, attack: 0.002 });
+    } },
+  // UI
+  { id: 'btn-tap',    params: { freq: 440, duration: 0.055, gain: 0.08, type: 'sine' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.08, attack: 0.003 });
+    } },
+  { id: 'sheet-open', params: { freq: 300, duration: 0.14, gain: 0.10, type: 'sine', sweep: 420 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.008 });
+    } },
+  { id: 'sheet-close', params: { freq: 420, duration: 0.11, gain: 0.09, type: 'sine', sweep: 300 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.006 });
+    } },
+  { id: 'toast',      params: { freq: 560, duration: 0.12, gain: 0.11, type: 'triangle' }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.freq * 1.08, attack: 0.008 });
+    } },
+  { id: 'hint-open',  params: { freq: 500, duration: 0.18, gain: 0.11, type: 'sine', sweep: 640 }, extras: {},
+    fn(p, e, synth) {
+      synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.012 });
+    } },
+]);
+
 // ── SENTINEL ICONS (inline SVG strings) ──────────────────────
 const SVG_FROZEN = `<svg class="db-sentinel-icon" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.96461 21V19.0837L7.28703 20.5012L5.92399 18.9L8.96461 16.3275V12.3375L5.50459 14.3325L4.79685 18.2437L2.72608 17.8762L3.11927 15.6975L1.44168 16.6687L0.393185 14.8575L2.07077 13.8862L0 13.125L0.707733 11.1562L4.45609 12.495L7.91612 10.5L4.45609 8.505L0.707733 9.87L0 7.875L2.07077 7.14L0.393185 6.16875L1.44168 4.3575L3.11927 5.32875L2.72608 3.15L4.79685 2.7825L5.50459 6.69375L8.96461 8.68875V4.69875L5.92399 2.12625L7.28703 0.525L8.96461 1.9425V0H11.0616V1.9425L12.7392 0.525L14.1022 2.12625L11.0616 4.69875V8.68875L14.4954 6.69375L15.2031 2.7825L17.2739 3.15L16.8807 5.32875L18.5583 4.3575L19.6068 6.16875L17.9292 7.14L20 7.875L19.2923 9.87L15.5439 8.505L12.1101 10.5L15.5439 12.495L19.2923 11.1562L20 13.125L17.9292 13.8862L19.6068 14.8575L18.5583 16.6687L16.8807 15.6975L17.2739 17.8762L15.2031 18.2437L14.4954 14.3325L11.0616 12.3375V16.3275L14.1022 18.9L12.7392 20.5012L11.0616 19.0837V21H8.96461Z" fill="white"/></svg>`;
 const SVG_FLIP = `<svg class="db-sentinel-icon" viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V2H14V4H12ZM12 20V18H14V20H12ZM16 4V2H18V4H16ZM16 20V18H18V20H16ZM16 16V14H18V16H16ZM16 12V10H18V12H16ZM16 8V6H18V8H16ZM6 20H0V2H6V4H2V18H6V20ZM8 22V0H10V22H8Z" fill="white"/></svg>`;
@@ -103,10 +247,11 @@ let hintTimeout   = null;
 
 // ── MODIFIER STATE ───────────────────────────────────────────
 // wildDice modifier: wild dice appear randomly, always alone, min 1 / max 3 per game
-const WILD_MIN = 1;
-const WILD_MAX = 3;
+const WILD_MIN        = 1;
+const WILD_MAX        = 3;
+const WILD_OPEN_WAIT  = 4; // block wild dice for the first N spawns (calm opening)
 let wildSpawned = 0;  // wild dice spawned this game
-let wildSpawnNum = 0; // total spawns this game (used for min guarantee)
+let wildSpawnNum = 0; // total spawns this game (used for chance gate + guarantee)
 let bombFuses      = new Map();  // cellKey → remaining turns until detonation
 let chainDepth     = 0;          // cascade waves resolved in current placement
 let bestChainDepth = 0;          // best cascade achieved this game (for display)
@@ -130,8 +275,8 @@ function spawnDice() {
   if (activeChallenge.modifier === 'wildDice') {
     wildSpawnNum++;
     const capped     = wildSpawned >= WILD_MAX;
-    const guaranteed = wildSpawned < WILD_MIN && wildSpawnNum >= 7;
-    const chanceHit  = !capped && Math.random() < activeChallenge.modValue * 0.1;
+    const guaranteed = wildSpawned < WILD_MIN && wildSpawnNum >= WILD_OPEN_WAIT + 6;
+    const chanceHit  = !capped && wildSpawnNum > WILD_OPEN_WAIT && Math.random() < activeChallenge.modValue * 0.1;
     if (guaranteed || chanceHit) {
       wildSpawned++;
       spawnerDice = [{ value: WILD_DIE }];
@@ -271,6 +416,7 @@ function rotatePair(source) {
     parkedRotDeg += 90;
     applyTrayRotation('parking');
   }
+  SoundUtils.play('die-rotate');
 }
 
 // ── PLACEMENT ────────────────────────────────────────────────
@@ -311,6 +457,7 @@ function doPlace(cells, dicesToPlace) {
   if (activeChallenge.modifier === 'flipDice')     applyFlipEffects(cells);
   if (activeChallenge.modifier === 'diseasedDice') applyDiseasedEffects(cells);
   renderBoard();
+  SoundUtils.play('die-place');
   setTimeout(() => triggerMergeCheck(), TIMING.MERGE_1);
 }
 
@@ -381,6 +528,7 @@ function flyDisplacedDie(fromSlotId, toSlotId, onComplete) {
 function handleParkDrop() {
   // User dragged FROM spawner and dropped ON parking
   if (!spawnerDice.length) return;
+  SoundUtils.play('die-park');
   if (!parkedDice.length) {
     // One-way: ghost already shows movement — update instantly
     parkedDice   = spawnerDice.slice();
@@ -408,6 +556,7 @@ function handleParkDrop() {
 function handleParkToSpawnerDrop() {
   // User dragged FROM parking and dropped ON spawner
   if (!parkedDice.length) return;
+  SoundUtils.play('die-park');
   if (!spawnerDice.length) {
     // One-way: update instantly
     spawnerDice   = parkedDice.slice();
@@ -512,16 +661,26 @@ function triggerMergeCheck() {
     updateScoreBar();
     renderBoard();
 
+    // Merge SFX — fired once per wave based on what resolved
+    const hasMergeClear = groups.some(({ group, value }) => value * group.length > 6);
+    const hasSixSpawn   = groups.some(({ group, value }) => value * group.length === 6);
+    if (hasMergeClear) {
+      SoundUtils.play('merge-clear');
+    } else {
+      SoundUtils.play('merge', { depth: chainDepth });
+      if (hasSixSpawn) SoundUtils.play('six-spawn');
+    }
+
     // maxMerges: lose if merge budget exhausted before score target
     if (activeChallenge.modifier === 'maxMerges' && merges >= activeChallenge.modValue && score < SCORE_TARGET) {
-      triggerLose();
+      triggerLose('merges');
       return;
     }
 
     // chainGoal: win when cascade depth reaches target
     if (activeChallenge.winType === 'chainGoal' && chainDepth >= activeChallenge.target) {
       isMerging = false;
-      triggerWin();
+      triggerWin('chain');
       return;
     }
 
@@ -547,7 +706,7 @@ function onTurnEnd() {
         spawnerDice = [spawnerDice[0]];
         renderSpawner();
       } else {
-        triggerLose();
+        triggerLose('board-full');
       }
     }
   }
@@ -582,11 +741,13 @@ function timeUntilNextChallenge() {
 
 let winCountdownInterval = null;
 
-function triggerWin() {
+function triggerWin(reason = 'score') {
   if (chainWon) return; // guard against double-fire
   chainWon = true;
   markDateCompleted(activeChallengeDate);
   timerObj?.pause();
+  SoundUtils.play('win-' + reason);
+  Music.winFlourish();
   const countdownEl = document.getElementById('db-win-countdown');
   if (countdownEl) {
     countdownEl.textContent = timeUntilNextChallenge();
@@ -601,14 +762,18 @@ function triggerWin() {
 function checkWin() {
   if (chainWon) return true;
   if (score >= SCORE_TARGET) {
-    triggerWin();
+    const reason = activeChallenge.winType === 'surviveTimer' ? 'survive' : 'score';
+    triggerWin(reason);
     return true;
   }
   return false;
 }
 
-function triggerLose() {
+function triggerLose(reason = 'board-full') {
   timerObj?.pause();
+  // bomb-detonate already played its own sound; all other lose reasons get a sound
+  if (reason !== 'bomb') SoundUtils.play('lose-' + reason);
+  Music.stop();
   const el = document.getElementById('db-lose-score');
   if (el) el.textContent = score;
   setTimeout(() => GameUtils.openSheet('sheet-lose'), TIMING.SHEET_OPEN);
@@ -616,7 +781,7 @@ function triggerLose() {
 
 function checkLose() {
   const full = board.every(row => row.every(v => v !== 0));
-  if (full) { triggerLose(); return true; }
+  if (full) { triggerLose('board-full'); return true; }
   return false;
 }
 
@@ -943,6 +1108,7 @@ function computeHint() {
 }
 
 function showHint() {
+  SoundUtils.play('hint-open');
   clearHintHighlights();
   const hint   = computeHint();
   const bodyEl = document.querySelector('#db-game-hint-wrap .game-hint-tooltip__body');
@@ -1013,11 +1179,15 @@ function onCalDaySelect(iso) {
 function rebuildTimer(ch) {
   timerObj?.pause();
   let opts = {};
+  const timerOnTick = (s) => {
+    if (s <= 10 && s > 0) { SoundUtils.play('timer-low'); Music.setTension(true); }
+    else if (s > 10)        SoundUtils.play('timer-tick');
+  };
   if (ch.modifier === 'timer') {
-    opts = { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } };
+    opts = { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose('timer'); }, onTick: timerOnTick };
   } else if (ch.winType === 'surviveTimer') {
     // Non-timer modifier with surviveTimer win type → apply default 90 s clock
-    opts = { countdown: 90, onExpire: () => { if (score < SCORE_TARGET) triggerLose(); } };
+    opts = { countdown: 90, onExpire: () => { if (score < SCORE_TARGET) triggerLose('timer'); }, onTick: timerOnTick };
   }
   timerObj = GameUtils.makeTimer(
     document.getElementById('db-timer-group'),
@@ -1111,6 +1281,7 @@ function applyFlipEffects(placedCells) {
     }
   }
   if (!flipKeys.size) return;
+  SoundUtils.play('flip-trigger');
   for (const key of flipKeys) {
     const fr = Math.floor(key / GRID_COLS), fc = key % GRID_COLS;
     board[fr][fc] = 0; // consume flip die
@@ -1135,6 +1306,7 @@ function applyDiseasedEffects(placedCells) {
       const nr = r + dr, nc = c + dc;
       if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === DISEASED_DIE) {
         board[r][c] = 6; // infect!
+        SoundUtils.play('disease-infect');
         break;
       }
     }
@@ -1154,15 +1326,18 @@ function tickBombs() {
       return; // handle one detonation at a time
     }
     bombFuses.set(key, newFuse);
+    if (newFuse === 1) SoundUtils.play('bomb-urgent');
+    else               SoundUtils.play('bomb-tick');
   }
   renderBoard(); // refresh fuse counters
 }
 
 function detonateBomb(r, c) {
   renderBoard();
+  SoundUtils.play('bomb-detonate');
   const cell = cellEl(r, c);
   if (cell) cell.classList.add('db-cell--exploding');
-  setTimeout(() => triggerLose(), 700);
+  setTimeout(() => triggerLose('bomb'), 700);
 }
 
 // ── GOAL DESCRIPTION ─────────────────────────────────────────
@@ -1216,6 +1391,7 @@ function describeGoal(ch) {
 }
 
 function startLoading() {
+  Music.stop(); // stop any music from a previous round
   SCORE_TARGET      = scoreTargetFrom(activeChallenge);
   chainDepth        = 0;
   bestChainDepth    = 0;
@@ -1256,6 +1432,7 @@ function startLoading() {
     renderBoard();
     renderParking();
     spawnDice();
+    Music.start(); // begin ambient music now that gameplay is visible
     if (firstTimeUser) setTimeout(() => GameUtils.openPopup('popup-welcome'), TIMING.POPUP_SHOW);
     else               setTimeout(() => GameUtils.openPopup('popup-goal'),    TIMING.POPUP_SHOW);
   }, TIMING.LOADING_DELAY);
@@ -1400,6 +1577,55 @@ document.addEventListener('DOMContentLoaded', () => {
   // Theme
   setTheme(localStorage.getItem('db-theme') || 'auto');
 
+  // ── SOUND & MUSIC PREFERENCES ────────────────────────────────
+  // Apply persisted preferences before any sound can fire.
+  // SFX: on by default (key absent = enabled). Music: off by default.
+  SoundUtils.setEnabled(localStorage.getItem('db-sfx') !== 'false');
+  Music.setEnabled(localStorage.getItem('db-music') === 'true');
+  document.getElementById('db-toggle-sfx').checked   = SoundUtils.isEnabled();
+  document.getElementById('db-toggle-music').checked = Music.isEnabled();
+
+  document.getElementById('db-toggle-sfx').addEventListener('change', ev => {
+    SoundUtils.setEnabled(ev.target.checked);
+    localStorage.setItem('db-sfx', ev.target.checked);
+  });
+  document.getElementById('db-toggle-music').addEventListener('change', ev => {
+    Music.setEnabled(ev.target.checked);
+    localStorage.setItem('db-music', ev.target.checked);
+    // If enabling while gameplay is active and music isn't running, start it now
+    if (ev.target.checked && document.getElementById('screen-gameplay')?.classList.contains('is-active') && !Music.isRunning()) {
+      Music.start();
+    }
+  });
+
+  // ── SHEET / TOAST SOUNDS (monkey-patch GameUtils) ────────────
+  // Intercept openSheet/closeSheet/showToast so every call automatically
+  // plays the right SFX and fades music in/out — no per-callsite changes needed.
+  let _musicResumeTimer = null;
+  const _origOpen  = GameUtils.openSheet.bind(GameUtils);
+  const _origClose = GameUtils.closeSheet.bind(GameUtils);
+  const _origToast = GameUtils.showToast.bind(GameUtils);
+
+  GameUtils.openSheet = function(id) {
+    // Win/lose sheets have their own dedicated sounds; skip sheet-open for them
+    if (id !== 'sheet-win' && id !== 'sheet-lose') SoundUtils.play('sheet-open');
+    clearTimeout(_musicResumeTimer); // cancel any pending fade-in
+    Music.fadePause();
+    _origOpen(id);
+  };
+  GameUtils.closeSheet = function(id) {
+    SoundUtils.play('sheet-close');
+    _origClose(id);
+    // Delay resume so switching sheets doesn't cause a brief volume bump
+    _musicResumeTimer = setTimeout(() => {
+      if (!document.querySelector('.sheet-overlay.is-open')) Music.fadeResume();
+    }, 220);
+  };
+  GameUtils.showToast = function(...args) {
+    SoundUtils.play('toast');
+    _origToast(...args);
+  };
+
   // Timer — built per-game in rebuildTimer() called from startLoading()
   document.getElementById('db-timer-group').addEventListener('click', () => {
     if (timerObj?.isRunning()) { timerObj.pause(); GameUtils.openSheet('sheet-pause'); }
@@ -1423,12 +1649,13 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   // Exit popup
-  document.getElementById('db-btn-exit-confirm').addEventListener('click', () => { GameUtils.closePopup('popup-exit'); GameUtils.navigateTo('home'); });
-  document.getElementById('db-btn-exit-stay').addEventListener('click',    () => { GameUtils.closePopup('popup-exit'); timerObj.start(); });
+  document.getElementById('db-btn-exit-confirm').addEventListener('click', () => { SoundUtils.play('btn-tap'); Music.stop(); GameUtils.closePopup('popup-exit'); GameUtils.navigateTo('home'); });
+  document.getElementById('db-btn-exit-stay').addEventListener('click',    () => { SoundUtils.play('btn-tap'); GameUtils.closePopup('popup-exit'); timerObj.start(); });
 
   // Welcome popup
-  document.getElementById('db-btn-letsgo').addEventListener('click', () => { GameUtils.closePopup('popup-welcome'); openTutorial(true); });
+  document.getElementById('db-btn-letsgo').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closePopup('popup-welcome'); openTutorial(true); });
   document.getElementById('db-btn-skip-tutorial').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     GameUtils.closePopup('popup-welcome');
     sessionStorage.setItem('db-tutorialSeen', 'true');
     firstTimeUser = false;
@@ -1436,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Goal popup
-  document.getElementById('db-btn-ready').addEventListener('click', () => { GameUtils.closePopup('popup-goal'); timerObj?.start(); });
+  document.getElementById('db-btn-ready').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closePopup('popup-goal'); timerObj?.start(); });
 
   // Tutorial next / finish
   document.getElementById('db-tut-next').addEventListener('click', () => {

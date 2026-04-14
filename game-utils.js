@@ -79,6 +79,7 @@ const GameUtils = {
   makeTimer(groupEl, iconEl, displayEl, options = {}) {
     const countdownFrom = options.countdown ?? null;
     const onExpire      = options.onExpire   ?? null;
+    const onTick        = options.onTick     ?? null;
     let seconds = countdownFrom ?? 0, running = false, interval = null;
     const minEl = displayEl.querySelector('.game-timer__min');
     const secEl = displayEl.querySelector('.game-timer__sec');
@@ -92,10 +93,12 @@ const GameUtils = {
       if (countdownFrom !== null) {
         seconds--;
         render(Math.max(0, seconds));
+        onTick?.(Math.max(0, seconds));
         if (seconds <= 0) { pause(); onExpire?.(); }
       } else {
         seconds++;
         render(seconds);
+        onTick?.(seconds);
       }
     }
     function start()     { if (running) return; running = true;  interval = setInterval(tick, 1000); Icons.render(iconEl, 'pause', { size: 'md' }); groupEl.setAttribute('aria-label', 'Pause'); }
