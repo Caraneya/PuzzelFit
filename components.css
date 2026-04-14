@@ -1827,7 +1827,15 @@
   font-size: var(--font-size-ui);
   color: var(--color-primary);
   letter-spacing: var(--letter-spacing-wide);
-  min-width: 52px;
+  display: flex;
+  align-items: center;
+}
+.game-timer__min,
+.game-timer__sec {
+  width: 2.4ch;
+  text-align: left;
+}
+.game-timer__sep{
   text-align: center;
 }
 .game-main {

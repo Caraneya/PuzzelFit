@@ -80,22 +80,27 @@ const GameUtils = {
     const countdownFrom = options.countdown ?? null;
     const onExpire      = options.onExpire   ?? null;
     let seconds = countdownFrom ?? 0, running = false, interval = null;
-    function fmt(s) {
-      return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    const minEl = displayEl.querySelector('.game-timer__min');
+    const secEl = displayEl.querySelector('.game-timer__sec');
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function fmt(s) { return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+    function render(s) {
+      if (minEl && secEl) { minEl.textContent = pad(Math.floor(s / 60)); secEl.textContent = pad(s % 60); }
+      else                { displayEl.textContent = fmt(s); }
     }
     function tick() {
       if (countdownFrom !== null) {
         seconds--;
-        displayEl.textContent = fmt(Math.max(0, seconds));
+        render(Math.max(0, seconds));
         if (seconds <= 0) { pause(); onExpire?.(); }
       } else {
         seconds++;
-        displayEl.textContent = fmt(seconds);
+        render(seconds);
       }
     }
     function start()     { if (running) return; running = true;  interval = setInterval(tick, 1000); Icons.render(iconEl, 'pause', { size: 'md' }); groupEl.setAttribute('aria-label', 'Pause'); }
     function pause()     { if (!running) return; running = false; clearInterval(interval);            Icons.render(iconEl, 'play',  { size: 'md' }); groupEl.setAttribute('aria-label', 'Play'); }
-    function reset()     { pause(); seconds = countdownFrom ?? 0; displayEl.textContent = fmt(seconds); }
+    function reset()     { pause(); seconds = countdownFrom ?? 0; render(seconds); }
     function isRunning() { return running; }
     return { start, pause, reset, isRunning };
   },
