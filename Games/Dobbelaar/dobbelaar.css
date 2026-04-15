@@ -1751,18 +1751,20 @@ html, body {
 .sheet__illustration .db-illus-svg { width: 100%; max-height: 100%; }
 
 /* ── WIN ── */
-.db-win-box, .db-win-notebook { transform-box: fill-box; transform-origin: center; }
+.db-win-flag-assembly          { transform-box: fill-box; transform-origin: center bottom; }
+.db-win-box, .db-win-notebook  { transform-box: fill-box; transform-origin: center; }
 .db-win-chart                  { transform-box: fill-box; transform-origin: left center; }
 .db-win-arrow                  { transform-box: fill-box; transform-origin: left center; }
 
-/* entry then continuous dance — comma-chained so box/notebook never go still */
+/* entry then continuous dance — assembly jumps so flag/pole/box move as one unit */
+#sheet-win.is-open .db-win-flag-assembly {
+  animation: db-win-box-jump 1.10s ease-in-out 0.90s infinite;
+}
 #sheet-win.is-open .db-win-chart {
   animation: db-win-flag-wave 1.4s ease-in-out 0.3s infinite;
 }
 #sheet-win.is-open .db-win-box {
-  animation:
-    db-win-box-in   0.55s cubic-bezier(0.34,1.56,0.64,1) 0.30s both,
-    db-win-box-jump 1.10s ease-in-out                     0.90s infinite;
+  animation: db-win-box-in 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.30s both;
 }
 #sheet-win.is-open .db-win-notebook {
   animation:

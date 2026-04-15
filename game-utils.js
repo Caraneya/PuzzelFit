@@ -244,9 +244,10 @@ const GameUtils = {
       if (y === TODAY.getFullYear() && m === TODAY.getMonth() && d === TODAY.getDate()) return 'in-progress';
       return 'default';
     }
-    function renderCal() {
+    function renderCal(dir) {
       const title  = document.getElementById(`${prefix}-cal-title`);
       const grid   = document.getElementById(`${prefix}-cal-grid`);
+      if (grid) grid.classList.remove('cal-grid--flip-next', 'cal-grid--flip-prev');
       const todayL = document.getElementById(`${prefix}-cal-today-label`);
       const btn    = document.getElementById(`${prefix}-cal-btn`);
       if (!title || !grid) return;
@@ -263,10 +264,12 @@ const GameUtils = {
       const firstDow    = new Date(viewYear, viewMonth, 1).getDay();
       const emptyCount  = firstDow === 0 ? 6 : firstDow - 1;
       const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      let   dayIndex    = 0;
 
       for (let i = 0; i < emptyCount; i++) {
         const el = document.createElement('div');
         el.className = 'cal-day cal-day--empty';
+        el.style.setProperty('--day-index', dayIndex++);
         grid.appendChild(el);
       }
       for (let d = 1; d <= daysInMonth; d++) {
@@ -279,6 +282,7 @@ const GameUtils = {
         if (state === 'unavailable') cls.push('cal-day--unavailable');
         if (isSel)                   cls.push('cal-day--selected');
         el.className = cls.join(' ');
+        el.style.setProperty('--day-index', dayIndex++);
         if (state === 'completed')        el.innerHTML = self.CHECK_SVG;
         else if (state === 'in-progress') el.innerHTML = String(d) + self.CORNER_SVG;
         else                              el.innerHTML = String(d);
@@ -296,10 +300,19 @@ const GameUtils = {
       for (let i = total; i < 42; i++) {
         const el = document.createElement('div');
         el.className = 'cal-day cal-day--empty';
+        el.style.setProperty('--day-index', dayIndex++);
         grid.appendChild(el);
       }
+
+      // Slide + wave animation on month navigation
+      if (dir) {
+        const cls = dir === 'next' ? 'cal-grid--flip-next' : 'cal-grid--flip-prev';
+        grid.classList.remove('cal-grid--flip-next', 'cal-grid--flip-prev');
+        void grid.offsetWidth; // force reflow to restart animation
+        grid.classList.add(cls);
+      }
     }
-    function navCal(y, m) {
+    function navCal(y, m, dir) {
       viewYear = y; viewMonth = m;
       const isCurrent = (y === TODAY.getFullYear() && m === TODAY.getMonth());
       if (isCurrent) {
@@ -309,14 +322,14 @@ const GameUtils = {
         if (isPast) { selYear = y; selMonth = m; selDay = 1; }
         else        { selYear = -1; selMonth = -1; selDay = -1; }
       }
-      renderCal();
+      renderCal(dir);
       if (selYear !== -1 && typeof options.onDaySelect === 'function') options.onDaySelect(toISO(selYear, selMonth, selDay));
     }
 
     const prev = document.getElementById(`${prefix}-cal-prev`);
     const next = document.getElementById(`${prefix}-cal-next`);
-    if (prev) prev.addEventListener('click', () => { let y = viewYear, m = viewMonth - 1; if (m < 0) { m = 11; y--; } navCal(y, m); });
-    if (next) next.addEventListener('click', () => { let y = viewYear, m = viewMonth + 1; if (m > 11) { m = 0; y++; } navCal(y, m); });
+    if (prev) prev.addEventListener('click', () => { let y = viewYear, m = viewMonth - 1; if (m < 0) { m = 11; y--; } navCal(y, m, 'prev'); });
+    if (next) next.addEventListener('click', () => { let y = viewYear, m = viewMonth + 1; if (m > 11) { m = 0; y++; } navCal(y, m, 'next'); });
     Icons.render(document.getElementById(`${prefix}-cal-prev`),   'chevronLeft',  { size: 'md', color: 'primary' });
     Icons.render(document.getElementById(`${prefix}-cal-next`),   'chevronLeft',  { size: 'md', color: 'primary' });
     Icons.render(document.getElementById(`${prefix}-cal-trophy`), 'trophyBronze', { size: 'md' });
@@ -344,9 +357,22 @@ const GameUtils = {
         btn.classList.toggle('form-star--filled', i < filled);
       });
     }
+    function triggerStarRipple(filled) {
+      stars.forEach((btn, i) => {
+        if (!btn || i >= filled) return;
+        btn.classList.remove('form-star--ripple');
+        void btn.offsetWidth;
+        btn.style.setProperty('--star-index', i);
+        btn.classList.add('form-star--ripple');
+      });
+    }
     stars.forEach((btn, i) => {
       if (!btn) return;
-      btn.addEventListener('click', () => { rating = i < rating ? i : i + 1; renderStars(rating); });
+      btn.addEventListener('click', () => {
+        rating = i < rating ? i : i + 1;
+        renderStars(rating);
+        triggerStarRipple(rating);
+      });
     });
     renderStars(rating);
 
@@ -362,8 +388,40 @@ const GameUtils = {
     }
   },
 
+  // ── COUNT-UP ANIMATION ──────────────────────────────────────
+  // Animates a number element from 0 to target over duration ms.
+  // el: DOM element whose textContent will be updated.
+  // format: optional function(value) → string for custom display.
+  countUp(el, target, duration = 800, format) {
+    if (!el) return;
+    const start = performance.now();
+    function step(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const ease     = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+      const value    = Math.round(target * ease);
+      el.textContent = format ? format(value) : value;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  },
+
   // ── HOME DATE + WEEK ROWS ───────────────────────────────────
   // Sets the date label and fills the last-week day name rows.
+  // ── BUTTON PRESS ANIMATION ──────────────────────────────────
+  // Attach once per page. Triggers btn--pressing on every .btn pointerdown
+  // so the full scale-down→normal animation plays regardless of tap speed.
+  initBtnPress() {
+    document.addEventListener('pointerdown', e => {
+      const btn = e.target.closest('.btn');
+      if (!btn || btn.disabled || btn.getAttribute('aria-disabled') === 'true') return;
+      btn.classList.remove('btn--pressing');
+      // Force reflow so re-tapping replays the animation
+      void btn.offsetWidth;
+      btn.classList.add('btn--pressing');
+      btn.addEventListener('animationend', () => btn.classList.remove('btn--pressing'), { once: true });
+    });
+  },
+
   initHomeDate(prefix) {
     const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const now = new Date();

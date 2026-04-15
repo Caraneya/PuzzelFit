@@ -133,13 +133,17 @@
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  transition:
-    transform var(--duration-instant) var(--easing-sharp),
-    opacity var(--duration-fast) var(--easing-default);
+  transition: opacity var(--duration-fast) var(--easing-default);
 }
 
-.btn:active {
-  transform: scale(var(--scale-press));
+.btn--pressing {
+  animation: btn-press var(--duration-fast) var(--easing-default) both;
+}
+
+@keyframes btn-press {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(var(--scale-press)); }
+  100% { transform: scale(1); }
 }
 
 .btn:disabled,
@@ -222,13 +226,10 @@
   background: var(--color-scrim);
 }
 
-/* Nav/toolbar icon buttons — phone game, no hover or press feedback needed */
+/* Nav/toolbar icon buttons — phone game, no hover feedback */
 .home-nav-bar .btn--icon:hover,
 .game-toolbar .btn--icon:hover,
 .game-toolbar .game-timer-group:hover  { background: transparent; }
-.home-nav-bar .btn:active,
-.game-toolbar .btn:active,
-.game-toolbar .game-timer-group:active { transform: none; }
 
 /* Small pill — used in row lists (e.g. Last Week days) */
 .btn--pill {
@@ -293,11 +294,11 @@
   background: var(--color-surface);
   border-radius: var(--radius-sm);
   padding: var(--space-8) var(--space-6);
-  transform: translateY(16px) scale(0.97);
+  transform: scale(0.85);
   transition: transform var(--duration-normal) var(--easing-bounce);
 }
 .overlay.is-open .modal {
-  transform: translateY(0) scale(1);
+  transform: scale(1);
 }
 
 .modal__title {
@@ -580,6 +581,29 @@
   background: var(--color-blue);
 }
 
+/* Badge entry animation — stagger zoom-in when sheet opens */
+@keyframes badge-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.sheet__list-badge {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.sheet-overlay.is-open .sheet__list-badge {
+  animation: badge-pop var(--duration-normal) var(--easing-bounce) both;
+}
+
+.sheet-overlay.is-open .sheet__list-item:nth-child(1) .sheet__list-badge { animation-delay: 300ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(2) .sheet__list-badge { animation-delay: 400ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(3) .sheet__list-badge { animation-delay: 500ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(4) .sheet__list-badge { animation-delay: 600ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(5) .sheet__list-badge { animation-delay: 700ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(6) .sheet__list-badge { animation-delay: 800ms; }
+.sheet-overlay.is-open .sheet__list-item:nth-child(7) .sheet__list-badge { animation-delay: 900ms; }
+
 /* Text block inside each row */
 .sheet__list-text {
   display: flex;
@@ -651,7 +675,6 @@
 }
 
 .cal-nav .btn--icon:hover  { background: transparent; }
-.cal-nav .btn--icon:active { transform: none; }
 
 .cal-nav__title {
   font-family: var(--font-family-secondary);
@@ -694,6 +717,35 @@
   grid-template-columns: repeat(7, 1fr);
   gap: var(--space-2);
   align-content: start;
+}
+
+/* Month flip animations */
+.cal-month { overflow: hidden; }
+
+@keyframes cal-slide-from-right {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes cal-slide-from-left {
+  from { transform: translateX(-60px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes cal-day-wave {
+  from { opacity: 0; transform: translateY(6px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+.cal-grid--flip-next {
+  animation: cal-slide-from-right var(--duration-normal) var(--easing-out) both;
+}
+.cal-grid--flip-prev {
+  animation: cal-slide-from-left var(--duration-normal) var(--easing-out) both;
+}
+
+.cal-grid--flip-next .cal-day,
+.cal-grid--flip-prev .cal-day {
+  animation: cal-day-wave var(--duration-normal) var(--easing-bounce) both;
+  animation-delay: calc(var(--day-index, 0) * 16ms + 40ms);
 }
 
 /* Base day cell */
@@ -1489,6 +1541,18 @@
   color: var(--color-warning);
 }
 
+@keyframes star-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.form-star--ripple {
+  animation: star-pulse 320ms var(--easing-bounce) both;
+  animation-delay: calc(var(--star-index, 0) * 60ms);
+}
+
 /* Input fields */
 .form-field {
   background: var(--color-surface);
@@ -1730,6 +1794,59 @@
   font-size: var(--font-size-subtitle);
   color: var(--color-primary);
 }
+
+/* ── HOME PAGE — ENTRY ANIMATIONS ──────────────────────────── */
+@keyframes home-float-in {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes home-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes home-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes home-lift {
+  from { transform: translateY(24px); }
+  to   { transform: translateY(0); }
+}
+@keyframes home-row-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes home-icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+.home-game-icon,
+.home-game-title,
+.home-game-cta  { opacity: 0; }
+.home-day-row   { opacity: 0; }
+
+.proto-screen.is-active .home-game-icon {
+  animation:
+    home-float-in var(--duration-slow) var(--easing-out) 0ms both,
+    home-icon-pulse 3s ease-in-out 500ms infinite;
+}
+.proto-screen.is-active .home-game-title {
+  animation: home-fade-in var(--duration-slow) var(--easing-out) 160ms both;
+}
+.proto-screen.is-active .home-game-cta {
+  animation: home-slide-up var(--duration-slow) var(--easing-out) 280ms both;
+}
+.proto-screen.is-active .home-week {
+  animation: home-lift var(--duration-slow) var(--easing-out) 400ms both;
+}
+/* Rows are at odd child positions (interleaved with .divider elements) */
+.proto-screen.is-active .home-day-row:nth-child(1)  { animation: home-row-in var(--duration-normal) var(--easing-out) 480ms both; }
+.proto-screen.is-active .home-day-row:nth-child(3)  { animation: home-row-in var(--duration-normal) var(--easing-out) 540ms both; }
+.proto-screen.is-active .home-day-row:nth-child(5)  { animation: home-row-in var(--duration-normal) var(--easing-out) 600ms both; }
+.proto-screen.is-active .home-day-row:nth-child(7)  { animation: home-row-in var(--duration-normal) var(--easing-out) 660ms both; }
+.proto-screen.is-active .home-day-row:nth-child(9)  { animation: home-row-in var(--duration-normal) var(--easing-out) 720ms both; }
+.proto-screen.is-active .home-day-row:nth-child(11) { animation: home-row-in var(--duration-normal) var(--easing-out) 780ms both; }
 
 /* ── LOADING SCREEN ──────────────────────────────────────────── */
 .loading-page {
@@ -2037,4 +2154,57 @@
   cursor: pointer;
   color: var(--color-surface);
   border-radius: var(--radius-full);
+}
+
+/* ── WIN SHEET — ENTRY ANIMATIONS ───────────────────────────── */
+/* Use .sheet-overlay--win on the sheet-overlay element.         */
+/* data-difficulty="hard" on that same element triggers bounce.  */
+
+@keyframes sheet-title-zoom {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sheet-title-zoom-bounce {
+  0%   { opacity: 0; transform: scale(0.6); }
+  70%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sheet-body-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet-overlay--win .sheet__title,
+.sheet-overlay--win .sheet__body { opacity: 0; }
+
+.sheet-overlay--win.is-open .sheet__title {
+  animation: sheet-title-zoom var(--duration-normal) var(--easing-bounce) 350ms both;
+}
+
+.sheet-overlay--win.is-open[data-difficulty="hard"] .sheet__title {
+  animation: sheet-title-zoom-bounce var(--duration-slow) var(--easing-out) 350ms both;
+}
+
+.sheet-overlay--win.is-open .sheet__body {
+  animation: sheet-body-fade var(--duration-normal) var(--easing-out) 520ms both;
+}
+
+/* ── LOSE SHEET — ENTRY ANIMATIONS ──────────────────────────── */
+
+@keyframes sheet-slide-up-fade {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sheet-overlay--lose .sheet__title,
+.sheet-overlay--lose .sheet__body { opacity: 0; }
+
+.sheet-overlay--lose.is-open .sheet__title {
+  animation: sheet-slide-up-fade var(--duration-normal) var(--easing-out) 350ms both;
+}
+
+.sheet-overlay--lose.is-open .sheet__body {
+  animation: sheet-slide-up-fade var(--duration-normal) var(--easing-out) 470ms both;
 }

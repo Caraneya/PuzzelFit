@@ -552,14 +552,14 @@
             <span class="sheet__list-badge">2</span>
             <div class="sheet__list-text">
               <span class="sheet__list-title">Rotate and match</span>
-              <span class="sheet__list-body">Tap a die to rotate it 90Â°. Place matching dice adjacent to set up a merge.</span>
+              <span class="sheet__list-body">Tap a die to rotate it 90°. Place matching dice adjacent to set up a merge.</span>
             </div>
           </div>
           <div class="sheet__list-item">
             <span class="sheet__list-badge">3</span>
             <div class="sheet__list-text">
               <span class="sheet__list-title">Merge and score</span>
-              <span class="sheet__list-body">Three or more identical adjacent dice merge. Sum â‰¤ 6 â†’ one die of the sum. Sum &gt; 6 â†’ dice disappear and score bonus points.</span>
+              <span class="sheet__list-body">Three or more identical adjacent dice merge. If their sum is 6 or less, they are replaced by one die showing the sum. If their sum is more than 6, the dice disappear and you score bonus points.</span>
             </div>
           </div>
           <div class="sheet__list-item">
@@ -806,7 +806,7 @@
   </div>
 
   <!-- Win -->
-  <div class="sheet-overlay" id="sheet-win" role="dialog" aria-modal="true" data-no-dismiss>
+  <div class="sheet-overlay sheet-overlay--win" id="sheet-win" role="dialog" aria-modal="true" data-no-dismiss>
     <div class="sheet">
       <div class="sheet__header">
         <h2 class="sheet__title">Congratulations!</h2>
@@ -814,14 +814,34 @@
       </div>
       <div class="sheet__illustration">
         <svg class="db-illus-svg" width="240" height="211" viewBox="0 0 240 211" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Win illustration" role="img">
-          <g class="db-win-box">
-            <path d="M95.5017 183.173V208.744L37.5137 186.539V160.133L95.5017 183.173Z" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M95.502 183.173V208.744L153.49 186.539V160.133L95.502 183.173Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M37.5137 160.135L95.5017 135.422L153.49 160.135L95.5017 183.175L37.5137 160.135Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M65.5059 197.257V171.258" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M125.495 197.252C126.205 196.982 125.495 171.248 125.495 171.248L68.0684 147.102" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M65.5059 171.258L124.986 147.984" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M125.498 197.257V171.258" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="db-win-flag-assembly">
+            <g class="db-win-box">
+              <path d="M95.5017 183.173V208.744L37.5137 186.539V160.133L95.5017 183.173Z" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M95.502 183.173V208.744L153.49 186.539V160.133L95.502 183.173Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M37.5137 160.135L95.5017 135.422L153.49 160.135L95.5017 183.175L37.5137 160.135Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M65.5059 197.257V171.258" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M125.495 197.252C126.205 196.982 125.495 171.248 125.495 171.248L68.0684 147.102" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M65.5059 171.258L124.986 147.984" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M125.498 197.257V171.258" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path d="M98.6077 3.28906H92.4004V172.085H98.6077V3.28906Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <g class="db-win-chart">
+              <path d="M171.122 17.1094H98.6074V89.6235H171.122V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.122 89.625L153.432 108.194" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M95.502 12.0625C98.4187 12.0625 100.783 9.69801 100.783 6.78126C100.783 3.8645 98.4187 1.5 95.502 1.5C92.5852 1.5 90.2207 3.8645 90.2207 6.78126C90.2207 9.69801 92.5852 12.0625 95.502 12.0625Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 17.1094H146.947V41.2825H171.12V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 17.1094H122.775V41.2825H146.949V17.1094Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 17.1094H98.6074V41.2825H122.781V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 41.2812H146.947V65.4544H171.12V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 41.2812H122.775V65.4544H146.949V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 41.2812H98.6074V65.4544H122.781V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 65.4531H146.947V89.6262H171.12V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 65.4531H122.775V89.6262H146.949V65.4531Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 65.4531H98.6074V89.6262H122.781V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M153.432 89.625V108.194L171.122 89.625H153.432Z" fill="#00565E"/>
+              <path d="M88.0332 172.086H102.528" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path class="db-win-arrow" fill-rule="evenodd" clip-rule="evenodd" d="M104.298 49.0234L112.235 53.6063L104.298 58.1892V54.4001H99.0059V52.8125H104.298V49.0234Z" fill="#00565E"/>
           </g>
           <g class="db-win-notebook">
             <path d="M153.432 89.6222V108.191H201.773V35.6719H165.222" fill="white"/>
@@ -833,24 +853,6 @@
             <path d="M201.773 84.0234H177.6V108.197H201.773V84.0234Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M177.605 84.0234H153.432V108.197H177.605V84.0234Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </g>
-          <path d="M98.6077 3.28906H92.4004V172.085H98.6077V3.28906Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          <g class="db-win-chart">
-            <path d="M171.122 17.1094H98.6074V89.6235H171.122V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M171.122 89.625L153.432 108.194" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M95.502 12.0625C98.4187 12.0625 100.783 9.69801 100.783 6.78126C100.783 3.8645 98.4187 1.5 95.502 1.5C92.5852 1.5 90.2207 3.8645 90.2207 6.78126C90.2207 9.69801 92.5852 12.0625 95.502 12.0625Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M171.12 17.1094H146.947V41.2825H171.12V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M146.949 17.1094H122.775V41.2825H146.949V17.1094Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M122.781 17.1094H98.6074V41.2825H122.781V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M171.12 41.2812H146.947V65.4544H171.12V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M146.949 41.2812H122.775V65.4544H146.949V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M122.781 41.2812H98.6074V65.4544H122.781V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M171.12 65.4531H146.947V89.6262H171.12V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M146.949 65.4531H122.775V89.6262H146.949V65.4531Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M122.781 65.4531H98.6074V89.6262H122.781V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M153.432 89.625V108.194L171.122 89.625H153.432Z" fill="#00565E"/>
-            <path d="M88.0332 172.086H102.528" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </g>
-          <path class="db-win-arrow" fill-rule="evenodd" clip-rule="evenodd" d="M104.298 49.0234L112.235 53.6063L104.298 58.1892V54.4001H99.0059V52.8125H104.298V49.0234Z" fill="#00565E"/>
         </svg>
       </div>
       <div class="sheet__actions">
@@ -861,7 +863,7 @@
   </div>
 
   <!-- Lose -->
-  <div class="sheet-overlay" id="sheet-lose" role="dialog" aria-modal="true" data-no-dismiss>
+  <div class="sheet-overlay sheet-overlay--lose" id="sheet-lose" role="dialog" aria-modal="true" data-no-dismiss>
     <div class="sheet">
       <div class="sheet__header">
         <h2 class="sheet__title" id="db-lose-title">Board's full!</h2>

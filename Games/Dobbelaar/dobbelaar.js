@@ -254,17 +254,33 @@ function fmtTime(totalSeconds) {
   return `${m}m`;
 }
 function renderStats() {
-  const h = getGameHistory();
+  const h      = getGameHistory();
   const played = h.length;
   const wins   = h.filter(r => r.won);
   const streak = computeStreak(getCompletedDates());
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('db-stat-played',    played || '—');
-  set('db-stat-streak',    streak || '—');
-  set('db-stat-winrate',   played ? Math.round(wins.length / played * 100) + '%' : '—');
-  set('db-stat-best',      wins.length ? Math.max(...wins.map(r => r.score)) : '—');
-  set('db-stat-avg',       played ? Math.round(h.reduce((s, r) => s + r.score, 0) / played) : '—');
-  set('db-stat-totaltime', played ? fmtTime(h.reduce((s, r) => s + r.seconds, 0)) : '—');
+  const set    = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  if (!played) {
+    ['db-stat-played','db-stat-streak','db-stat-winrate','db-stat-best','db-stat-avg','db-stat-totaltime']
+      .forEach(id => set(id, '—'));
+    return;
+  }
+
+  set('db-stat-totaltime', fmtTime(h.reduce((s, r) => s + r.seconds, 0)));
+  ['db-stat-played','db-stat-streak','db-stat-winrate','db-stat-best','db-stat-avg'].forEach(id => set(id, '0'));
+
+  const winRate = Math.round(wins.length / played * 100);
+  const best    = wins.length ? Math.max(...wins.map(r => r.score)) : 0;
+  const avg     = Math.round(h.reduce((s, r) => s + r.score, 0) / played);
+  const g       = id => document.getElementById(id);
+
+  setTimeout(() => {
+    GameUtils.countUp(g('db-stat-played'),  played,   600);
+    GameUtils.countUp(g('db-stat-streak'),  streak,   600);
+    GameUtils.countUp(g('db-stat-winrate'), winRate,  700, v => v + '%');
+    GameUtils.countUp(g('db-stat-best'),    best,     800);
+    GameUtils.countUp(g('db-stat-avg'),     avg,      800);
+  }, 380);
 }
 
 // ── TIMING ───────────────────────────────────────────────────
@@ -1794,6 +1810,7 @@ function buildHomeWeek() {
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
+  GameUtils.initBtnPress();
   initBoard();
   renderBoard();
   renderParking();
