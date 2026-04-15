@@ -734,6 +734,10 @@
   from { opacity: 0; transform: translateY(6px) scale(0.9); }
   to   { opacity: 1; transform: translateY(0)   scale(1);   }
 }
+@keyframes cal-day-wave-unavailable {
+  from { opacity: 0;   transform: translateY(6px) scale(0.9); }
+  to   { opacity: 0.4; transform: translateY(0)   scale(1);   }
+}
 
 .cal-grid--flip-next {
   animation: cal-slide-from-right var(--duration-normal) var(--easing-out) both;
@@ -746,6 +750,10 @@
 .cal-grid--flip-prev .cal-day {
   animation: cal-day-wave var(--duration-normal) var(--easing-bounce) both;
   animation-delay: calc(var(--day-index, 0) * 16ms + 40ms);
+}
+.cal-grid--flip-next .cal-day--unavailable,
+.cal-grid--flip-prev .cal-day--unavailable {
+  animation-name: cal-day-wave-unavailable;
 }
 
 /* Base day cell */

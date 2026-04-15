@@ -1391,6 +1391,7 @@ const CAL_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
 const CAL_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 function onCalDaySelect(iso) {
+  SoundUtils.play('btn-tap');
   activeChallengeDate = iso;
   const ch        = CHALLENGES[iso] ?? DEFAULT_CHALLENGE;
   const d         = new Date(iso + 'T12:00:00');
@@ -1811,6 +1812,8 @@ function buildHomeWeek() {
 document.addEventListener('DOMContentLoaded', () => {
 
   GameUtils.initBtnPress();
+  // Pre-warm AudioContext so it's ready before the first tap (avoids first-sound delay).
+  SoundUtils.getCtx();
   initBoard();
   renderBoard();
   renderParking();
@@ -1866,6 +1869,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Shared utilities
   calCtrl = GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
+  // Calendar nav arrows — add sound after initCalendar wires its own listeners
+  document.getElementById('db-cal-prev')?.addEventListener('click', () => SoundUtils.play('btn-tap'));
+  document.getElementById('db-cal-next')?.addEventListener('click', () => SoundUtils.play('btn-tap'));
   GameUtils.initFeedbackForm('db');
   GameUtils.initHomeDate('db');
   const homeDateEl = document.getElementById('db-home-date');
@@ -1942,6 +1948,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Home Play button — always today's challenge
   document.getElementById('db-btn-play').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     activeChallenge     = todayChallenge;
     activeChallengeDate = TODAY_ISO;
     startLoading();
@@ -1949,13 +1956,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Nav bar back buttons — each screen has its own behaviour
   [
-    ['#screen-home',      () => { window.location.href = '../../GamePage.html'; }],
-    ['#screen-loading',   () => GameUtils.navigateTo('home')],
-    ['#overlay-tutorial', () => GameUtils.navigateTo('home')],
+    ['#screen-home',      () => { SoundUtils.play('btn-tap'); window.location.href = '../../GamePage.html'; }],
+    ['#screen-loading',   () => { SoundUtils.play('btn-tap'); GameUtils.navigateTo('home'); }],
+    ['#overlay-tutorial', () => { SoundUtils.play('btn-tap'); GameUtils.navigateTo('home'); }],
     ['#screen-gameplay',  () => { if (timerObj.isRunning()) timerObj.pause(); GameUtils.openPopup('popup-exit'); }],
   ].forEach(([scope, handler]) =>
     document.querySelector(`${scope} .home-nav-bar__start`)?.addEventListener('click', handler)
   );
+
+  // Home nav bar icon buttons (share, heart, feedback)
+  ['db-home-icon-share', 'db-home-icon-heart', 'db-home-icon-feedback',
+   'db-loading-icon-share', 'db-loading-icon-heart', 'db-loading-icon-feedback',
+   'db-tut-icon-share', 'db-tut-icon-heart', 'db-tut-icon-feedback',
+  ].forEach(id => document.getElementById(id)?.addEventListener('click', () => SoundUtils.play('btn-tap')));
 
   // Exit popup
   document.getElementById('db-btn-exit-confirm').addEventListener('click', () => { SoundUtils.play('btn-tap'); Music.stop(); GameUtils.closePopup('popup-exit'); GameUtils.navigateTo('home'); });
@@ -1976,6 +1989,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Tutorial next / finish
   document.getElementById('db-tut-next').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     if (tutorialStep < TUTORIAL_STEPS.length - 1) showTutorialStep(++tutorialStep);
     else closeTutorial();
   });
@@ -2068,6 +2082,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('db-game-icon-hint-close').addEventListener('click', e => {
     e.stopPropagation();
+    SoundUtils.play('btn-tap');
     clearTimeout(hintTimeout);
     clearHintHighlights();
     document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');

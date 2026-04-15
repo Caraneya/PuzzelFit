@@ -61,11 +61,15 @@ const SoundUtils = (() => {
     },
 
     // Fire a sound by id. Pass extras to override default extras.
+    // If the AudioContext is still suspended (browser autoplay policy),
+    // waits for resume() to resolve before scheduling — eliminates first-tap delay.
     play(id, extras = {}) {
       if (!_enabled) return;
       const s = _registry[id];
       if (!s) return;
-      s.fn(s.params, { ...s.extras, ...extras }, synth, seq);
+      const ctx  = getCtx();
+      const fire = () => s.fn(s.params, { ...s.extras, ...extras }, synth, seq);
+      if (ctx.state === 'running') { fire(); } else { ctx.resume().then(fire); }
     },
 
     setEnabled(on) { _enabled = !!on; },

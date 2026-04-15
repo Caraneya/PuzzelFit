@@ -330,8 +330,10 @@ const GameUtils = {
     const next = document.getElementById(`${prefix}-cal-next`);
     if (prev) prev.addEventListener('click', () => { let y = viewYear, m = viewMonth - 1; if (m < 0) { m = 11; y--; } navCal(y, m, 'prev'); });
     if (next) next.addEventListener('click', () => { let y = viewYear, m = viewMonth + 1; if (m > 11) { m = 0; y++; } navCal(y, m, 'next'); });
-    Icons.render(document.getElementById(`${prefix}-cal-prev`),   'chevronLeft',  { size: 'md', color: 'primary' });
-    Icons.render(document.getElementById(`${prefix}-cal-next`),   'chevronLeft',  { size: 'md', color: 'primary' });
+    Icons.render(document.getElementById(`${prefix}-cal-prev`), 'chevronLeft', { size: 'md', color: 'primary' });
+    const calNextEl = document.getElementById(`${prefix}-cal-next`);
+    Icons.render(calNextEl, 'chevronLeft', { size: 'md', color: 'primary' });
+    if (calNextEl.firstElementChild) calNextEl.firstElementChild.style.transform = 'scaleX(-1)';
     Icons.render(document.getElementById(`${prefix}-cal-trophy`), 'trophyBronze', { size: 'md' });
     renderCal();
     if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()));
@@ -358,20 +360,23 @@ const GameUtils = {
       });
     }
     function triggerStarRipple(filled) {
+      // Stagger outward from the clicked star (index filled-1) so it animates first.
+      // This gives immediate feedback on the tapped star instead of a 120ms lag.
       stars.forEach((btn, i) => {
         if (!btn || i >= filled) return;
         btn.classList.remove('form-star--ripple');
         void btn.offsetWidth;
-        btn.style.setProperty('--star-index', i);
+        btn.style.setProperty('--star-index', (filled - 1) - i);
         btn.classList.add('form-star--ripple');
       });
     }
     stars.forEach((btn, i) => {
       if (!btn) return;
       btn.addEventListener('click', () => {
-        rating = i < rating ? i : i + 1;
+        // Tap current top star → clear; tap any other star → set to that level
+        rating = (i + 1 === rating) ? 0 : i + 1;
         renderStars(rating);
-        triggerStarRipple(rating);
+        if (rating > 0) triggerStarRipple(rating);
       });
     });
     renderStars(rating);

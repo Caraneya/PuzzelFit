@@ -308,9 +308,12 @@ html, body {
 
 /* ── FROZEN CELL ── */
 .db-cell--frozen {
-  background: var(--color-primary-dark);
+  background: #51C4C4;
   border-color: transparent;
   cursor: not-allowed;
+}
+.db-cell--frozen .db-sentinel-icon {
+  width: 42%; height: 42%;
 }
 
 /* ── FLIP DIE ── */
