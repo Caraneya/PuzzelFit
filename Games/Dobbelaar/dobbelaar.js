@@ -313,7 +313,6 @@ let parkedDice    = [];  // [{value}]  0–2 items
 let parkedRotDeg  = 0;   // cumulative degrees
 let isMerging        = false;
 let hintTimeout      = null;
-let parkingIdleTimer = null;
 
 // ── MODIFIER STATE ───────────────────────────────────────────
 // wildDice modifier: wild dice appear randomly, always alone, min 1 / max 3 per game
@@ -478,18 +477,6 @@ const PARKING_SVG = `<svg viewBox="0 0 29 34" fill="none" xmlns="http://www.w3.o
   <path d="M0 33.2308V0H13.8462C18.4154 0 22.0154 1.24616 24.5077 3.73846C27 6.23077 28.2462 9.41539 28.2462 13.2923C28.2462 17.1692 27 20.3538 24.5077 22.8462C22.0154 25.3385 18.4154 26.5846 13.8462 26.5846H7.75385V33.2308H0ZM7.75385 19.9385H13.2923C15.6462 19.9385 17.4462 19.2462 18.6923 17.8615C19.9385 16.4769 20.5615 15.0923 20.5615 13.2923C20.5615 11.4923 19.9385 10.1077 18.6923 8.72308C17.4462 7.33846 15.6462 6.64615 13.2923 6.64615H7.75385V19.9385Z" fill="currentColor"/>
 </svg>`;
 
-function resetParkingIdle() {
-  clearTimeout(parkingIdleTimer);
-  parkingIdleTimer = null;
-  document.getElementById('db-parking')?.classList.remove('db-parking--idle');
-}
-function scheduleParkingIdle() {
-  resetParkingIdle();
-  if (!parkedDice.length) return;
-  parkingIdleTimer = setTimeout(() => {
-    document.getElementById('db-parking')?.classList.add('db-parking--idle');
-  }, 10000);
-}
 
 function renderParking() {
   const slot = document.getElementById('db-parking');
@@ -497,15 +484,13 @@ function renderParking() {
   slot.innerHTML = `<div class="db-tray-empty">${PARKING_SVG}</div>`;
 
   if (!parkedDice.length) {
-    slot.classList.remove('db-parking--idle', 'db-parking--catch');
-    resetParkingIdle();
+    slot.classList.remove('db-parking--catch');
     return;
   }
 
   const inner = buildTrayInner(parkedDice, parkedRotDeg, 'parking');
   slot.appendChild(inner);
   bindDraggables(slot);
-  scheduleParkingIdle();
 }
 
 // ── BUILD TRAY INNER ─────────────────────────────────────────
@@ -600,6 +585,13 @@ function doPlace(cells, dicesToPlace) {
   if (activeChallenge.modifier === 'flipDice')     applyFlipEffects(cells);
   if (activeChallenge.modifier === 'diseasedDice') applyDiseasedEffects(cells);
   renderBoard();
+  cells.forEach(([r, c]) => {
+    const el = document.querySelector(`#db-board-grid [data-row="${r}"][data-col="${c}"]`);
+    if (el) {
+      el.classList.add('db-cell--land');
+      el.addEventListener('animationend', () => el.classList.remove('db-cell--land'), { once: true });
+    }
+  });
   SoundUtils.play('die-place');
   setTimeout(() => triggerMergeCheck(), TIMING.MERGE_1);
 }
@@ -620,7 +612,6 @@ function placeFromParking(row, col) {
   const info = getPlacementInfo(row, col, parkedDice, parkedRotDeg);
   if (!canPlace(info.cells)) return false;
   const { cells, dicesToPlace } = info;
-  resetParkingIdle();
   parkedDice = [];
   renderParking();
   doPlace(cells, dicesToPlace);
@@ -712,7 +703,6 @@ function handleParkDrop() {
 function handleParkToSpawnerDrop() {
   // User dragged FROM parking and dropped ON spawner
   if (!parkedDice.length) return;
-  resetParkingIdle();
   SoundUtils.play('die-park');
   if (!spawnerDice.length) {
     // One-way: update instantly
@@ -783,8 +773,15 @@ function triggerMergeCheck() {
 
   isMerging = true;
 
+  const grid = document.getElementById('db-board-grid');
+  grid?.style.setProperty('--chain-depth', chainDepth);
+  const depthClass = chainDepth >= 2 ? 'db-cell--merging--chain-3' : chainDepth === 1 ? 'db-cell--merging--chain-2' : null;
   groups.forEach(({ group }) =>
-    group.forEach(([r, c]) => cellEl(r, c)?.classList.add('db-cell--merging'))
+    group.forEach(([r, c]) => {
+      const el = cellEl(r, c);
+      el?.classList.add('db-cell--merging');
+      if (depthClass) el?.classList.add(depthClass);
+    })
   );
 
   setTimeout(() => {
@@ -799,8 +796,9 @@ function triggerMergeCheck() {
     groups.forEach(({ group, value }) => {
       const sum      = value * group.length;
       const gMult    = group.length >= 5 ? 2 : group.length === 4 ? 1.5 : 1;
+      const vMult    = value >= 6 ? 1.3 : value === 5 ? 1.2 : value === 4 ? 1.1 : 1;
       const hasHot   = group.some(([r, c]) => hotZoneCells.has(r * GRID_COLS + c));
-      const bonusMult = gMult * (hasHot ? 2 : 1);
+      const bonusMult = gMult * vMult * (hasHot ? 2 : 1);
       const groupEarned = Math.round(sum * bonusMult * sMult);
 
       earned += groupEarned;
@@ -827,7 +825,7 @@ function triggerMergeCheck() {
       }
 
       const [fr, fc] = group[Math.floor(group.length / 2)];
-      floatScore(fr, fc, `+${groupEarned}`);
+      floatScore(fr, fc, `+${groupEarned}`, chainDepth);
 
       // Determine reward word for this group
       let groupWord = null;
@@ -849,12 +847,34 @@ function triggerMergeCheck() {
     }
 
     updateScoreBar();
+
+    // Board shake on deep chain
+    if (chainDepth >= 3) {
+      const gridEl = document.getElementById('db-board-grid');
+      if (gridEl) {
+        gridEl.classList.add('db-board--shake');
+        gridEl.addEventListener('animationend', () => gridEl.classList.remove('db-board--shake'), { once: true });
+      }
+    }
+
+    // Frozen cell spread / thaw — fires once per merge wave
+    // A "6-merge" means sum === 6 (e.g. three 2s, two 3s) — produces a 6-die
+    const sixSumGroup = groups.find(({ group, value }) => value * group.length === 6);
+    if (sixSumGroup) {
+      const [pr, pc] = sixSumGroup.group[Math.floor(sixSumGroup.group.length / 2)];
+      thawClosestCluster(pr, pc);
+    } else if (spreadFrozenCell()) {
+      return; // board frozen out — triggerLose already called
+    }
+
     renderBoard();
 
     // Show reward word if a notable group was resolved and enough dice merged
     if (waveWord && !rewardWordShownThisTurn && turnMergedDiceCount >= 5) {
       showRewardWord(waveWord);
       rewardWordShownThisTurn = true;
+    } else if (chainDepth >= 2 && !waveWord) {
+      showRewardWord(`Chain ×${chainDepth}`);
     }
 
     // Merge SFX — fired once per wave based on what resolved
@@ -912,6 +932,7 @@ function onTurnEnd() {
 
   if (checkWin()) return;
   if (checkLose()) return;
+  if (checkDiseasedLose()) return;
   if (!spawnerDice.length) {
     spawnDice();
     // After spawning, verify the player has at least one valid placement.
@@ -929,12 +950,14 @@ function onTurnEnd() {
 }
 
 // ── FLOATING SCORE ───────────────────────────────────────────
-function floatScore(r, c, text) {
+function floatScore(r, c, text, depth = 0) {
   const el = cellEl(r, c);
   if (!el) return;
   const rect = el.getBoundingClientRect();
   const div  = document.createElement('div');
   div.className = 'db-float-score';
+  if (depth >= 2) div.classList.add('db-float-score--chain-2');
+  else if (depth === 1) div.classList.add('db-float-score--chain-1');
   div.textContent = text;
   div.style.cssText = `left:${rect.left + rect.width / 2}px;top:${rect.top}px`;
   document.body.appendChild(div);
@@ -982,6 +1005,7 @@ function triggerWin(reason = 'score') {
       countdownEl.textContent = timeUntilNextChallenge();
     }, 1000);
   }
+  document.getElementById('sheet-win').dataset.difficulty = activeChallenge.difficulty || '';
   setTimeout(() => GameUtils.openSheet('sheet-win'), TIMING.SHEET_OPEN);
 }
 
@@ -1008,6 +1032,8 @@ const LOSE_COPY = {
   'timer':      { title: "Time's up!",          reason: 'You ran out of time.' },
   'merges':     { title: 'Merge limit reached!',reason: 'You used all your merges before reaching the target.' },
   'bomb':       { title: 'Boom!',               reason: 'A bomb detonated on your board.' },
+  'frozen':     { title: 'Frozen out!',         reason: 'The ice spread too far — no room left to grow.' },
+  'diseased':   { title: 'Infected!',           reason: 'The disease spread — no safe cells left to place.' },
 };
 
 function triggerLose(reason = 'board-full') {
@@ -1033,6 +1059,23 @@ function checkLose() {
   const full = board.every(row => row.every(v => v !== 0));
   if (full) { triggerLose('board-full'); return true; }
   return false;
+}
+
+// Diseased lose: every empty cell is adjacent to at least one diseased die → nowhere safe to place
+function checkDiseasedLose() {
+  if (activeChallenge.modifier !== 'diseasedDice') return false;
+  for (let r = 0; r < GRID_ROWS; r++) {
+    for (let c = 0; c < GRID_COLS; c++) {
+      if (board[r][c] !== 0) continue;
+      const safe = DIRS.every(([dr, dc]) => {
+        const nr = r + dr, nc = c + dc;
+        return nr < 0 || nr >= GRID_ROWS || nc < 0 || nc >= GRID_COLS || board[nr][nc] !== DISEASED_DIE;
+      });
+      if (safe) return false; // found at least one uncontaminated empty cell
+    }
+  }
+  triggerLose('diseased');
+  return true;
 }
 
 // Returns true if dice can be placed somewhere in any horizontal or vertical orientation
@@ -1491,6 +1534,73 @@ function placeFrozenCells(count) {
   }
 }
 
+// Frozen cell spread / thaw ──────────────────────────────────
+function getFrozenCells() {
+  const cells = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === FROZEN_CELL) cells.push([r, c]);
+  return cells;
+}
+
+// Freeze the empty cell nearest (Manhattan) to any frozen cell.
+// Returns true if a lose was triggered (no empty cells left).
+function spreadFrozenCell() {
+  const frozen = getFrozenCells();
+  if (!frozen.length) return false;
+  const empty = [];
+  for (let r = 0; r < GRID_ROWS; r++)
+    for (let c = 0; c < GRID_COLS; c++)
+      if (board[r][c] === 0) empty.push([r, c]);
+  if (!empty.length) { triggerLose('frozen'); return true; }
+  let bestEmpty = null, bestDist = Infinity;
+  for (const [fr, fc] of frozen) {
+    for (const [er, ec] of empty) {
+      const d = Math.abs(er - fr) + Math.abs(ec - fc);
+      if (d < bestDist) { bestDist = d; bestEmpty = [er, ec]; }
+    }
+  }
+  board[bestEmpty[0]][bestEmpty[1]] = FROZEN_CELL;
+  return false;
+}
+
+// Remove the entire frozen cluster closest (Manhattan) to the merge centre.
+function thawClosestCluster(pr, pc) {
+  const frozen = getFrozenCells();
+  if (!frozen.length) return;
+  // Build connected clusters via BFS
+  const visited = new Set();
+  const clusters = [];
+  for (const [r, c] of frozen) {
+    const key = r * GRID_COLS + c;
+    if (visited.has(key)) continue;
+    const cluster = [];
+    const queue = [[r, c]];
+    visited.add(key);
+    while (queue.length) {
+      const [cr, cc] = queue.shift();
+      cluster.push([cr, cc]);
+      for (const [dr, dc] of [[-1,0],[1,0],[0,-1],[0,1]]) {
+        const nr = cr + dr, nc = cc + dc;
+        const nkey = nr * GRID_COLS + nc;
+        if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS
+            && board[nr][nc] === FROZEN_CELL && !visited.has(nkey)) {
+          visited.add(nkey);
+          queue.push([nr, nc]);
+        }
+      }
+    }
+    clusters.push(cluster);
+  }
+  // Pick the cluster whose nearest cell is closest to (pr, pc)
+  let bestCluster = null, bestDist = Infinity;
+  for (const cluster of clusters) {
+    const d = Math.min(...cluster.map(([r, c]) => Math.abs(r - pr) + Math.abs(c - pc)));
+    if (d < bestDist) { bestDist = d; bestCluster = cluster; }
+  }
+  if (bestCluster) bestCluster.forEach(([r, c]) => { board[r][c] = 0; });
+}
+
 // Flip dice: random positions (removed when triggered)
 function placeFlipDice(count) {
   const empty = [];
@@ -1639,14 +1749,14 @@ function describeGoal(ch) {
     }
     case 'frozenCell': {
       const n = ch.modValue;
-      mechanic = ` <strong>${n}</strong> <span class="db-inline-cell db-cell--frozen" aria-hidden="true">${SVG_FROZEN}</span> frozen cell${n > 1 ? 's' : ''} are locked solid. You cannot place dice on them.`;
+      mechanic = ` <strong>${n}</strong> <span class="db-inline-cell db-cell--frozen" aria-hidden="true">${SVG_FROZEN}</span> frozen cell${n > 1 ? 's' : ''} spread every merge — creeping toward the nearest empty cell. Merge <strong>6 dice at once</strong> to destroy the closest ice cluster. If the board fills up, you lose.`;
       break;
     }
     case 'flipDice':
       mechanic = ` <span class="db-inline-cell db-cell--flip" aria-hidden="true">${SVG_FLIP}</span> Flip dice sit on the board. Place a die next to one and it inverts all its neighbours' values (7 minus the die value), then vanishes.`;
       break;
     case 'bombDice':
-      mechanic = ` A <span class="db-inline-cell db-cell--bomb" aria-hidden="true"></span> bomb is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down. When it hits zero, it detonates and you lose.`;
+      mechanic = ` A <span class="db-inline-cell db-cell--bomb" aria-hidden="true">${SVG_BOMB}</span> bomb is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down. When it hits zero, it detonates and you lose.`;
       break;
     case 'diseasedDice':
       mechanic = ` <span class="db-inline-cell db-cell--diseased" aria-hidden="true">${SVG_DISEASED}</span> Diseased dice infect any die you place next to them, forcing its value to 6. Plan your placements carefully.`;
@@ -1720,7 +1830,6 @@ function startLoading() {
 
   spawnerDice = []; parkedDice = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
-  resetParkingIdle();
   setTimeout(() => {
     GameUtils.navigateTo('gameplay');
     timerObj?.reset();
@@ -1811,6 +1920,7 @@ function buildHomeWeek() {
 // ── INIT ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
 
+  GameUtils.navigateTo('home');
   GameUtils.initBtnPress();
   // Pre-warm AudioContext so it's ready before the first tap (avoids first-sound delay).
   SoundUtils.getCtx();
@@ -1862,6 +1972,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ['db-stt-icon-howto',        'question',       'md',   'primary'],
     ['db-stt-icon-stats',        'stairs',         'md',   'primary'],
     ['db-stt-icon-bible',        'book',           'md',   'primary'],
+    ['db-stt-icon-reset-level',  'refresh',        'md',   'primary'],
   ].forEach(([id, name, size, color]) => {
     const el = document.getElementById(id);
     if (el) Icons.render(el, name, color ? { size, color } : { size });
@@ -2032,6 +2143,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-stt-btn-howto').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', openTutorial));
   document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => { renderStats(); GameUtils.openSheet('sheet-stats'); }));
   document.getElementById('db-stt-btn-bible').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
+  document.getElementById('db-stt-btn-reset-level').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', startLoading, TIMING.NAV_DELAY); });
   document.getElementById('db-btn-save-settings').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
   document.getElementById('db-btn-reset-settings').addEventListener('click', () => {
     setHand('right');
@@ -2047,9 +2159,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Win / lose actions
   document.getElementById('db-win-btn-share').addEventListener('click', () => GameUtils.showToast('db-toast', 'Sharing…'));
-  document.getElementById('db-win-btn-home').addEventListener('click',  () => { clearInterval(winCountdownInterval); GameUtils.switchSheet('sheet-win',  () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
-  document.getElementById('db-lose-btn-retry').addEventListener('click', () => GameUtils.switchSheet('sheet-lose', startLoading, TIMING.NAV_DELAY));
-  document.getElementById('db-lose-btn-home').addEventListener('click',  () => GameUtils.switchSheet('sheet-lose', () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY));
+  document.getElementById('db-win-btn-home').addEventListener('click',  () => { SoundUtils.play('btn-tap'); clearInterval(winCountdownInterval); GameUtils.switchSheet('sheet-win',  () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
+  document.getElementById('db-lose-btn-retry').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-lose', startLoading, TIMING.NAV_DELAY); });
+  document.getElementById('db-lose-btn-home').addEventListener('click',  () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-lose', () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
 
   // Calendar Play button — plays the selected day's challenge
   document.getElementById('db-cal-btn').addEventListener('click', () => {

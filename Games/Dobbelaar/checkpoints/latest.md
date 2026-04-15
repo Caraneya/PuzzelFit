@@ -5,61 +5,62 @@ saved: 2026-04-15
 ---
 
 ## Goal
-Improve visual interactivity across Dobbelaar and the shared component system — entry animations, gameplay events, and a scaled win celebration. Work is split into Phase 1 (general/components.css), Phase 2 (Dobbelaar gameplay animations, TBD).
+Phase 2 Dobbelaar gameplay animations are complete. Chain merge visual system is fully implemented. Next focus is any remaining polish — SFX gaps, big group flash, or new features.
 
 ## Decisions
-- Phase 1 = general animations in `components.css` + `tokens.css` + `game-utils.js`; Phase 2 = Dobbelaar gameplay events (TBD)
-- `--scale-press: 0.85` token; `.btn:active` snaps instantly, 60ms hold before bounce release
-- Overlay popups: zoom in from `scale(0.85)` on open, reverse on close
-- Sheet list badges: stagger zoom-in (pop) when sheet opens, delays 300–900ms
-- Calendar month nav: slide left/right + wave day entry using `--day-index` CSS var; day animation only fires on nav (not on tap)
-- Stats numbers: count-up via `GameUtils.countUp()` — fires 380ms after sheet opens (waits for slide-in)
-- Feedback stars: ripple wave outward from tapped star using `--star-index` CSS var
-- Home screen: icon float-in + loop pulse (3s), title fade, CTA slide-up, week section lift, rows stagger at nth-child 1/3/5/7/9/11 (interleaved with dividers)
-- Win sheet: `.sheet-overlay--win` class; title zooms from `scale(0.6)`, `data-difficulty="hard"` triggers overshoot bounce; body fades staggered
-- Lose sheet: `.sheet-overlay--lose` class; title + body slide-up staggered
-- Win SVG: `db-win-flag-assembly` wraps box + pole + chart + arrow so they jump together; notebook animates independently
+- Phase 1 general animations complete; Phase 2 gameplay animations complete
+- `db-cell--land`: 220ms scale bounce on placement
+- `db-hot-pulse`: 1.8s infinite amber glow on hot zone cells
+- Parking idle pulse removed — too distracting
+- Value multiplier: die 4=×1.1, 5=×1.2, 6=×1.3 in `bonusMult`
+- Frozen spread: nearest empty cell globally (Manhattan), lose only when zero empty cells remain
+- 6-sum merge: destroys entire closest ice cluster (BFS), not one cell
+- Home entry animation fires via `navigateTo('home')` in DOMContentLoaded — not on HTML parse
+- Chain animations:
+  - `--chain-depth` CSS var set on `#db-board-grid` before each wave
+  - Wave 2: amber ring (`db-cell--merging--chain-2`) + bigger score pop
+  - Wave 3+: red/hot ring (`db-cell--merging--chain-3`) + largest score pop + board shake
+  - "Chain ×N" reward word on chainDepth ≥ 2, only if no waveWord (Jackpot/High roller/Loaded) fired
+  - Board shake: `@keyframes db-board-shake` 220ms, class `db-board--shake` removed on `animationend`
+  - Score pop: `db-float-score--chain-1` (h3) for wave 2, `db-float-score--chain-2` (h2) for wave 3+
 
 ## Work completed
-- `tokens.css` — `--scale-press: 0.85` added
-- `components.css`:
-  - `.btn:active` uses `--scale-press`, `transition-delay: 0ms` on press, `60ms` hold on release
-  - `.modal` zoom-in from `scale(0.85)` on open
-  - `@keyframes badge-pop` + stagger on `.sheet__list-badge` (7 levels)
-  - Calendar: `cal-slide-from-right/left`, `cal-day-wave` with `--day-index`, `overflow: hidden` on `.cal-month`
-  - Star ripple: `star-pulse` keyframe, `.form-star--ripple` with `--star-index` stagger
-  - Home entry: `home-float-in`, `home-fade-in`, `home-slide-up`, `home-lift`, `home-row-in`, `home-icon-pulse` (looping)
-  - Win/lose sheet animations: `sheet-title-zoom`, `sheet-title-zoom-bounce` (hard), `sheet-body-fade`, `sheet-slide-up-fade`
-- `game-utils.js`:
-  - `renderCal(dir)` — sets `--day-index` on each day; clears flip class at start; re-adds on nav
-  - `navCal(y, m, dir)` + nav buttons pass `'prev'`/`'next'`
-  - `triggerStarRipple(filled)` — stagger ripple on filled stars after click
-  - `countUp(el, target, duration, format)` — general count-up utility
-- `dobbelaar.html`:
-  - `sheet-overlay--win` class on `#sheet-win`
-  - `sheet-overlay--lose` class on `#sheet-lose`
-  - Win SVG restructured: `db-win-flag-assembly` wraps box + pole + chart + arrow; notebook moved outside
+- `tokens.css` — `--scale-press: 0.85`
+- `components.css` — full Phase 1 animation system; home entry scoped to `.proto-screen.is-active`
+- `game-utils.js` — `initBtnPress()`, `triggerStarRipple()`, `countUp()`, `renderCal(dir)`, calendar flip
+- `dobbelaar.html` — `.sheet-overlay--win/.--lose`; win SVG restructured; `is-active` removed from home screen
 - `dobbelaar.css`:
-  - `db-win-flag-assembly` added with `transform-origin: center bottom`
-  - Jump animation moved from `.db-win-box` to `.db-win-flag-assembly`; box keeps entrance only
+  - Win assembly jump; parking idle removed
+  - `@keyframes db-cell-land` + `.db-cell--land`
+  - `@keyframes db-hot-pulse` on `.db-cell--hot-zone`
+  - `.db-cell--merging--chain-2/3` glow rings
+  - `@keyframes db-board-shake` + `.db-board--shake`
+  - `.db-float-score--chain-1/2` larger font sizes
 - `dobbelaar.js`:
-  - `renderStats()` rewritten — resets numeric stats to `0`, counts up after 380ms delay
+  - `triggerWin()` — sets `dataset.difficulty` on `#sheet-win`
+  - `doPlace()` — `db-cell--land` on placed cells
+  - `triggerMergeCheck()` — `--chain-depth` var, depth classes on merging cells, board shake, chain reward word, `vMult` value bonus, `thawClosestCluster()`
+  - `floatScore(r, c, text, depth)` — depth param drives chain size classes
+  - `thawClosestCluster()` — BFS flood-fill cluster destroy
+  - `spreadFrozenCell()` — global nearest-empty spread
+  - Parking idle fully removed
+  - `DOMContentLoaded` — `navigateTo('home')` as first call
 
 ## Open threads
-- Phase 2: Dobbelaar gameplay animations (die land, merge flash, score pop, reward word entrance, hot zone pulse)
-- Win celebration scaling by difficulty: CSS hooks in place (`data-difficulty="hard"`), but `dobbelaar.js` does not yet set this attribute on `#sheet-win` when triggering win
-- Stats `db-stat-totaltime` does not count-up (formatted time — skipped intentionally)
+- No SFX for streak milestone or hot zone hit
+- Big group flash (4+ dice) not yet implemented — could add a distinct brightness spike on top of chain ring
+- Stats `db-stat-totaltime` does not count-up (intentional)
 
 ## Constraints
 - Sine/triangle waveforms only for SFX
-- No hardcoded hex/px outside SVG illustration paths — tokens only
-- `game-utils.js` changes must remain backward-compatible
-- `sound-utils.js` / `music-utils.js` are pure audio — no game logic
-- `triggerWin` double-fire guard (`if (chainWon) return`) must stay
+- No hardcoded hex/px outside SVG illustration paths — tokens only (frozen cell bg `#51C4C4` intentional exception)
+- `game-utils.js` backward-compatible
+- `animation-fill-mode: both` on all entry animations
+- `sound-utils.js` / `music-utils.js` pure audio — no game logic
+- `triggerWin` double-fire guard must stay
 - Hot zones use a separate Set (not a board sentinel)
-- Reward words only fire when `turnMergedDiceCount >= 5`
-- CSS animations: use `animation-fill-mode: both` for entry animations
-- Calendar day wave only plays on month navigation (not on day tap)
+- Chain reward word only shows if no waveWord (Jackpot/High roller/Loaded) fired that wave
+- Button press animation on button element only — icon flips on icon child
 
 ## Next step
-Wire `data-difficulty` onto `#sheet-win` in `dobbelaar.js` when `triggerWin()` fires — read `ch.difficulty` from the active challenge and set it as an attribute on the sheet before `openSheet('sheet-win')` is called. Then begin Phase 2 gameplay animations.
+Decide what's next: SFX for hot zone hits / streak milestones, big group flash (4+ dice brightness spike), or a new feature. No immediate code debt.

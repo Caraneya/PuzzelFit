@@ -412,14 +412,6 @@ html, body {
   animation: db-hint-pulse 1s ease-in-out infinite;
 }
 
-/* Parking idle reminder — amber pulse after dice sit idle for a few seconds */
-@keyframes db-parking-idle {
-  0%, 100% { border-color: color-mix(in srgb, var(--color-warning) 70%, var(--color-text-secondary)); box-shadow: none; }
-  50%       { border-color: var(--color-warning); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-warning) 22%, transparent); }
-}
-.db-parking--idle {
-  animation: db-parking-idle 1.4s ease-in-out infinite;
-}
 
 /* Parking catch — bounce when a die is first stashed */
 @keyframes db-parking-catch {
@@ -452,6 +444,34 @@ html, body {
 }
 .db-cell--merging .db-die {
   animation: db-merge 0.32s var(--easing-bounce) forwards;
+}
+/* Chain depth glow rings */
+.db-cell--merging--chain-2 {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-warning) 70%, transparent);
+}
+.db-cell--merging--chain-3 {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-error) 80%, transparent);
+}
+/* Board shake on deep chain */
+@keyframes db-board-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-4px); }
+  40%       { transform: translateX(4px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(2px); }
+}
+.db-board--shake {
+  animation: db-board-shake 220ms ease-out both;
+}
+
+/* ── DIE LAND (placement bounce) ── */
+@keyframes db-cell-land {
+  0%   { transform: scale(1.2); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.db-cell--land {
+  animation: db-cell-land 220ms ease-out both;
 }
 
 /* ── POP-IN (new merged die) ── */
@@ -501,11 +521,17 @@ html, body {
   transform: translate(-50%, -44px);
   opacity: 0;
 }
+.db-float-score--chain-1 { font-size: var(--font-size-h3); }
+.db-float-score--chain-2 { font-size: var(--font-size-h2); }
 
 /* ── HOT-ZONE CELL ── */
+@keyframes db-hot-pulse {
+  0%, 100% { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+  50%       { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 70%, transparent), 0 0 6px color-mix(in srgb, var(--color-accent) 35%, transparent); }
+}
 .db-cell--hot-zone {
   border-color: var(--color-accent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent);
+  animation: db-hot-pulse 1.8s ease-in-out infinite;
 }
 /* Tint background only when the cell is empty (no die covering it) */
 .db-cell--hot-zone:not(:has(.db-die)):not(.db-cell--null):not(.db-cell--frozen):not(.db-cell--bomb):not(.db-cell--diseased):not(.db-cell--flip) {
