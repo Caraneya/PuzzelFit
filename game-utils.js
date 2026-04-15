@@ -104,8 +104,9 @@ const GameUtils = {
     function start()     { if (running) return; running = true;  interval = setInterval(tick, 1000); Icons.render(iconEl, 'pause', { size: 'md' }); groupEl.setAttribute('aria-label', 'Pause'); }
     function pause()     { if (!running) return; running = false; clearInterval(interval);            Icons.render(iconEl, 'play',  { size: 'md' }); groupEl.setAttribute('aria-label', 'Play'); }
     function reset()     { pause(); seconds = countdownFrom ?? 0; render(seconds); }
-    function isRunning() { return running; }
-    return { start, pause, reset, isRunning };
+    function isRunning()  { return running; }
+    function getElapsed() { return countdownFrom !== null ? countdownFrom - seconds : seconds; }
+    return { start, pause, reset, isRunning, getElapsed };
   },
 
   // ── SHEET SCROLLBAR ─────────────────────────────────────────
@@ -160,36 +161,57 @@ const GameUtils = {
   },
 
   // ── STAT STREAK GRID ────────────────────────────────────────
-  buildStreakGrid(gridId) {
+  buildStreakGrid(gridId, completedDates) {
     const grid = document.getElementById(gridId);
     if (!grid) return;
+    const completed = completedDates instanceof Set ? completedDates : new Set();
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const mondayOffset = (today.getDay() + 6) % 7;
     const monday = new Date(today);
     monday.setDate(today.getDate() - mondayOffset);
 
+    function toISO(d) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
     grid.innerHTML = '';
-    let streak = 0;
     for (let i = 0; i < 7; i++) {
-      const d    = new Date(monday);
+      const d      = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const cell = document.createElement('div');
-      cell.className = 'cal-day';
-      if (d.getTime() === today.getTime()) {
-        cell.classList.add('cal-day--in-progress');
-        cell.innerHTML = String(d.getDate()) + this.CORNER_SVG;
-        streak++;
-      } else if (d < today) {
+      const cell   = document.createElement('div');
+      const iso    = toISO(d);
+      const isToday   = d.getTime() === today.getTime();
+      const isFuture  = d > today;
+      const isDone    = completed.has(iso);
+      cell.className  = 'cal-day';
+      if (isFuture) {
+        cell.classList.add('cal-day--unavailable');
+        cell.innerHTML = String(d.getDate());
+      } else if (isDone) {
         cell.classList.add('cal-day--completed');
         cell.innerHTML = this.CHECK_SVG;
-        streak++;
+      } else if (isToday) {
+        cell.classList.add('cal-day--in-progress');
+        cell.innerHTML = String(d.getDate()) + this.CORNER_SVG;
       } else {
-        cell.classList.add('cal-day--unavailable');
+        // Past day not completed — show number, no special class
         cell.innerHTML = String(d.getDate());
       }
       grid.appendChild(cell);
     }
+
+    // Compute actual streak: consecutive completed days ending at today (or yesterday if today not yet done)
+    let streak = 0;
+    const todayISO   = toISO(today);
+    const cursor     = new Date(completed.has(todayISO) ? today : new Date(today.getTime() - 86400000));
+    const walk       = new Date(cursor);
+    while (completed.has(toISO(walk))) {
+      streak++;
+      walk.setDate(walk.getDate() - 1);
+    }
+
     const title = grid.closest('.stat-streak')?.querySelector('.stat-streak__title');
     if (title) title.textContent = `${streak} Daily streak`;
   },
@@ -302,6 +324,11 @@ const GameUtils = {
     if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()));
     return {
       resetToToday() { navCal(TODAY.getFullYear(), TODAY.getMonth()); },
+      // Re-render calendar with an updated completed-dates set (call after markDateCompleted)
+      refresh(newSet) {
+        if (newSet instanceof Set) { completedSet.clear(); newSet.forEach(d => completedSet.add(d)); }
+        renderCal();
+      },
     };
   },
 

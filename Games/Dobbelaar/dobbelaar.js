@@ -214,6 +214,59 @@ function markDateCompleted(iso) {
   localStorage.setItem('db-completed', JSON.stringify([...s]));
 }
 
+// ── GAME HISTORY ─────────────────────────────────────────────
+function getGameHistory() {
+  try { return JSON.parse(localStorage.getItem('db-game-history') || '[]'); }
+  catch { return []; }
+}
+function saveGameHistory(h) {
+  localStorage.setItem('db-game-history', JSON.stringify(h));
+}
+// Upsert one record per date. Win beats loss; of two wins, keep best score.
+function recordGameResult(won) {
+  const seconds = timerObj?.getElapsed() ?? 0;
+  const h = getGameHistory();
+  const idx = h.findIndex(r => r.date === activeChallengeDate);
+  if (idx === -1) {
+    h.push({ date: activeChallengeDate, won, score, seconds });
+  } else {
+    const existing = h[idx];
+    // Replace if: new win over a loss, or better score on same win/lose status
+    if ((!existing.won && won) || (existing.won === won && score > existing.score)) {
+      h[idx] = { date: activeChallengeDate, won, score, seconds };
+    }
+  }
+  saveGameHistory(h);
+}
+function computeStreak(completedDates) {
+  const toISO = d => d.toISOString().slice(0, 10);
+  const today = new Date();
+  const todayISO = toISO(today);
+  const walk = new Date(completedDates.has(todayISO) ? today : new Date(today.getTime() - 86400000));
+  let streak = 0;
+  while (completedDates.has(toISO(walk))) { streak++; walk.setDate(walk.getDate() - 1); }
+  return streak;
+}
+function fmtTime(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+function renderStats() {
+  const h = getGameHistory();
+  const played = h.length;
+  const wins   = h.filter(r => r.won);
+  const streak = computeStreak(getCompletedDates());
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('db-stat-played',    played || '—');
+  set('db-stat-streak',    streak || '—');
+  set('db-stat-winrate',   played ? Math.round(wins.length / played * 100) + '%' : '—');
+  set('db-stat-best',      wins.length ? Math.max(...wins.map(r => r.score)) : '—');
+  set('db-stat-avg',       played ? Math.round(h.reduce((s, r) => s + r.score, 0) / played) : '—');
+  set('db-stat-totaltime', played ? fmtTime(h.reduce((s, r) => s + r.seconds, 0)) : '—');
+}
+
 // ── TIMING ───────────────────────────────────────────────────
 const TIMING = {
   MERGE_1:          30,   // delay before first merge check after placement
@@ -242,8 +295,9 @@ let spawnerDice   = [];  // [{value}]  1–2 items
 let spawnerRotDeg = 0;   // cumulative degrees (multiples of 90)
 let parkedDice    = [];  // [{value}]  0–2 items
 let parkedRotDeg  = 0;   // cumulative degrees
-let isMerging     = false;
-let hintTimeout   = null;
+let isMerging        = false;
+let hintTimeout      = null;
+let parkingIdleTimer = null;
 
 // ── MODIFIER STATE ───────────────────────────────────────────
 // wildDice modifier: wild dice appear randomly, always alone, min 1 / max 3 per game
@@ -408,16 +462,34 @@ const PARKING_SVG = `<svg viewBox="0 0 29 34" fill="none" xmlns="http://www.w3.o
   <path d="M0 33.2308V0H13.8462C18.4154 0 22.0154 1.24616 24.5077 3.73846C27 6.23077 28.2462 9.41539 28.2462 13.2923C28.2462 17.1692 27 20.3538 24.5077 22.8462C22.0154 25.3385 18.4154 26.5846 13.8462 26.5846H7.75385V33.2308H0ZM7.75385 19.9385H13.2923C15.6462 19.9385 17.4462 19.2462 18.6923 17.8615C19.9385 16.4769 20.5615 15.0923 20.5615 13.2923C20.5615 11.4923 19.9385 10.1077 18.6923 8.72308C17.4462 7.33846 15.6462 6.64615 13.2923 6.64615H7.75385V19.9385Z" fill="currentColor"/>
 </svg>`;
 
+function resetParkingIdle() {
+  clearTimeout(parkingIdleTimer);
+  parkingIdleTimer = null;
+  document.getElementById('db-parking')?.classList.remove('db-parking--idle');
+}
+function scheduleParkingIdle() {
+  resetParkingIdle();
+  if (!parkedDice.length) return;
+  parkingIdleTimer = setTimeout(() => {
+    document.getElementById('db-parking')?.classList.add('db-parking--idle');
+  }, 10000);
+}
+
 function renderParking() {
   const slot = document.getElementById('db-parking');
   if (!slot) return;
   slot.innerHTML = `<div class="db-tray-empty">${PARKING_SVG}</div>`;
 
-  if (!parkedDice.length) return;
+  if (!parkedDice.length) {
+    slot.classList.remove('db-parking--idle', 'db-parking--catch');
+    resetParkingIdle();
+    return;
+  }
 
   const inner = buildTrayInner(parkedDice, parkedRotDeg, 'parking');
   slot.appendChild(inner);
   bindDraggables(slot);
+  scheduleParkingIdle();
 }
 
 // ── BUILD TRAY INNER ─────────────────────────────────────────
@@ -532,6 +604,7 @@ function placeFromParking(row, col) {
   const info = getPlacementInfo(row, col, parkedDice, parkedRotDeg);
   if (!canPlace(info.cells)) return false;
   const { cells, dicesToPlace } = info;
+  resetParkingIdle();
   parkedDice = [];
   renderParking();
   doPlace(cells, dicesToPlace);
@@ -580,16 +653,28 @@ function flyDisplacedDie(fromSlotId, toSlotId, onComplete) {
 }
 
 // ── PARKING SWAP ─────────────────────────────────────────────
+function triggerParkingCatch() {
+  const slot = document.getElementById('db-parking');
+  if (!slot) return;
+  slot.classList.remove('db-parking--catch');
+  // Force reflow so re-adding the class restarts the animation
+  void slot.offsetWidth;
+  slot.classList.add('db-parking--catch');
+  setTimeout(() => slot.classList.remove('db-parking--catch'), 400);
+}
+
 function handleParkDrop() {
   // User dragged FROM spawner and dropped ON parking
   if (!spawnerDice.length) return;
   SoundUtils.play('die-park');
-  if (!parkedDice.length) {
+  const wasEmpty = !parkedDice.length;
+  if (wasEmpty) {
     // One-way: ghost already shows movement — update instantly
     parkedDice   = spawnerDice.slice();
     parkedRotDeg = spawnerRotDeg;
     spawnerDice  = [];
     renderParking();
+    triggerParkingCatch();
     spawnDice();
   } else {
     // Full swap: null out hiddenInner NOW so onPointerUp's restore doesn't
@@ -611,6 +696,7 @@ function handleParkDrop() {
 function handleParkToSpawnerDrop() {
   // User dragged FROM parking and dropped ON spawner
   if (!parkedDice.length) return;
+  resetParkingIdle();
   SoundUtils.play('die-park');
   if (!spawnerDice.length) {
     // One-way: update instantly
@@ -703,11 +789,23 @@ function triggerMergeCheck() {
 
       earned += groupEarned;
       merges++;
+      // Warn player when merge budget is running low
+      if (activeChallenge.modifier === 'maxMerges') {
+        const remaining = activeChallenge.modValue - merges;
+        if (remaining === 5 || remaining === 3) {
+          SoundUtils.play('toast');
+          GameUtils.showToast('db-toast', `Only ${remaining} merge${remaining === 1 ? '' : 's'} left!`, 3000);
+        }
+      }
       turnMergedDiceCount += group.length;
       group.forEach(([r, c]) => { board[r][c] = 0; });
 
       if (sum <= 6) {
-        const [r0, c0] = group[0];
+        // Place the result at the bottom-left-most cell: feels like the die
+        // settles where the player's last placement landed (outward, down-left).
+        const [r0, c0] = group.reduce((best, [r, c]) =>
+          r > best[0] || (r === best[0] && c < best[1]) ? [r, c] : best
+        );
         board[r0][c0] = sum;
         newDice.push([r0, c0]);
       }
@@ -842,12 +940,22 @@ function timeUntilNextChallenge() {
 }
 
 let winCountdownInterval = null;
+let calCtrl              = null; // set in DOMContentLoaded, used by triggerWin
 
 function triggerWin(reason = 'score') {
   if (chainWon) return; // guard against double-fire
   chainWon = true;
-  markDateCompleted(activeChallengeDate);
   timerObj?.pause();
+  recordGameResult(true);
+  markDateCompleted(activeChallengeDate);
+  // Refresh calendar, streak grid, and home week list so the completed day turns green immediately
+  const freshCompleted = getCompletedDates();
+  calCtrl?.refresh(freshCompleted);
+  GameUtils.buildStreakGrid('db-stat-streak-grid', freshCompleted);
+  buildHomeWeek();
+  // Win button label: today's challenge → "Play again", past challenge → "Back to Home"
+  const winHomeBtnEl = document.getElementById('db-win-btn-home');
+  if (winHomeBtnEl) winHomeBtnEl.textContent = activeChallengeDate === TODAY_ISO ? 'Play again' : 'Back to Home';
   SoundUtils.play('win-' + reason);
   Music.winFlourish();
   const countdownEl = document.getElementById('db-win-countdown');
@@ -879,13 +987,29 @@ function checkWin() {
   return false;
 }
 
+const LOSE_COPY = {
+  'board-full': { title: "Board's full!",      reason: 'No more dice can be placed.' },
+  'timer':      { title: "Time's up!",          reason: 'You ran out of time.' },
+  'merges':     { title: 'Merge limit reached!',reason: 'You used all your merges before reaching the target.' },
+  'bomb':       { title: 'Boom!',               reason: 'A bomb detonated on your board.' },
+};
+
 function triggerLose(reason = 'board-full') {
   timerObj?.pause();
+  recordGameResult(false);
   // bomb-detonate already played its own sound; all other lose reasons get a sound
   if (reason !== 'bomb') SoundUtils.play('lose-' + reason);
   Music.stop();
-  const el = document.getElementById('db-lose-score');
-  if (el) el.textContent = score;
+  const copy = LOSE_COPY[reason] || LOSE_COPY['board-full'];
+  const sheetEl  = document.getElementById('sheet-lose');
+  const titleEl  = document.getElementById('db-lose-title');
+  const reasonEl = document.getElementById('db-lose-reason');
+  const scoreEl  = document.getElementById('db-lose-score');
+  // Set data-reason before openSheet so CSS picks up the right illustration
+  if (sheetEl)  sheetEl.dataset.reason = reason;
+  if (titleEl)  titleEl.textContent  = copy.title;
+  if (reasonEl) reasonEl.textContent = copy.reason;
+  if (scoreEl)  scoreEl.textContent  = score;
   setTimeout(() => GameUtils.openSheet('sheet-lose'), TIMING.SHEET_OPEN);
 }
 
@@ -1079,6 +1203,7 @@ function updateDropHighlight(x, y) {
     }
   }
 }
+
 
 function clearHighlights() {
   document.querySelectorAll('.db-cell--ok, .db-cell--no').forEach(el =>
@@ -1289,9 +1414,25 @@ function onCalDaySelect(iso) {
 function rebuildTimer(ch) {
   timerObj?.pause();
   let opts = {};
+  let timerToast30Shown = false;
+  let timerToast10Shown = false;
   const timerOnTick = (s) => {
-    if (s <= 10 && s > 0) { SoundUtils.play('timer-low'); Music.setTension(true); }
-    else if (s > 10)        SoundUtils.play('timer-tick');
+    if (s <= 10 && s > 0) {
+      SoundUtils.play('timer-low');
+      Music.setTension(true);
+      if (!timerToast10Shown) {
+        SoundUtils.play('toast');
+        GameUtils.showToast('db-toast', 'Last 10 seconds!', 8500);
+        timerToast10Shown = true;
+      }
+    } else if (s > 10) {
+      SoundUtils.play('timer-tick');
+      if (s === 30 && !timerToast30Shown) {
+        SoundUtils.play('toast');
+        GameUtils.showToast('db-toast', '30 seconds remaining!', 3000);
+        timerToast30Shown = true;
+      }
+    }
   };
   if (ch.modifier === 'timer') {
     opts = { countdown: ch.modValue, onExpire: () => { if (score < SCORE_TARGET) triggerLose('timer'); }, onTick: timerOnTick };
@@ -1538,6 +1679,9 @@ function startLoading() {
 
   GameUtils.navigateTo('loading');
   score = 0; merges = 0; isMerging = false;
+  // Reset lose sheet so next game starts with the board-full illustration
+  const loseSheetEl = document.getElementById('sheet-lose');
+  if (loseSheetEl) loseSheetEl.dataset.reason = 'board-full';
   updateScoreBar();
   initBoard();
 
@@ -1559,6 +1703,7 @@ function startLoading() {
 
   spawnerDice = []; parkedDice = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
+  resetParkingIdle();
   setTimeout(() => {
     GameUtils.navigateTo('gameplay');
     timerObj?.reset();
@@ -1703,13 +1848,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Shared utilities
-  const calCtrl = GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
+  calCtrl = GameUtils.initCalendar('db', { completedDates: getCompletedDates(), onDaySelect: onCalDaySelect });
   GameUtils.initFeedbackForm('db');
   GameUtils.initHomeDate('db');
   const homeDateEl = document.getElementById('db-home-date');
   if (homeDateEl) homeDateEl.textContent += ' · ' + todayChallenge.label;
   buildHomeWeek();
-  GameUtils.buildStreakGrid('db-stat-streak-grid');
+  GameUtils.buildStreakGrid('db-stat-streak-grid', getCompletedDates());
 
   // Sheet scrollbars
   GameUtils.initSheetScrollbar('db-instr-wrap',    'db-instr-thumb');
@@ -1823,6 +1968,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       if (timerObj?.isRunning()) timerObj.pause();
       if (btn.dataset.sheet === 'sheet-calendar') calCtrl.resetToToday();
+      if (btn.dataset.sheet === 'sheet-stats') renderStats();
       GameUtils.openSheet(btn.dataset.sheet);
     })
   );
@@ -1853,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Settings shortcuts
   document.getElementById('db-stt-btn-howto').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', openTutorial));
-  document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => GameUtils.openSheet('sheet-stats')));
+  document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => { renderStats(); GameUtils.openSheet('sheet-stats'); }));
   document.getElementById('db-stt-btn-bible').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
   document.getElementById('db-btn-save-settings').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
   document.getElementById('db-btn-reset-settings').addEventListener('click', () => {

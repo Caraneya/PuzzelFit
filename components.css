@@ -139,7 +139,7 @@
 }
 
 .btn:active {
-  transform: scale(0.96) translateY(1px);
+  transform: scale(var(--scale-press));
 }
 
 .btn:disabled,

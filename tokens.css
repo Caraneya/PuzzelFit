@@ -225,6 +225,7 @@
   --easing-sharp:      cubic-bezier(0.4, 0, 0.6, 1);
   --easing-out:        cubic-bezier(0.0, 0, 0.2, 1);
   --easing-in:         cubic-bezier(0.4, 0, 1, 1);
+  --scale-press:       0.95;
 
   /* ── LAYOUT / Z-INDEX ── */
   --min-touch-target:  44px;

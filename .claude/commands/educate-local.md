@@ -6,7 +6,7 @@ The checkpoint label is: $ARGUMENTS (use "latest" if empty)
 
 ## What to do
 
-1. Ask the user: "Which game do you want to resume?" and wait for the answer. Use Bash `ls Games/` to confirm the folder exists and get the correct casing.
+1. Run `ls Games/` via Bash first. Capture the output — these are the real game folders. Do NOT invent or assume game names. Use the `AskUserQuestion` tool with the question "Which game do you want to resume?" and build the options array directly from the `ls` output: take the first 4 folders (label = exact folder name from `ls`, description = `Games/{name}/`). The tool adds "Other" automatically for any remaining games. Wait for the answer before continuing.
 
 2. Read the file `Games/{GameName}/checkpoints/$ARGUMENTS.md` (substitute "latest" if $ARGUMENTS is empty).
    - If the file does not exist, tell the user: "No checkpoint found at `Games/{GameName}/checkpoints/$ARGUMENTS.md`. Run `/checkpoint-local` first to save one." Then stop.

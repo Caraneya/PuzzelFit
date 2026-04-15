@@ -408,6 +408,28 @@ html, body {
 .db-tray-slot--hint {
   animation: db-hint-pulse 1s ease-in-out infinite;
 }
+
+/* Parking idle reminder — amber pulse after dice sit idle for a few seconds */
+@keyframes db-parking-idle {
+  0%, 100% { border-color: color-mix(in srgb, var(--color-warning) 70%, var(--color-text-secondary)); box-shadow: none; }
+  50%       { border-color: var(--color-warning); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-warning) 22%, transparent); }
+}
+.db-parking--idle {
+  animation: db-parking-idle 1.4s ease-in-out infinite;
+}
+
+/* Parking catch — bounce when a die is first stashed */
+@keyframes db-parking-catch {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.1); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+.db-parking--catch .db-tray-inner {
+  animation: db-parking-catch 0.35s var(--easing-bounce) forwards;
+}
+
+
 .db-hint-rotate-badge {
   position: absolute;
   top: var(--space-2);
@@ -1788,12 +1810,52 @@ html, body {
   transform-origin: center;
 }
 .db-lose-hand { transform-box: fill-box; transform-origin: center top; }
+.db-lose-merges-bar,
+.db-lose-merges-die1, .db-lose-merges-die2, .db-lose-merges-die3,
+.db-lose-timer-scene {
+  transform-box: fill-box;
+  transform-origin: center;
+}
 
+/* Scene visibility: board-full is default, others hidden */
+.db-lose-timer-scene,
+.db-lose-merges-scene  { display: none; }
+
+#sheet-lose[data-reason="timer"]  .db-lose-board-scene  { display: none; }
+#sheet-lose[data-reason="timer"]  .db-lose-timer-scene  { display: block; }
+#sheet-lose[data-reason="merges"] .db-lose-board-scene  { display: none; }
+#sheet-lose[data-reason="merges"] .db-lose-merges-scene { display: block; }
+
+/* Entrance animations — board-full scene */
 #sheet-lose.is-open .db-lose-board-bottom { animation: db-lose-board-in 0.45s ease-out                       0.10s both; }
 #sheet-lose.is-open .db-lose-stairs       { animation: db-lose-board-in 0.45s ease-out                       0.20s both; }
 #sheet-lose.is-open .db-lose-board-top    { animation: db-lose-board-in 0.45s ease-out                       0.30s both; }
 #sheet-lose.is-open .db-lose-hand         { animation: db-lose-hand-in  0.60s cubic-bezier(0.34,1.56,0.64,1) 0.50s both; }
 
+/* Entrance animations — timer scene */
+#sheet-lose.is-open .db-lose-timer-scene  { animation: db-lose-board-in 0.55s ease-out 0.10s both; }
+
+/* Entrance animations — merges scene */
+#sheet-lose.is-open .db-lose-merges-bar   { animation: db-lose-board-in 0.45s ease-out 0.05s both; }
+#sheet-lose.is-open .db-lose-merges-die1  { animation: db-lose-board-in 0.45s ease-out 0.18s both; }
+#sheet-lose.is-open .db-lose-merges-die2  { animation: db-lose-board-in 0.45s ease-out 0.30s both; }
+#sheet-lose.is-open .db-lose-merges-die3  { animation: db-lose-board-in 0.45s ease-out 0.42s both; }
+
+/* Looping idle float after entrance (starts at 1.2s for all scenes) */
+#sheet-lose[data-reason="board-full"].is-open .db-illus-svg,
+#sheet-lose[data-reason="merges"].is-open     .db-illus-svg,
+#sheet-lose[data-reason="bomb"].is-open       .db-illus-svg {
+  animation: db-lose-float 3s ease-in-out 1.2s infinite;
+}
+/* Timer float runs faster — conveys urgency even in defeat */
+#sheet-lose[data-reason="timer"].is-open .db-illus-svg {
+  animation: db-lose-float 1.8s ease-in-out 1.2s infinite;
+}
+
+@keyframes db-lose-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
 @keyframes db-lose-board-in {
   from { transform: translateY(12px); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -1828,11 +1890,14 @@ html, body {
 /* ── REDUCED MOTION OVERRIDES ── */
 @media (prefers-reduced-motion: reduce) {
   .db-win-chart, .db-win-box, .db-win-notebook, .db-win-arrow,
-  .db-lose-board-top, .db-lose-stairs, .db-lose-board-bottom, .db-lose-hand {
+  .db-lose-board-top, .db-lose-stairs, .db-lose-board-bottom, .db-lose-hand,
+  .db-lose-timer-scene, .db-lose-merges-bar,
+  .db-lose-merges-die1, .db-lose-merges-die2, .db-lose-merges-die3 {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
+  #sheet-lose .db-illus-svg { animation: none !important; }
   #sheet-pause.is-open .sheet__illustration svg { animation: none; }
   .db-pause-eye { animation: none !important; transform: none !important; }
 }
