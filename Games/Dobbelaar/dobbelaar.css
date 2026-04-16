@@ -280,6 +280,7 @@ html, body {
   border-radius: 2px;
   flex-shrink: 0;
   overflow: hidden;
+  margin-top: var(--space-1);
 }
 
 /* ── SENTINEL ICON (shared by all board modifier cells) ── */
@@ -372,6 +373,7 @@ html, body {
   border-color: transparent;
   cursor: not-allowed;
 }
+.db-cell--diseased svg path { fill: white; }
 
 /* ── WILD DIE ── */
 .db-die--wild {
@@ -380,6 +382,30 @@ html, body {
 }
 .db-die--wild svg {
   width: 60%; height: 60%;
+}
+
+/* Badge-sized inline cell — matches sheet__list-badge at 28×28px */
+.db-inline-cell--badge {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* Wrapper for the special dice section */
+.db-instr-dice-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Section label between instruction lists */
+.db-instr-section-label {
+  font-size: var(--font-size-subtitle);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: var(--line-height-normal);
 }
 
 /* Wild die inline chip (goal description text) */
@@ -396,8 +422,17 @@ html, body {
   border-color: var(--color-accent);
 }
 .db-cell--no {
-  background: color-mix(in srgb, var(--color-error) 22%, transparent);
   border-color: var(--color-error);
+}
+.db-cell--no::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-error) 22%, transparent);
+  pointer-events: none;
+}
+.db-cell--no:is(.db-cell--null, .db-cell--frozen, .db-cell--bomb, .db-cell--diseased, .db-cell--flip)::after {
+  display: none;
 }
 
 /* ── HINT HIGHLIGHT ── */

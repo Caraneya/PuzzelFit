@@ -822,6 +822,12 @@
   pointer-events: none;
 }
 
+/* Today's date cell — skyblue background + bold number */
+.cal-day--today {
+  background: var(--color-sky-blue);
+  font-weight: var(--weight-bold);
+}
+
 /* Today info row — sits below .cal-card inside .sheet__list-wrap */
 .cal-info {
   display: grid;
@@ -975,10 +981,16 @@
   .stt-toggle { --toggle-inactive: #636366; }
   .cal-info__sep { background: var(--color-text-secondary); }
   .cal-info__badge-icon { background: rgba(0, 0, 0, 0.4); }
+  .cal-day--completed { background: var(--color-green); color: white; }
+  .cal-day__check { color: white; }
+  .cal-day--today { color: black; }
 }
 [data-theme="dark"] .stt-toggle { --toggle-inactive: #636366; }
 [data-theme="dark"] .cal-info__sep { background: var(--color-text-secondary); }
 [data-theme="dark"] .cal-info__badge-icon { background: rgba(0, 0, 0, 0.4); }
+[data-theme="dark"] .cal-day--completed { background: var(--color-success); color: white; }
+[data-theme="dark"] .cal-day__check { color: white; }
+[data-theme="dark"] .cal-day--today { color: black; }
 
 .stt-toggle input {
   position: absolute;

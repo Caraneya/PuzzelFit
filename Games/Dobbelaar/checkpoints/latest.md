@@ -1,66 +1,60 @@
 ---
 label: latest
 game: Dobbelaar
-saved: 2026-04-15
+saved: 2026-04-16
 ---
 
 ## Goal
-Phase 2 Dobbelaar gameplay animations are complete. Chain merge visual system is fully implemented. Next focus is any remaining polish — SFX gaps, big group flash, or new features.
+Polish and balance Dobbelaar based on playtesting feedback — fix bugs, improve UX, and make mechanics fair and understandable.
 
 ## Decisions
-- Phase 1 general animations complete; Phase 2 gameplay animations complete
-- `db-cell--land`: 220ms scale bounce on placement
-- `db-hot-pulse`: 1.8s infinite amber glow on hot zone cells
-- Parking idle pulse removed — too distracting
-- Value multiplier: die 4=×1.1, 5=×1.2, 6=×1.3 in `bonusMult`
-- Frozen spread: nearest empty cell globally (Manhattan), lose only when zero empty cells remain
-- 6-sum merge: destroys entire closest ice cluster (BFS), not one cell
-- Home entry animation fires via `navigateTo('home')` in DOMContentLoaded — not on HTML parse
-- Chain animations:
-  - `--chain-depth` CSS var set on `#db-board-grid` before each wave
-  - Wave 2: amber ring (`db-cell--merging--chain-2`) + bigger score pop
-  - Wave 3+: red/hot ring (`db-cell--merging--chain-3`) + largest score pop + board shake
-  - "Chain ×N" reward word on chainDepth ≥ 2, only if no waveWord (Jackpot/High roller/Loaded) fired
-  - Board shake: `@keyframes db-board-shake` 220ms, class `db-board--shake` removed on `animationend`
-  - Score pop: `db-float-score--chain-1` (h3) for wave 2, `db-float-score--chain-2` (h2) for wave 3+
+- Bomb ticks on every merge wave (not per turn, not per placement)
+- Bomb fuse values bumped: chainGoal → 10, scoreTarget → 8, surviveTimer → 10
+- Diseased lose condition: all empty cells adjacent to a diseased die → triggerLose('diseased')
+- Reset level in settings overflow + pause sheet
+- Calendar button text by state: "Resume playing" / "Play again" (secondary) / "Play today" / "Play Xth of Month"
+- `playingDate` tracks active game date; calendar opens on it when gameActive
+- `cal-day--today`: skyblue + bold globally; dark mode: text black, tick white, colors same as light
+- `inProgressDate` in calCtrl — corner only on actively played date; cleared on win/lose
+- Diseased infection: die destroyed (board → 0) — exploit fix; flavor texts updated to match
+- Bomb: `!isMerging` guard removed — always triggers lose
+- Diseased dice: min Manhattan distance 3 at placement; fallback if board too full
+- Diseased skull: `fill: white` in CSS
+- Merge result: lands on `lastPlacedCells` if in group; cascades propagate it forward; fallback bottom-left
+- Info sheet: second sheet__list for special dice — 28×28 badge cells, SVGs injected by JS; wrapped in `db-instr-dice-section` with `padding: var(--space-2)`
+- Challenge balance audit completed — 6 challenges retuned (see Work completed)
+- Chain bugs + mechanic redesign deprioritised — tackle last
 
 ## Work completed
-- `tokens.css` — `--scale-press: 0.85`
-- `components.css` — full Phase 1 animation system; home entry scoped to `.proto-screen.is-active`
-- `game-utils.js` — `initBtnPress()`, `triggerStarRipple()`, `countUp()`, `renderCal(dir)`, calendar flip
-- `dobbelaar.html` — `.sheet-overlay--win/.--lose`; win SVG restructured; `is-active` removed from home screen
-- `dobbelaar.css`:
-  - Win assembly jump; parking idle removed
-  - `@keyframes db-cell-land` + `.db-cell--land`
-  - `@keyframes db-hot-pulse` on `.db-cell--hot-zone`
-  - `.db-cell--merging--chain-2/3` glow rings
-  - `@keyframes db-board-shake` + `.db-board--shake`
-  - `.db-float-score--chain-1/2` larger font sizes
-- `dobbelaar.js`:
-  - `triggerWin()` — sets `dataset.difficulty` on `#sheet-win`
-  - `doPlace()` — `db-cell--land` on placed cells
-  - `triggerMergeCheck()` — `--chain-depth` var, depth classes on merging cells, board shake, chain reward word, `vMult` value bonus, `thawClosestCluster()`
-  - `floatScore(r, c, text, depth)` — depth param drives chain size classes
-  - `thawClosestCluster()` — BFS flood-fill cluster destroy
-  - `spreadFrozenCell()` — global nearest-empty spread
-  - Parking idle fully removed
-  - `DOMContentLoaded` — `navigateTo('home')` as first call
+- `tokens.css` — `--color-border` dark mode → `#636366`
+- `dobbelaar.html` — pause/settings reset buttons; special dice list in info sheet with `db-instr-dice-section` wrapper
+- `dobbelaar.css` — tint to `::after`; skull `fill: white`; `db-inline-cell--badge` 28×28; `db-instr-dice-section` + `db-instr-section-label` styles
+- `dobbelaar.js` — `gameActive`, `playingDate`, `lastPlacedCells`; calendar wired; `checkDiseasedLose`; bomb fix; disease destroy; min-distance placement; merge result positioning; SVG icon injection for info sheet
+- `game-utils.js` — `cal-day--today` class; `selectDate` + `setInProgressDate` on calCtrl; `inProgressDate` replaces hardcoded today→in-progress
+- `components.css` — `cal-day--today` skyblue + bold; dark mode overrides for tick + today text + completed cell
+- `dobbelaar-challenges.js` — 6 challenges retuned:
+  - 03-19 "Ticking Bomb": surviveTimer → scoreTarget, 315 → 280
+  - 03-20 "Spreading Fast": 420 → 300, flavor updated
+  - 03-21 "Frozen Fury": frozenCell 4 → 2
+  - 03-27 "Contagion": 315 → 220, flavor updated
+  - 04-03 "Fever Pitch": 440 → 320, flavor updated
+  - 04-17 "Viral Spread": 315 → 220, flavor updated
 
 ## Open threads
-- No SFX for streak milestone or hot zone hit
-- Big group flash (4+ dice) not yet implemented — could add a distinct brightness spike on top of chain ring
-- Stats `db-stat-totaltime` does not count-up (intentional)
+- Hints don't account for mechanics — full rewrite, separate session
+- Game loses all progress on theme change — investigate separately
+- Chain residue bug: after 3×1d merge → 3, adjacent 3-cluster doesn't fully consume (deprioritised)
+- Chain mechanic: improve explanation + decide if chainGoal needs redesign (deprioritised)
 
 ## Constraints
-- Sine/triangle waveforms only for SFX
-- No hardcoded hex/px outside SVG illustration paths — tokens only (frozen cell bg `#51C4C4` intentional exception)
-- `game-utils.js` backward-compatible
+- Bomb tick inside merge wave resolution only
+- `triggerWin` double-fire guard must stay (chainWon flag)
+- No hardcoded hex/px outside SVG illustration paths — tokens only
 - `animation-fill-mode: both` on all entry animations
 - `sound-utils.js` / `music-utils.js` pure audio — no game logic
-- `triggerWin` double-fire guard must stay
-- Hot zones use a separate Set (not a board sentinel)
-- Chain reward word only shows if no waveWord (Jackpot/High roller/Loaded) fired that wave
 - Button press animation on button element only — icon flips on icon child
+- Hot zones use a separate Set (not a board sentinel)
+- Chain reward word only shows if no waveWord fired that wave
 
 ## Next step
-Decide what's next: SFX for hot zone hits / streak milestones, big group flash (4+ dice brightness spike), or a new feature. No immediate code debt.
+Hints rewrite — hints currently don't account for modifiers (disease, bomb, frozen, etc.). Read hint logic before touching anything.

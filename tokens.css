@@ -252,7 +252,7 @@
     --color-text-primary:       #F0FEFF;   /* Dark-DarkGreen (used as primary text on dark) */
     --color-text-secondary:     #D1D1D1;   /* Dark-LightGrey */
     --color-text-on-primary:    #1C1C1E;   /* Dark-Eggshell on bright elements */
-    --color-border:             #3A3A3C;
+    --color-border:             #636366;
     --color-overlay:            rgba(0, 0, 0, 0.80);
     --color-scrim:              rgba(240, 254, 255, 0.08);
     --color-surface-tooltip:    #4D4C4A;   /* Lighter charcoal for contrast on dark bg */
@@ -276,7 +276,7 @@
   --color-text-primary:       #F0FEFF;
   --color-text-secondary:     #D1D1D1;
   --color-text-on-primary:    #1C1C1E;
-  --color-border:             #3A3A3C;
+  --color-border:             #636366;
   --color-overlay:            rgba(0, 0, 0, 0.80);
   --color-scrim:              rgba(240, 254, 255, 0.08);
   --color-surface-tooltip:    #4D4C4A;

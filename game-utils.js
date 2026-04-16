@@ -225,6 +225,7 @@ const GameUtils = {
     const self         = this;
     const TODAY        = new Date();
     const completedSet = options.completedDates instanceof Set ? options.completedDates : new Set();
+    let inProgressDate = options.inProgressDate ?? null;
 
     let viewYear = TODAY.getFullYear(), viewMonth = TODAY.getMonth();
     let selYear  = viewYear, selMonth = viewMonth, selDay = TODAY.getDate();
@@ -241,7 +242,7 @@ const GameUtils = {
       const tod = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
       if (day > tod) return 'unavailable';
       if (completedSet.has(toISO(y, m, d))) return 'completed';
-      if (y === TODAY.getFullYear() && m === TODAY.getMonth() && d === TODAY.getDate()) return 'in-progress';
+      if (inProgressDate && toISO(y, m, d) === inProgressDate) return 'in-progress';
       return 'default';
     }
     function renderCal(dir) {
@@ -281,6 +282,8 @@ const GameUtils = {
         if (state === 'in-progress') cls.push('cal-day--in-progress');
         if (state === 'unavailable') cls.push('cal-day--unavailable');
         if (isSel)                   cls.push('cal-day--selected');
+        const isToday = (viewYear === TODAY.getFullYear() && viewMonth === TODAY.getMonth() && d === TODAY.getDate());
+        if (isToday)                 cls.push('cal-day--today');
         el.className = cls.join(' ');
         el.style.setProperty('--day-index', dayIndex++);
         if (state === 'completed')        el.innerHTML = self.CHECK_SVG;
@@ -339,6 +342,15 @@ const GameUtils = {
     if (typeof options.onDaySelect === 'function') options.onDaySelect(toISO(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate()));
     return {
       resetToToday() { navCal(TODAY.getFullYear(), TODAY.getMonth()); },
+      setInProgressDate(iso) { inProgressDate = iso ?? null; renderCal(); },
+      selectDate(iso) {
+        const [y, mo, d] = iso.split('-').map(Number);
+        const m = mo - 1;
+        viewYear = y; viewMonth = m;
+        selYear  = y; selMonth  = m; selDay = d;
+        renderCal();
+        if (typeof options.onDaySelect === 'function') options.onDaySelect(iso);
+      },
       // Re-render calendar with an updated completed-dates set (call after markDateCompleted)
       refresh(newSet) {
         if (newSet instanceof Set) { completedSet.clear(); newSet.forEach(d => completedSet.add(d)); }

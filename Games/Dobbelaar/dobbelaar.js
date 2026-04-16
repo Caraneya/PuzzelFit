@@ -38,6 +38,7 @@ const todayChallenge      = getTodayChallenge();
 const TODAY_ISO           = new Date().toISOString().slice(0, 10);
 let   activeChallenge     = todayChallenge;
 let   activeChallengeDate = TODAY_ISO;
+let   playingDate         = TODAY_ISO; // date of the currently active game (set when game starts)
 
 // ── SENTINEL VALUES ──────────────────────────────────────────
 const NULL_BLOCK   = -1;  // permanent grey blocker (placed randomly)
@@ -307,11 +308,13 @@ let timerObj      = null;
 let tutorialStep  = 0;
 let firstTimeUser = !sessionStorage.getItem('db-tutorialSeen');
 
+let lastPlacedCells = []; // cells most recently placed by player or merge result (for result positioning)
 let spawnerDice   = [];  // [{value}]  1–2 items
 let spawnerRotDeg = 0;   // cumulative degrees (multiples of 90)
 let parkedDice    = [];  // [{value}]  0–2 items
 let parkedRotDeg  = 0;   // cumulative degrees
 let isMerging        = false;
+let gameActive       = false; // true while gameplay screen is live (not won/lost/reset)
 let hintTimeout      = null;
 
 // ── MODIFIER STATE ───────────────────────────────────────────
@@ -395,7 +398,6 @@ function spawnDice() {
       wildSpawned++;
       spawnerDice = [{ value: WILD_DIE }];
       spawnerRotDeg = 0;
-      tickBombs();
       renderSpawner();
       return;
     }
@@ -403,7 +405,6 @@ function spawnDice() {
   const count = Math.random() < 0.35 ? 1 : 2;
   spawnerDice = Array.from({ length: count }, () => randomDie());
   spawnerRotDeg = 0;
-  tickBombs(); // decrement fuses; may trigger lose (before renderSpawner so board is fresh)
   renderSpawner();
 }
 
@@ -573,6 +574,7 @@ function canPlace(cells) {
 
 function doPlace(cells, dicesToPlace) {
   cells.forEach(([r, c], i) => { board[r][c] = dicesToPlace[i].value; });
+  lastPlacedCells = cells.slice();
   chainDepth = 0; // reset cascade counter for this new placement
   turnHadPlacement = true;
   turnHadMerge     = false;
@@ -815,9 +817,9 @@ function triggerMergeCheck() {
       group.forEach(([r, c]) => { board[r][c] = 0; });
 
       if (sum <= 6) {
-        // Place the result at the bottom-left-most cell: feels like the die
-        // settles where the player's last placement landed (outward, down-left).
-        const [r0, c0] = group.reduce((best, [r, c]) =>
+        // Prefer last placed cell if it's in this group; fallback to bottom-left-most
+        const lastMatch = group.find(([r, c]) => lastPlacedCells.some(([lr, lc]) => lr === r && lc === c));
+        const [r0, c0] = lastMatch ?? group.reduce((best, [r, c]) =>
           r > best[0] || (r === best[0] && c < best[1]) ? [r, c] : best
         );
         board[r0][c0] = sum;
@@ -839,6 +841,7 @@ function triggerMergeCheck() {
 
     score += earned;
     turnHadMerge = true;
+    tickBombs(); // bomb ticks on each merge — score vs. fuse tension
 
     // chainGoal: count this resolved wave
     chainDepth++;
@@ -900,6 +903,7 @@ function triggerMergeCheck() {
       return;
     }
 
+    if (newDice.length) lastPlacedCells = newDice.slice(); // cascade: next wave prefers this wave's result
     newDice.forEach(([r, c]) =>
       requestAnimationFrame(() => cellEl(r, c)?.classList.add('db-cell--pop'))
     );
@@ -984,6 +988,8 @@ let calCtrl              = null; // set in DOMContentLoaded, used by triggerWin
 function triggerWin(reason = 'score') {
   if (chainWon) return; // guard against double-fire
   chainWon = true;
+  gameActive = false;
+  calCtrl?.setInProgressDate(null);
   timerObj?.pause();
   recordGameResult(true);
   markDateCompleted(activeChallengeDate);
@@ -1037,6 +1043,8 @@ const LOSE_COPY = {
 };
 
 function triggerLose(reason = 'board-full') {
+  gameActive = false;
+  calCtrl?.setInProgressDate(null);
   timerObj?.pause();
   recordGameResult(false);
   // bomb-detonate already played its own sound; all other lose reasons get a sound
@@ -1461,13 +1469,23 @@ function onCalDaySelect(iso) {
     if (prefixEl) prefixEl.textContent = isToday ? 'Today,' : `${CAL_DAYS[d.getDay()]},`;
   }
 
-  const state = isFuture ? 'unavailable' : completed ? 'played' : isToday ? 'in-progress' : 'available';
+  const isInProgress = gameActive && iso === playingDate;
+  const state = isFuture ? 'unavailable' : isInProgress ? 'in-progress' : completed ? 'played' : 'available';
   if (badgeEl) badgeEl.dataset.state = state;
 
   const iconMap   = { easy: 'trophyBronze', medium: 'trophySilver', hard: 'trophyGold' };
   const pts = ch.winType === 'chainGoal' ? `${ch.target} chains` : `${ch.target} pts`;
   if (badgeTextEl) badgeTextEl.textContent = pts;
   if (trophyEl)    Icons.render(trophyEl, iconMap[ch.difficulty] ?? 'trophyBronze', { size: 'md' });
+
+  const calBtn = document.getElementById('db-cal-btn');
+  if (calBtn) {
+    calBtn.classList.toggle('btn--secondary', state === 'played');
+    if (state === 'in-progress') calBtn.textContent = 'Resume playing';
+    else if (state === 'played') calBtn.textContent = 'Play again';
+    else if (isToday)            calBtn.textContent = 'Play today';
+    else                         calBtn.textContent = `Play ${ordinal(d.getDate())} of ${MONTHS[d.getMonth()]}`;
+  }
 }
 
 // ── NAVIGATION ───────────────────────────────────────────────
@@ -1630,7 +1648,8 @@ function placeBombDice(fuse) {
   }
 }
 
-// Diseased dice: random positions (permanent, infect adjacents)
+// Diseased dice: random positions with minimum Manhattan distance between them
+const DISEASED_MIN_DIST = 3;
 function placeDiseasedDice(count) {
   const empty = [];
   for (let r = 0; r < GRID_ROWS; r++)
@@ -1640,7 +1659,21 @@ function placeDiseasedDice(count) {
     const j = Math.floor(Math.random() * (i + 1));
     [empty[i], empty[j]] = [empty[j], empty[i]];
   }
-  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = DISEASED_DIE; });
+  const placed = [];
+  const farEnough = ([r, c]) => placed.every(([pr, pc]) => Math.abs(r - pr) + Math.abs(c - pc) >= DISEASED_MIN_DIST);
+  // First pass: respect min distance
+  for (const cell of empty) {
+    if (placed.length >= count) break;
+    if (farEnough(cell)) placed.push(cell);
+  }
+  // Fallback: fill remaining without constraint
+  if (placed.length < count) {
+    for (const cell of empty) {
+      if (placed.length >= count) break;
+      if (!placed.includes(cell)) placed.push(cell);
+    }
+  }
+  placed.forEach(([r, c]) => { board[r][c] = DISEASED_DIE; });
 }
 
 // ── MODIFIER EFFECTS ─────────────────────────────────────────
@@ -1683,7 +1716,7 @@ function applyDiseasedEffects(placedCells) {
     for (const [dr, dc] of DIRS) {
       const nr = r + dr, nc = c + dc;
       if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === DISEASED_DIE) {
-        board[r][c] = 6; // infect!
+        board[r][c] = 0; // destroyed by disease
         SoundUtils.play('disease-infect');
         break;
       }
@@ -1700,7 +1733,7 @@ function tickBombs() {
       bombFuses.delete(key);
       const r = Math.floor(key / GRID_COLS), c = key % GRID_COLS;
       board[r][c] = 0;
-      if (!isMerging) detonateBomb(r, c); // only trigger lose when not mid-animation
+      detonateBomb(r, c);
       return; // handle one detonation at a time
     }
     bombFuses.set(key, newFuse);
@@ -1759,7 +1792,7 @@ function describeGoal(ch) {
       mechanic = ` A <span class="db-inline-cell db-cell--bomb" aria-hidden="true">${SVG_BOMB}</span> bomb is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down. When it hits zero, it detonates and you lose.`;
       break;
     case 'diseasedDice':
-      mechanic = ` <span class="db-inline-cell db-cell--diseased" aria-hidden="true">${SVG_DISEASED}</span> Diseased dice infect any die you place next to them, forcing its value to 6. Plan your placements carefully.`;
+      mechanic = ` <span class="db-inline-cell db-cell--diseased" aria-hidden="true">${SVG_DISEASED}</span> Diseased dice destroy any die you place next to them. Avoid placing adjacent — or lose that die.`;
       break;
     case 'wildDice': {
       const chipWild = `<span class="db-inline-cell db-inline-cell--wild" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg></span>`;
@@ -1778,6 +1811,7 @@ function describeGoal(ch) {
 }
 
 function startLoading() {
+  gameActive = false;
   Music.stop(); // stop any music from a previous round
   SCORE_TARGET      = scoreTargetFrom(activeChallenge);
   chainDepth        = 0;
@@ -1828,9 +1862,12 @@ function startLoading() {
     });
   }
 
-  spawnerDice = []; parkedDice = [];
+  spawnerDice = []; parkedDice = []; lastPlacedCells = [];
   spawnerRotDeg = 0; parkedRotDeg = 0;
   setTimeout(() => {
+    gameActive   = true;
+    playingDate  = activeChallengeDate;
+    calCtrl?.setInProgressDate(playingDate);
     GameUtils.navigateTo('gameplay');
     timerObj?.reset();
     renderBoard();
@@ -2109,7 +2146,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-sheet]').forEach(btn =>
     btn.addEventListener('click', () => {
       if (timerObj?.isRunning()) timerObj.pause();
-      if (btn.dataset.sheet === 'sheet-calendar') calCtrl.resetToToday();
+      if (btn.dataset.sheet === 'sheet-calendar') {
+        if (gameActive) calCtrl.selectDate(playingDate);
+        else calCtrl.resetToToday();
+      }
       if (btn.dataset.sheet === 'sheet-stats') renderStats();
       GameUtils.openSheet(btn.dataset.sheet);
     })
@@ -2119,10 +2159,25 @@ document.addEventListener('DOMContentLoaded', () => {
   GameUtils.initSheetDismiss(() => timerObj?.start());
 
   // Pause continue
+  document.getElementById('db-btn-pause-reset').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-pause', startLoading, TIMING.NAV_DELAY); });
   document.getElementById('db-btn-continue').addEventListener('click', () => { GameUtils.closeSheet('sheet-pause'); timerObj.start(); });
 
   // Instructions close
   document.getElementById('db-btn-close-info').addEventListener('click', () => { GameUtils.closeSheet('sheet-info'); timerObj?.start(); });
+
+  // Inject special dice icons into info sheet
+  const wildSVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg>`;
+  const infoIcons = {
+    'db-info-icon-wild':     wildSVG,
+    'db-info-icon-frozen':   SVG_FROZEN,
+    'db-info-icon-flip':     SVG_FLIP,
+    'db-info-icon-bomb':     `<div class="db-bomb-icon">${SVG_BOMB}</div>`,
+    'db-info-icon-diseased': SVG_DISEASED,
+  };
+  Object.entries(infoIcons).forEach(([id, html]) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  });
 
   // Stats close
   document.getElementById('db-btn-close-stats').addEventListener('click', () => { GameUtils.closeSheet('sheet-stats'); timerObj?.start(); });
@@ -2165,9 +2220,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Calendar Play button — plays the selected day's challenge
   document.getElementById('db-cal-btn').addEventListener('click', () => {
-    activeChallenge = CHALLENGES[activeChallengeDate] ?? DEFAULT_CHALLENGE;
-    GameUtils.closeSheet('sheet-calendar');
-    setTimeout(startLoading, 200);
+    const isInProgress = gameActive && activeChallengeDate === playingDate;
+    if (isInProgress) {
+      GameUtils.closeSheet('sheet-calendar');
+      timerObj?.start();
+    } else {
+      activeChallenge = CHALLENGES[activeChallengeDate] ?? DEFAULT_CHALLENGE;
+      GameUtils.closeSheet('sheet-calendar');
+      setTimeout(startLoading, 200);
+    }
   });
 
   // Feedback

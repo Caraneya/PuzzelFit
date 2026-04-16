@@ -528,6 +528,7 @@
         </svg>
       </div>
       <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-btn-pause-reset">Reset level</button>
         <button class="btn btn--primary" id="db-btn-continue">Continue playing</button>
       </div>
     </div>
@@ -576,6 +577,53 @@
               <span class="sheet__list-body">Chain merges across the whole grid for maximum points. Keep your streak alive by playing every day!</span>
             </div>
           </div>
+        </div>
+        <div class="db-instr-dice-section">
+        <p class="db-instr-section-label">Special dice</p>
+        <div class="sheet__list">
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-inline-cell--wild" id="db-info-icon-wild" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Wild</span>
+              <span class="sheet__list-body">Appears randomly in the spawner. Joins any merge group regardless of value, but cannot start a merge on its own.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-cell--null" id="db-info-icon-null" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Null block</span>
+              <span class="sheet__list-body">Permanently blocks a cell. You cannot place dice on it.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-cell--frozen" id="db-info-icon-frozen" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Frozen cell</span>
+              <span class="sheet__list-body">Spreads after every merge wave toward the nearest empty cell. Merge 6 dice at once to thaw the nearest cluster. Fills the board → you lose.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-cell--flip" id="db-info-icon-flip" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Flip die</span>
+              <span class="sheet__list-body">Place a die next to it and it inverts all its neighbours' values (7 minus the value), then vanishes.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-cell--bomb" id="db-info-icon-bomb" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Bomb</span>
+              <span class="sheet__list-body">Counts down with each merge wave. Hits zero → detonates → you lose.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="db-inline-cell db-inline-cell--badge db-cell--diseased" id="db-info-icon-diseased" aria-hidden="true"></span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Diseased die</span>
+              <span class="sheet__list-body">Destroys any die you place adjacent to it. Avoid placing next to it — the lost die counts against you.</span>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
       <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-instr-thumb"></div></div>
