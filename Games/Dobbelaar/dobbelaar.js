@@ -190,6 +190,15 @@ SoundUtils.register([
     fn(p, e, synth) {
       synth({ freq: p.freq, duration: p.duration, gain: p.gain, type: p.type, sweep: p.sweep, attack: 0.012 });
     } },
+  // Calendar day tap — completed day gets a quick positive chime (instead of btn-tap)
+  { id: 'cal-day-played', params: { freq: 700, duration: 0.05, gain: 0.12, type: 'sine' }, extras: {},
+    fn(p, e, synth, seq) {
+      const b = p.freq;
+      seq([
+        { freq: b,        duration: p.duration,       gain: p.gain,        type: p.type, attack: 0.003, delay: 0.00 },
+        { freq: b * 1.50, duration: p.duration * 1.1, gain: p.gain * 0.85, type: p.type, attack: 0.003, delay: 0.04 },
+      ]);
+    } },
 ]);
 
 // ── SENTINEL ICONS (inline SVG strings) ──────────────────────
@@ -338,6 +347,11 @@ let turnMergedDiceCount  = 0;    // total dice cleared this turn (across all wav
 
 // ── HOT-ZONE STATE ───────────────────────────────────────────
 let hotZoneCells = new Set(); // cellKey (r * GRID_COLS + c) of hot-zone cells
+
+// ── FROZEN-ORIGIN STATE ──────────────────────────────────────
+// Each frozen cell carries the originId of the spawn it grew from.
+// Spread picks a random origin each wave; thaw clears entries for removed cells.
+let frozenOrigins = new Map(); // cellKey (r * GRID_COLS + c) → originId (1..N)
 
 // ── DRAG STATE ───────────────────────────────────────────────
 // pending = pointerdown received, but hasn't moved past threshold yet
@@ -1289,14 +1303,35 @@ function simulateMergeCheck(cells, dicesToPlace) {
   return groups;
 }
 
-const HINT_TIPS = [
-  'Keep same-value dice close together to set up bigger merges.',
-  'Use the parking spot to hold a die while you set up a merge elsewhere.',
-  'A merge of three 2-dice creates a 6-die. A 6-die merge scores big and clears the board!',
-  'Rotating a pair before placing can open up merges in tight spots.',
-  'Merges that sum to ≤ 6 leave a new die behind — chain them for bonus points!',
-];
-let hintTipIndex = 0;
+// Modifier-aware scoring bonus for a candidate placement.
+// Positive = prefer. Negative = avoid. Raw = base merge pts for scaling.
+function modifierHintBonus(info, groups, raw) {
+  const mod = activeChallenge.modifier;
+  let bonus = 0;
+
+  if (mod === 'diseasedDice') {
+    const destroyed = info.cells.some(([r, c]) => DIRS.some(([dr, dc]) => {
+      const nr = r + dr, nc = c + dc;
+      return nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === DISEASED_DIE;
+    }));
+    if (destroyed) bonus -= 100000;
+  }
+
+  if (mod === 'bombDice' && groups.length && [...bombFuses.values()].some(f => f <= 1) && score < SCORE_TARGET) {
+    bonus -= 100000;
+  }
+
+  if (mod === 'frozenCell' && frozenOrigins.size > 0 && groups.some(g => g.value * g.group.length === 6)) {
+    bonus += 1000;
+  }
+
+  if (mod === 'hotZone' && hotZoneCells.size) {
+    const hitsHot = groups.some(g => g.group.some(([r, c]) => hotZoneCells.has(r * GRID_COLS + c)));
+    if (hitsHot) bonus += raw;
+  }
+
+  return bonus;
+}
 
 // Scan one set of dice for the highest-scoring immediate merge available.
 // Collects ALL tied-best placements, prefers those that need no rotation,
@@ -1305,7 +1340,7 @@ function bestMergeForDice(dice, source) {
   const currentRot = canonicalRot(source === 'spawner' ? spawnerRotDeg : parkedRotDeg);
   const rots = dice.length === 1 ? [0] : [0, 90, 180, 270];
 
-  // Gather every valid merge placement with its score
+  // Gather every valid merge placement with its score (plus modifier-aware bonus)
   const all = [];
   for (const rot of rots) {
     for (let r = 0; r < GRID_ROWS; r++) {
@@ -1314,15 +1349,17 @@ function bestMergeForDice(dice, source) {
         if (!canPlace(info.cells)) continue;
         const groups = simulateMergeCheck(info.cells, info.dicesToPlace);
         if (!groups.length) continue;
-        const pts = groups.reduce((s, g) => s + g.value * g.group.length, 0);
-        all.push({ cells: info.cells, rot, pts, groups });
+        const pts       = groups.reduce((s, g) => s + g.value * g.group.length, 0);
+        const hintScore = pts + modifierHintBonus(info, groups, pts);
+        all.push({ cells: info.cells, rot, pts, hintScore, groups });
       }
     }
   }
   if (!all.length) return null;
 
-  const bestScore = Math.max(...all.map(a => a.pts));
-  const tied      = all.filter(a => a.pts === bestScore);
+  const bestScore = Math.max(...all.map(a => a.hintScore));
+  if (bestScore < 0) return null; // all placements are traps — fall through to safe placement
+  const tied      = all.filter(a => a.hintScore === bestScore);
 
   // Prefer placements that already match the current rotation
   const noRotTied = tied.filter(a => a.rot === currentRot);
@@ -1339,14 +1376,62 @@ function bestMergeForDice(dice, source) {
     }
   }
 
-  return { cells, score: bestScore, groups: useTied[0].groups, source, needsRotation };
+  return { cells, score: useTied[0].pts, groups: useTied[0].groups, source, needsRotation };
+}
+
+// Fallback: best non-merge placement when no merge is available.
+// Penalises diseased-adjacency; prefers current rotation for tied candidates.
+function bestSafePlacement(dice, source) {
+  const currentRot = canonicalRot(source === 'spawner' ? spawnerRotDeg : parkedRotDeg);
+  const rots = dice.length === 1 ? [0] : [0, 90, 180, 270];
+  const all = [];
+  for (const rot of rots) {
+    for (let r = 0; r < GRID_ROWS; r++) {
+      for (let c = 0; c < GRID_COLS; c++) {
+        const info = getPlacementInfo(r, c, dice, rot);
+        if (!canPlace(info.cells)) continue;
+        let s = 0;
+        if (activeChallenge.modifier === 'diseasedDice') {
+          const unsafe = info.cells.some(([pr, pc]) => DIRS.some(([dr, dc]) => {
+            const nr = pr + dr, nc = pc + dc;
+            return nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === DISEASED_DIE;
+          }));
+          if (unsafe) s -= 100;
+        }
+        all.push({ cells: info.cells, rot, s });
+      }
+    }
+  }
+  if (!all.length) return null;
+  const best   = Math.max(...all.map(a => a.s));
+  const tied   = all.filter(a => a.s === best);
+  const noRot  = tied.filter(a => a.rot === currentRot);
+  const chosen = (noRot.length ? noRot : tied)[0];
+  return { cells: chosen.cells, source, needsRotation: noRot.length === 0, safe: best >= 0 };
+}
+
+// Build the merge-hint message, flavoured by active modifier.
+function mergeHintText(best, trayLabel, rotNote) {
+  const mod       = activeChallenge.modifier;
+  const topGroup  = best.groups[0];
+  const mergeSize = topGroup.group.length;
+  const sum       = topGroup.value * mergeSize;
+  const hitsHot   = mod === 'hotZone' && hotZoneCells.size &&
+                    best.groups.some(g => g.group.some(([r, c]) => hotZoneCells.has(r * GRID_COLS + c)));
+  if (mod === 'frozenCell' && frozenOrigins.size && sum === 6) {
+    return `Merge six here to thaw the ice — uses ${trayLabel}.${rotNote}`;
+  }
+  if (hitsHot) {
+    return `Merge in the hot zone for a 2× bonus — uses ${trayLabel}.${rotNote}`;
+  }
+  return `Use ${trayLabel} to merge ${mergeSize} ${topGroup.value}-dice and score +${best.score} points!${rotNote}`;
 }
 
 function computeHint() {
   const hasDice = spawnerDice.length || parkedDice.length;
   if (!hasDice) return { text: 'No dice to place yet.', cells: [], source: null };
 
-  // ── Priority 1: best immediate merge across BOTH trays ──
+  // ── Priority 1: best modifier-aware merge across BOTH trays ──
   const spawnerBest = spawnerDice.length ? bestMergeForDice(spawnerDice, 'spawner') : null;
   const parkingBest = parkedDice.length  ? bestMergeForDice(parkedDice,  'parking') : null;
   const bestMerge   = !spawnerBest ? parkingBest
@@ -1354,59 +1439,45 @@ function computeHint() {
                     : spawnerBest.score >= parkingBest.score ? spawnerBest : parkingBest;
 
   if (bestMerge) {
-    const topGroup  = bestMerge.groups[0];
-    const mergeSize = topGroup.group.length;
     const trayLabel = bestMerge.source === 'parking' ? 'your parked dice' : 'your dice';
     const rotNote   = bestMerge.needsRotation ? ' Tap to rotate them first.' : '';
     return {
-      text:         `Use ${trayLabel} to merge ${mergeSize} ${topGroup.value}-dice and score +${bestMerge.score} points!${rotNote}`,
-      cells:        bestMerge.cells,
-      source:       bestMerge.source,
+      text:          mergeHintText(bestMerge, trayLabel, rotNote),
+      cells:         bestMerge.cells,
+      source:        bestMerge.source,
       needsRotation: bestMerge.needsRotation,
     };
   }
 
-  // ── Priority 2: existing pair that either tray can complete ──
-  const visited2 = new Set();
-  for (let r = 0; r < GRID_ROWS; r++) {
-    for (let c = 0; c < GRID_COLS; c++) {
-      const val = board[r][c];
-      if (!val) continue;
-      const key = r * GRID_COLS + c;
-      if (visited2.has(key)) continue;
-      const group = floodFill(r, c, val, new Set());
-      group.forEach(([gr, gc]) => visited2.add(gr * GRID_COLS + gc));
-      if (group.length !== 2) continue;
-      const matchSource = spawnerDice.some(d => d.value === val) ? 'spawner'
-                        : parkedDice.some(d => d.value === val)  ? 'parking'
-                        : null;
-      if (matchSource) {
-        const trayLabel = matchSource === 'parking' ? 'your parked dice' : 'your dice';
-        return {
-          text:  `Two ${val}-dice are adjacent — use ${trayLabel} to complete the merge!`,
-          cells: [],
-          source: matchSource,
-        };
-      }
+  // ── Priority 2: safe non-merge placement (avoids traps) ──
+  const spawnerSafe = spawnerDice.length ? bestSafePlacement(spawnerDice, 'spawner') : null;
+  const parkingSafe = parkedDice.length  ? bestSafePlacement(parkedDice,  'parking') : null;
+  const bestSafe    = spawnerSafe ?? parkingSafe;
+  if (bestSafe) {
+    const trayLabel = bestSafe.source === 'parking' ? 'your parked dice' : 'your dice';
+    const rotNote   = bestSafe.needsRotation ? ' Tap to rotate them first.' : '';
+    const mod       = activeChallenge.modifier;
+    let text        = `No merge available — place ${trayLabel} here to set up your next move.${rotNote}`;
+    if (mod === 'diseasedDice' && !bestSafe.safe) {
+      text = `Every spot risks infection. Park a die or place here — it's the least bad.${rotNote}`;
+    } else if (mod === 'diseasedDice') {
+      text = `Place ${trayLabel} here — stays clear of diseased dice.${rotNote}`;
+    } else if (mod === 'bombDice' && [...bombFuses.values()].some(f => f <= 1) && score < SCORE_TARGET) {
+      text = `Bomb detonates on next merge — stall by placing ${trayLabel} here without triggering one.${rotNote}`;
+    } else if (mod === 'frozenCell' && frozenOrigins.size) {
+      text = `No 6-merge available to thaw — place ${trayLabel} here to build toward one.${rotNote}`;
     }
-  }
-
-  // ── Priority 3: board pressure warning ──
-  const filled = board.flat().filter(v => v > 0).length;
-  if (filled >= 18) {
-    const source = spawnerDice.length ? 'spawner' : 'parking';
     return {
-      text:  'The board is getting full. Use the parking spot to buy time and plan a better placement.',
-      cells: [],
-      source,
+      text,
+      cells:         bestSafe.cells,
+      source:        bestSafe.source,
+      needsRotation: bestSafe.needsRotation,
     };
   }
 
-  // ── Priority 4: rotating strategic tip ──
-  const tip = HINT_TIPS[hintTipIndex % HINT_TIPS.length];
-  hintTipIndex++;
+  // ── Fallback: no legal placement ──
   const source = spawnerDice.length ? 'spawner' : 'parking';
-  return { text: tip, cells: [], source };
+  return { text: 'Board is full — no legal placement.', cells: [], source };
 }
 
 function showHint() {
@@ -1442,13 +1513,13 @@ const CAL_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct',
 const CAL_DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 function onCalDaySelect(iso) {
-  SoundUtils.play('btn-tap');
   activeChallengeDate = iso;
   const ch        = CHALLENGES[iso] ?? DEFAULT_CHALLENGE;
   const d         = new Date(iso + 'T12:00:00');
   const isToday   = iso === TODAY_ISO;
   const isFuture  = iso > TODAY_ISO;
   const completed = getCompletedDates().has(iso);
+  SoundUtils.play(completed ? 'cal-day-played' : 'btn-tap');
 
   const prefixEl     = document.getElementById('db-cal-sel-prefix');
   const todayLabelEl = document.getElementById('db-cal-today-label');
@@ -1504,7 +1575,6 @@ function rebuildTimer(ch) {
         timerToast10Shown = true;
       }
     } else if (s > 10) {
-      SoundUtils.play('timer-tick');
       if (s === 30 && !timerToast30Shown) {
         SoundUtils.play('toast');
         GameUtils.showToast('db-toast', '30 seconds remaining!', 3000);
@@ -1538,7 +1608,8 @@ function placeNullBlocks(count) {
   empty.slice(0, count).forEach(([r, c]) => { board[r][c] = NULL_BLOCK; });
 }
 
-// Frozen cells: fixed corner/edge positions for a puzzle feel
+// Frozen cells: fixed corner/edge positions for a puzzle feel.
+// Each placed cell gets its own originId so spread can pick a random origin per wave.
 function placeFrozenCells(count) {
   const preferred = [
     [0,0],[0,4],[4,0],[4,4],  // corners
@@ -1548,7 +1619,11 @@ function placeFrozenCells(count) {
   let placed = 0;
   for (const [r, c] of preferred) {
     if (placed >= count) break;
-    if (board[r][c] === 0) { board[r][c] = FROZEN_CELL; placed++; }
+    if (board[r][c] === 0) {
+      board[r][c] = FROZEN_CELL;
+      frozenOrigins.set(r * GRID_COLS + c, placed + 1);
+      placed++;
+    }
   }
 }
 
@@ -1561,24 +1636,48 @@ function getFrozenCells() {
   return cells;
 }
 
-// Freeze the empty cell nearest (Manhattan) to any frozen cell.
-// Returns true if a lose was triggered (no empty cells left).
+// Pick a random live origin each wave and grow its cluster by one empty cell
+// (Manhattan-closest to any cell of that origin). Origins with no reachable empty
+// are skipped. Returns true if a lose was triggered.
 function spreadFrozenCell() {
-  const frozen = getFrozenCells();
-  if (!frozen.length) return false;
+  if (!frozenOrigins.size) return false;
   const empty = [];
   for (let r = 0; r < GRID_ROWS; r++)
     for (let c = 0; c < GRID_COLS; c++)
       if (board[r][c] === 0) empty.push([r, c]);
   if (!empty.length) { triggerLose('frozen'); return true; }
-  let bestEmpty = null, bestDist = Infinity;
-  for (const [fr, fc] of frozen) {
-    for (const [er, ec] of empty) {
-      const d = Math.abs(er - fr) + Math.abs(ec - fc);
-      if (d < bestDist) { bestDist = d; bestEmpty = [er, ec]; }
+
+  // Group frozen cells by origin
+  const byOrigin = new Map();
+  for (const [key, origin] of frozenOrigins) {
+    const r = Math.floor(key / GRID_COLS), c = key % GRID_COLS;
+    if (!byOrigin.has(origin)) byOrigin.set(origin, []);
+    byOrigin.get(origin).push([r, c]);
+  }
+
+  // Shuffle origin list so we pick randomly, then try each until one has a reachable empty
+  const origins = [...byOrigin.keys()];
+  for (let i = origins.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [origins[i], origins[j]] = [origins[j], origins[i]];
+  }
+
+  for (const origin of origins) {
+    const cells = byOrigin.get(origin);
+    let bestEmpty = null, bestDist = Infinity;
+    for (const [fr, fc] of cells) {
+      for (const [er, ec] of empty) {
+        const d = Math.abs(er - fr) + Math.abs(ec - fc);
+        if (d < bestDist) { bestDist = d; bestEmpty = [er, ec]; }
+      }
+    }
+    if (bestEmpty) {
+      const [er, ec] = bestEmpty;
+      board[er][ec] = FROZEN_CELL;
+      frozenOrigins.set(er * GRID_COLS + ec, origin);
+      return false;
     }
   }
-  board[bestEmpty[0]][bestEmpty[1]] = FROZEN_CELL;
   return false;
 }
 
@@ -1616,7 +1715,10 @@ function thawClosestCluster(pr, pc) {
     const d = Math.min(...cluster.map(([r, c]) => Math.abs(r - pr) + Math.abs(c - pc)));
     if (d < bestDist) { bestDist = d; bestCluster = cluster; }
   }
-  if (bestCluster) bestCluster.forEach(([r, c]) => { board[r][c] = 0; });
+  if (bestCluster) bestCluster.forEach(([r, c]) => {
+    board[r][c] = 0;
+    frozenOrigins.delete(r * GRID_COLS + c);
+  });
 }
 
 // Flip dice: random positions (removed when triggered)
@@ -1826,6 +1928,7 @@ function startLoading() {
   rewardWordShownThisTurn = false;
   turnMergedDiceCount = 0;
   hotZoneCells = new Set();
+  frozenOrigins = new Map();
 
   rebuildTimer(activeChallenge);
 
@@ -2187,6 +2290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     group.addEventListener('click', e => {
       const btn = e.target.closest('.stt-segment__option');
       if (!btn) return;
+      SoundUtils.play('btn-tap');
       group.querySelectorAll('.stt-segment__option').forEach(b => b.classList.remove('stt-segment__option--active'));
       btn.classList.add('stt-segment__option--active');
       if (group.id === 'db-stt-theme') setTheme(btn.dataset.value);
@@ -2195,12 +2299,13 @@ document.addEventListener('DOMContentLoaded', () => {
   );
 
   // Settings shortcuts
-  document.getElementById('db-stt-btn-howto').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', openTutorial));
-  document.getElementById('db-stt-btn-stats').addEventListener('click', () => GameUtils.switchSheet('sheet-settings', () => { renderStats(); GameUtils.openSheet('sheet-stats'); }));
-  document.getElementById('db-stt-btn-bible').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
+  document.getElementById('db-stt-btn-howto').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', openTutorial); });
+  document.getElementById('db-stt-btn-stats').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', () => { renderStats(); GameUtils.openSheet('sheet-stats'); }); });
+  document.getElementById('db-stt-btn-bible').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
   document.getElementById('db-stt-btn-reset-level').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', startLoading, TIMING.NAV_DELAY); });
-  document.getElementById('db-btn-save-settings').addEventListener('click', () => { GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
+  document.getElementById('db-btn-save-settings').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
   document.getElementById('db-btn-reset-settings').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     setHand('right');
     setTheme('auto');
     SoundUtils.setEnabled(true);
@@ -2213,13 +2318,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Win / lose actions
-  document.getElementById('db-win-btn-share').addEventListener('click', () => GameUtils.showToast('db-toast', 'Sharing…'));
+  document.getElementById('db-win-btn-share').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.showToast('db-toast', 'Sharing…'); });
   document.getElementById('db-win-btn-home').addEventListener('click',  () => { SoundUtils.play('btn-tap'); clearInterval(winCountdownInterval); GameUtils.switchSheet('sheet-win',  () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
   document.getElementById('db-lose-btn-retry').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-lose', startLoading, TIMING.NAV_DELAY); });
   document.getElementById('db-lose-btn-home').addEventListener('click',  () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-lose', () => GameUtils.navigateTo('home'), TIMING.NAV_DELAY); });
 
   // Calendar Play button — plays the selected day's challenge
   document.getElementById('db-cal-btn').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     const isInProgress = gameActive && activeChallengeDate === playingDate;
     if (isInProgress) {
       GameUtils.closeSheet('sheet-calendar');
@@ -2233,6 +2339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Feedback
   document.getElementById('db-btn-send-feedback').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
     GameUtils.closeSheet('sheet-feedback');
     timerObj?.start();
     setTimeout(() => GameUtils.showToast('db-toast', 'Thanks for your feedback!'), TIMING.TOAST_DELAY);

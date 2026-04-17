@@ -1,60 +1,68 @@
 ---
 label: latest
 game: Dobbelaar
-saved: 2026-04-16
+saved: 2026-04-17
 ---
 
 ## Goal
-Polish and balance Dobbelaar based on playtesting feedback — fix bugs, improve UX, and make mechanics fair and understandable.
+Work through the Dobbelaar bug list: rebuild the frozen-cell spread to be origin-aware and rewrite the hint engine to be modifier-aware, surfacing concrete actionable moves instead of generic tips.
 
 ## Decisions
-- Bomb ticks on every merge wave (not per turn, not per placement)
-- Bomb fuse values bumped: chainGoal → 10, scoreTarget → 8, surviveTimer → 10
-- Diseased lose condition: all empty cells adjacent to a diseased die → triggerLose('diseased')
-- Reset level in settings overflow + pause sheet
-- Calendar button text by state: "Resume playing" / "Play again" (secondary) / "Play today" / "Play Xth of Month"
-- `playingDate` tracks active game date; calendar opens on it when gameActive
-- `cal-day--today`: skyblue + bold globally; dark mode: text black, tick white, colors same as light
-- `inProgressDate` in calCtrl — corner only on actively played date; cleared on win/lose
-- Diseased infection: die destroyed (board → 0) — exploit fix; flavor texts updated to match
-- Bomb: `!isMerging` guard removed — always triggers lose
-- Diseased dice: min Manhattan distance 3 at placement; fallback if board too full
-- Diseased skull: `fill: white` in CSS
-- Merge result: lands on `lastPlacedCells` if in group; cascades propagate it forward; fallback bottom-left
-- Info sheet: second sheet__list for special dice — 28×28 badge cells, SVGs injected by JS; wrapped in `db-instr-dice-section` with `padding: var(--space-2)`
-- Challenge balance audit completed — 6 challenges retuned (see Work completed)
-- Chain bugs + mechanic redesign deprioritised — tackle last
+- Frozen mechanic: each spawn is a distinct origin; new frozen cells inherit the origin ID of the cluster they were added to
+- Frozen spread: pick a random live origin each wave, grow only that cluster by 1 (Manhattan-closest empty)
+- Frozen thaw: keep geometric BFS (a) — if two origin-clusters touched, BFS treats them as one for thaw purposes
+- Frozen state stored in `frozenOrigins` Map (cellKey → originId) — mirrors hot-zones pattern (separate Set, not board sentinel)
+- Hints: modifier-aware placements OVERRIDE raw-score best-merge (players get real help, not generic tips)
+- Hints cover all modifiers — frozen, disease, bomb, hot zone (flip not penalised or bonused; null-block already non-placable)
+- Hints are ALWAYS modifier-specific — removed the rotating `HINT_TIPS` array entirely
+- Hint = concrete actionable move (cells + tray + rotation), never a generic warning — reflects the "ad-reward optimal move" model
+- Hint scoring deltas: disease-adjacent placement −100k, bomb merge at fuse≤1 with goal unmet −100k, 6-merge near frozen cluster +1000, hot-zone merge +raw (doubles weighting)
+- Returned hint `.score` reflects actual pts earned in-game, not the inflated hint-weighted score
+- Bug triage order: simple → hard. #1 (home play sound) and #4 (state refresh on theme change) parked pending repro steps from user
 
 ## Work completed
-- `tokens.css` — `--color-border` dark mode → `#636366`
-- `dobbelaar.html` — pause/settings reset buttons; special dice list in info sheet with `db-instr-dice-section` wrapper
-- `dobbelaar.css` — tint to `::after`; skull `fill: white`; `db-inline-cell--badge` 28×28; `db-instr-dice-section` + `db-instr-section-label` styles
-- `dobbelaar.js` — `gameActive`, `playingDate`, `lastPlacedCells`; calendar wired; `checkDiseasedLose`; bomb fix; disease destroy; min-distance placement; merge result positioning; SVG icon injection for info sheet
-- `game-utils.js` — `cal-day--today` class; `selectDate` + `setInProgressDate` on calCtrl; `inProgressDate` replaces hardcoded today→in-progress
-- `components.css` — `cal-day--today` skyblue + bold; dark mode overrides for tick + today text + completed cell
-- `dobbelaar-challenges.js` — 6 challenges retuned:
-  - 03-19 "Ticking Bomb": surviveTimer → scoreTarget, 315 → 280
-  - 03-20 "Spreading Fast": 420 → 300, flavor updated
-  - 03-21 "Frozen Fury": frozenCell 4 → 2
-  - 03-27 "Contagion": 315 → 220, flavor updated
-  - 04-03 "Fever Pitch": 440 → 320, flavor updated
-  - 04-17 "Viral Spread": 315 → 220, flavor updated
+- `dobbelaar.js`
+  - `frozenOrigins` Map state + reset in `startLoading`
+  - `placeFrozenCells(count)` assigns originId 1..N at spawn
+  - `spreadFrozenCell()` — groups frozen cells by origin, shuffles origins (Fisher-Yates), grows first origin with a reachable empty by Manhattan-closest
+  - `thawClosestCluster()` — BFS unchanged; deletes `frozenOrigins` entries for removed cells
+  - Removed `HINT_TIPS` + `hintTipIndex`
+  - Added `modifierHintBonus(info, groups, raw)` — scoring delta helper
+  - Added `bestSafePlacement(dice, source)` — non-merge fallback, penalises diseased adjacency
+  - Added `mergeHintText(best, trayLabel, rotNote)` — modifier-flavoured merge message (thaw / hot zone / default)
+  - `bestMergeForDice()` ranks by `pts + modifierHintBonus`; returns actual `pts` in `.score`; returns null when best is negative (all placements are traps → fall through to safe placement)
+  - `computeHint()` rewrite: modifier-aware merge → safe placement with modifier flavour → board-full fallback
+- `checkpoints/latest.md` — open threads updated with frozen/calendar/home-sound items
 
 ## Open threads
-- Hints don't account for mechanics — full rewrite, separate session
-- Game loses all progress on theme change — investigate separately
-- Chain residue bug: after 3×1d merge → 3, adjacent 3-cluster doesn't fully consume (deprioritised)
-- Chain mechanic: improve explanation + decide if chainGoal needs redesign (deprioritised)
+- Frozen overhaul + hints rewrite are UNCOMMITTED in working tree — playtest both, then commit or revert
+- Home page main-menu Play button: user reports "random" sound; further investigation showed possible MISSING sounds — parked pending repro
+- Calendar: completed played days don't consistently show — user suspects it's symptom of #4
+- State refresh / progress loss on theme change (#4) — parked pending repro; `setTheme()` code itself doesn't touch board state
+- Chain residue bug (deprioritised): 3×1d merge → 3 leaves adjacent 3-cluster not fully consumed
+- Chain mechanic redesign (deprioritised): explanation + whether chainGoal needs rebalance
+- Flip-die hint heuristic deliberately skipped — accurate modelling would require simulating flip before merge scan
 
 ## Constraints
+- Hot zones + frozen origins use separate Maps/Sets (NOT board sentinels)
+- Hint must always return actionable placement (cells + tray + rotation), or terminal "board full" message
+- Hint `.score` field must reflect actual in-game pts earned, not inflated hint-weighted score
+- Modifier hint deltas are signed for clarity: huge penalties (−100k) for traps, moderate bonuses (+1000, +raw) for strategic plays
+- No generic rotating hint tips — all messages must be modifier-contextual
+- Sine/triangle waveforms only for SFX
+- No hardcoded hex/px outside SVG illustration paths — tokens only
+- `sound-utils.js` / `music-utils.js` pure audio — no game logic
 - Bomb tick inside merge wave resolution only
 - `triggerWin` double-fire guard must stay (chainWon flag)
-- No hardcoded hex/px outside SVG illustration paths — tokens only
 - `animation-fill-mode: both` on all entry animations
-- `sound-utils.js` / `music-utils.js` pure audio — no game logic
 - Button press animation on button element only — icon flips on icon child
-- Hot zones use a separate Set (not a board sentinel)
 - Chain reward word only shows if no waveWord fired that wave
 
 ## Next step
-Hints rewrite — hints currently don't account for modifiers (disease, bomb, frozen, etc.). Read hint logic before touching anything.
+Playtest the frozen overhaul + hints rewrite in-browser. Recommended challenges:
+- 2026-03-26 "Narrow Path" or 2026-04-18 "Ice Grip" (3 frozen) — verify random-origin spread picks different origins each wave and thaw clears the correct cluster
+- Any disease challenge — verify hint never points to a placement adjacent to a diseased die
+- Any bomb challenge — at fuse=1 with goal unmet, verify hint suggests a non-merge placement
+- Any hot-zone challenge — verify hint prefers merges involving hot cells
+
+After playtest, either commit both changes or revert. Then address parked bugs (#1, #4) once repro steps exist.
