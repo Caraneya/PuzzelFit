@@ -25,6 +25,9 @@ function renderDie(value) {
   if (value === WILD_DIE) {
     return `<div class="db-die db-die--wild"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="var(--color-error)"/></svg></div>`;
   }
+  if (value === FLIP_DIE) {
+    return `<div class="db-die db-die--flip"><svg viewBox="0 0 18 22" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V2H14V4H12ZM12 20V18H14V20H12ZM16 4V2H18V4H16ZM16 20V18H18V20H16ZM16 16V14H18V16H16ZM16 12V10H18V12H16ZM16 8V6H18V8H16ZM6 20H0V2H6V4H2V18H6V20ZM8 22V0H10V22H8Z" fill="white"/></svg></div>`;
+  }
   const pips = (PIP_POSITIONS[value] || []).map(([x,y]) =>
     `<circle cx="${x}%" cy="${y}%" r="9%"/>`
   ).join('');
@@ -416,6 +419,26 @@ function spawnDice() {
       return;
     }
   }
+  if (activeChallenge.modifier === 'flipDice') {
+    const chance = 0.20 + activeChallenge.modValue * 0.12; // mv1→32%, mv2→44%
+    if (Math.random() < chance) {
+      const r = Math.random();
+      let dice;
+      if (r < 0.40) {
+        dice = [{ value: FLIP_DIE }];
+      } else if (r < 0.80) {
+        dice = Math.random() < 0.5
+          ? [{ value: FLIP_DIE }, randomDie()]
+          : [randomDie(), { value: FLIP_DIE }];
+      } else {
+        dice = [{ value: FLIP_DIE }, { value: FLIP_DIE }];
+      }
+      spawnerDice   = dice;
+      spawnerRotDeg = 0;
+      renderSpawner();
+      return;
+    }
+  }
   const count = Math.random() < 0.35 ? 1 : 2;
   spawnerDice = Array.from({ length: count }, () => randomDie());
   spawnerRotDeg = 0;
@@ -597,8 +620,8 @@ function doPlace(cells, dicesToPlace) {
   clearHintHighlights();
   clearTimeout(hintTimeout);
   document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');
-  // Modifier effects — flip first (affects pre-existing neighbours), diseased second (affects just-placed dice)
-  if (activeChallenge.modifier === 'flipDice')     applyFlipEffects(cells);
+  // Modifier effects — flip first (affects neighbours), diseased second (affects just-placed dice)
+  const flipCells = activeChallenge.modifier === 'flipDice' ? applyFlipEffects(cells) : [];
   if (activeChallenge.modifier === 'diseasedDice') applyDiseasedEffects(cells);
   renderBoard();
   cells.forEach(([r, c]) => {
@@ -609,6 +632,17 @@ function doPlace(cells, dicesToPlace) {
     }
   });
   SoundUtils.play('die-place');
+  // Clear flip cells after the land animation plays — targeted update avoids
+  // rebuilding the board mid-merge-animation.
+  if (flipCells.length) {
+    setTimeout(() => {
+      for (const [r, c] of flipCells) {
+        board[r][c] = 0;
+        const el = document.querySelector(`#db-board-grid [data-row="${r}"][data-col="${c}"]`);
+        if (el) { el.classList.remove('db-cell--flip'); el.innerHTML = ''; }
+      }
+    }, 280);
+  }
   setTimeout(() => triggerMergeCheck(), TIMING.MERGE_1);
 }
 
@@ -1721,18 +1755,6 @@ function thawClosestCluster(pr, pc) {
   });
 }
 
-// Flip dice: random positions (removed when triggered)
-function placeFlipDice(count) {
-  const empty = [];
-  for (let r = 0; r < GRID_ROWS; r++)
-    for (let c = 0; c < GRID_COLS; c++)
-      if (board[r][c] === 0) empty.push([r, c]);
-  for (let i = empty.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [empty[i], empty[j]] = [empty[j], empty[i]];
-  }
-  empty.slice(0, count).forEach(([r, c]) => { board[r][c] = FLIP_DIE; });
-}
 
 // Bomb die: 1 bomb placed near centre, modValue = initial fuse
 function placeBombDice(fuse) {
@@ -1782,31 +1804,23 @@ function placeDiseasedDice(count) {
 const DIRS = [[-1,0],[1,0],[0,-1],[0,1]];
 const FLIP_MAP = { 1:6, 2:5, 3:4, 4:3, 5:2, 6:1 };
 
-// Flip die activation: when a die is placed adjacent to a flip die,
-// the flip die inverts all of its own neighbours, then removes itself.
+// Flip die: placed from tray, inverts all orthogonal neighbours (1↔6 2↔5 3↔4).
+// Does NOT clear the cell — caller schedules the delayed DOM removal so the
+// player sees the die flash on the board before it vanishes.
 function applyFlipEffects(placedCells) {
-  const flipKeys = new Set();
-  for (const [r, c] of placedCells) {
-    for (const [dr, dc] of DIRS) {
-      const nr = r + dr, nc = c + dc;
-      if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS && board[nr][nc] === FLIP_DIE)
-        flipKeys.add(nr * GRID_COLS + nc);
-    }
-  }
-  if (!flipKeys.size) return;
+  const flipCells = placedCells.filter(([r, c]) => board[r][c] === FLIP_DIE);
+  if (!flipCells.length) return [];
   SoundUtils.play('flip-trigger');
-  for (const key of flipKeys) {
-    const fr = Math.floor(key / GRID_COLS), fc = key % GRID_COLS;
-    board[fr][fc] = 0; // consume flip die
+  for (const [fr, fc] of flipCells) {
     for (const [dr, dc] of DIRS) {
       const nr = fr + dr, nc = fc + dc;
       if (nr >= 0 && nr < GRID_ROWS && nc >= 0 && nc < GRID_COLS) {
         const v = board[nr][nc];
         if (v >= 1 && v <= 6) board[nr][nc] = FLIP_MAP[v];
-        // Wild dice and other sentinels are not inverted
       }
     }
   }
+  return flipCells;
 }
 
 // Diseased die infection: any newly placed die adjacent to a diseased cell
@@ -1888,7 +1902,7 @@ function describeGoal(ch) {
       break;
     }
     case 'flipDice':
-      mechanic = ` <span class="db-inline-cell db-cell--flip" aria-hidden="true">${SVG_FLIP}</span> Flip dice sit on the board. Place a die next to one and it inverts all its neighbours' values (7 minus the die value), then vanishes.`;
+      mechanic = ` <span class="db-inline-cell db-cell--flip" aria-hidden="true">${SVG_FLIP}</span> Flip dice spawn in your tray — alone, paired with a normal die, or as a duo. Place one on the board and it instantly inverts all its neighbours' values (1↔6, 2↔5, 3↔4), then vanishes.`;
       break;
     case 'bombDice':
       mechanic = ` A <span class="db-inline-cell db-cell--bomb" aria-hidden="true">${SVG_BOMB}</span> bomb is on the board with a fuse of <strong>${ch.modValue}</strong>. Every new wave ticks it down. When it hits zero, it detonates and you lose.`;
@@ -1953,7 +1967,6 @@ function startLoading() {
   const m = activeChallenge.modifier, mv = activeChallenge.modValue;
   if (m === 'nullBlock'    && mv > 0) placeNullBlocks(mv);
   if (m === 'frozenCell'   && mv > 0) placeFrozenCells(mv);
-  if (m === 'flipDice'     && mv > 0) placeFlipDice(mv);
   if (m === 'bombDice'     && mv > 0) placeBombDice(mv);
   if (m === 'diseasedDice' && mv > 0) placeDiseasedDice(mv);
   if (m === 'hotZone'      && mv > 0) placeHotZones(mv);

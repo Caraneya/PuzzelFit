@@ -384,6 +384,16 @@ html, body {
   width: 60%; height: 60%;
 }
 
+/* ── FLIP DIE (tray) ── */
+.db-die--flip {
+  background: var(--color-plum);
+  display: flex; align-items: center; justify-content: center;
+}
+.db-die--flip svg {
+  position: static;
+  width: 55%; height: 55%;
+}
+
 /* Badge-sized inline cell — matches sheet__list-badge at 28×28px */
 .db-inline-cell--badge {
   width: 28px;
