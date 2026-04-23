@@ -688,6 +688,33 @@
   transform: translateY(0);
 }
 
+/* Wrapper around .sheet__header. In short landscape, .sheet__header-illus  */
+/* (a duplicate of the main illustration via <use>) sits beside the header  */
+/* so the full illustration can hide and the sheet gains vertical space.    */
+.sheet__header-wrap {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-5);
+  align-items: center;
+}
+.sheet__header-wrap .sheet__header {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Compact illustration inside the wrapper — hidden by default, shown only */
+/* in the short-landscape breakpoint further below.                        */
+.sheet__header-illus {
+  display: none;
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+}
+.sheet__header-illus svg {
+  width: 100%;
+  height: 100%;
+}
+
 /* Title + body text block */
 .sheet__header {
   display: flex;
@@ -717,7 +744,7 @@
 /* Illustration zone — fills available width, content centred  */
 .sheet__illustration {
   flex: 1;
-  min-height: 0;
+  min-height: 120px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -3678,6 +3705,19 @@ body {
     width: calc((100% - var(--space-1)) / 2);
     height: calc((100% - var(--space-1)) / 2);
     aspect-ratio: 1;
+  }
+
+  /* Pause / Win / Lose — hide the big illustration, show the compact     */
+  /* copy inline with the header so the sheet gains vertical space.       */
+  #sheet-pause .sheet__illustration,
+  #sheet-win .sheet__illustration,
+  #sheet-lose .sheet__illustration {
+    display: none;
+  }
+  #sheet-pause .sheet__header-illus,
+  #sheet-win .sheet__header-illus,
+  #sheet-lose .sheet__header-illus {
+    display: block;
   }
 }
 

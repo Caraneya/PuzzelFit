@@ -634,11 +634,14 @@
     <!-- Pause -->
     <div class="sheet-overlay" id="sheet-pause" role="dialog" aria-modal="true">
       <div class="sheet">
-        <div class="sheet__header">
-          <h2 class="sheet__title">Pause</h2>
-          <p class="sheet__body">
-            The game is paused. Your dice are safe — continue when you're ready.
-          </p>
+        <div class="sheet__header-wrap">
+          <div class="sheet__header">
+            <h2 class="sheet__title">Pause</h2>
+            <p class="sheet__body">
+              The game is paused. Your dice are safe — continue when you're ready.
+            </p>
+          </div>
+          <div class="sheet__header-illus" aria-hidden="true"></div>
         </div>
         <div class="sheet__illustration">
           <svg
@@ -1278,12 +1281,15 @@
       aria-modal="true"
     >
       <div class="sheet">
-        <div class="sheet__header">
-          <h2 class="sheet__title">Congratulations!</h2>
-          <p class="sheet__body">
-            You reached today's target! A new puzzle will be ready in
-            <strong id="db-win-countdown">11:55:23</strong>.
-          </p>
+        <div class="sheet__header-wrap">
+          <div class="sheet__header">
+            <h2 class="sheet__title">Congratulations!</h2>
+            <p class="sheet__body">
+              You reached today's target! A new puzzle will be ready in
+              <strong id="db-win-countdown">11:55:23</strong>.
+            </p>
+          </div>
+          <div class="sheet__header-illus" aria-hidden="true"></div>
         </div>
         <div class="sheet__illustration">
           <svg
@@ -1556,13 +1562,16 @@
       aria-modal="true"
     >
       <div class="sheet">
-        <div class="sheet__header">
-          <h2 class="sheet__title" id="db-lose-title">Board's full!</h2>
-          <p class="sheet__body">
-            <span id="db-lose-reason">No more dice can be placed.</span> You
-            scored <strong id="db-lose-score">0</strong> points. Better luck
-            next time!
-          </p>
+        <div class="sheet__header-wrap">
+          <div class="sheet__header">
+            <h2 class="sheet__title" id="db-lose-title">Board's full!</h2>
+            <p class="sheet__body">
+              <span id="db-lose-reason">No more dice can be placed.</span> You
+              scored <strong id="db-lose-score">0</strong> points. Better luck
+              next time!
+            </p>
+          </div>
+          <div class="sheet__header-illus" aria-hidden="true"></div>
         </div>
         <div class="sheet__illustration">
           <svg

@@ -3255,6 +3255,20 @@ document.addEventListener('DOMContentLoaded', () => {
   GameUtils.initBtnPress();
   // Pre-warm AudioContext so it's ready before the first tap (avoids first-sound delay).
   SoundUtils.getCtx();
+
+  // Clone each sheet's main illustration into its compact header slot so the
+  // short-landscape variant renders with the same animations as the original.
+  document.querySelectorAll('#sheet-pause, #sheet-win, #sheet-lose').forEach(sheet => {
+    const src = sheet.querySelector('.sheet__illustration svg');
+    const dst = sheet.querySelector('.sheet__header-illus');
+    if (src && dst && !dst.firstElementChild) {
+      const clone = src.cloneNode(true);
+      clone.removeAttribute('width');
+      clone.removeAttribute('height');
+      dst.appendChild(clone);
+    }
+  });
+
   initBoard();
   renderBoard();
   renderParking();
