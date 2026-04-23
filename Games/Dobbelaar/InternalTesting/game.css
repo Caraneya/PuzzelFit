@@ -653,13 +653,17 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--duration-slow) ease-in, visibility 0s var(--duration-slow);
+  transition:
+    opacity var(--duration-slow) ease-in,
+    visibility 0s var(--duration-slow);
 }
 .sheet-overlay.is-open {
   opacity: 1;
   visibility: visible;
   pointer-events: all;
-  transition: opacity var(--duration-slow) ease-in, visibility 0s;
+  transition:
+    opacity var(--duration-slow) ease-in,
+    visibility 0s;
 }
 
 /* The card itself — fills viewport, slides up from bottom */
@@ -3641,6 +3645,120 @@ body {
   }
   .db--right-hand .game-screen .game-board {
     flex-direction: row;
+  }
+}
+
+/* ── SHORT LANDSCAPE — tray fits space, die derives from slot ── */
+/* Flips the sizing relationship: slot is sized by available height, */
+/* die is a percentage of the slot. Prevents oversized slot padding  */
+/* on cramped viewports like 800×360 phone landscape.                */
+@media (min-aspect-ratio: 1/1) and (max-height: 400px) {
+  .db-tray-wrap {
+    width: auto;
+  }
+  .db-tray {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: 100%;
+    align-content: stretch;
+  }
+  .db-tray-slot {
+    aspect-ratio: 1;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+  }
+  .db-tray-inner {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    flex-shrink: 1;
+  }
+  .db-tray-die {
+    width: calc((100% - var(--space-1)) / 2);
+    height: calc((100% - var(--space-1)) / 2);
+    aspect-ratio: 1;
+  }
+}
+
+/* ── TABLET PORTRAIT — cap board + tray relative to viewport ── */
+/* Prevents the board and tray from ballooning on wide portrait     */
+/* viewports (tablet). Caps tied to container height (cqh) so sizes */
+/* scale with the viewport rather than being fixed pixels.          */
+@media (min-width: 600px) and (max-aspect-ratio: 1/1) {
+  .db-grid-outer {
+    max-width: 50cqh;
+  }
+  .db-tray-wrap {
+    max-width: 50cqh;
+  }
+
+  .game-toolbar {
+    height: 72px;
+    padding: 0 var(--space-3);
+  }
+  .game-toolbar .btn--icon {
+    padding: var(--space-4);
+    min-width: 56px;
+    min-height: 56px;
+  }
+  .game-toolbar .btn--icon svg,
+  .game-toolbar .game-timer-group svg {
+    width: 40px;
+    height: 40px;
+  }
+  .game-timer-group {
+    padding: var(--space-3) var(--space-2);
+  }
+  .game-timer {
+    font-size: var(--font-size-h2);
+  }
+
+  .game-score-item {
+    font-size: var(--font-size-h2);
+    gap: var(--space-3);
+  }
+  .game-score-bar svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ── LANDSCAPE — scrolling sheets (info / stats / settings) ── */
+/* Scoped to these three list-based sheets only. Replaces the     */
+/* inner .sheet__list-wrap scroll with an outer .sheet scroll so  */
+/* the header scrolls with the content and gains vertical space.  */
+/* The footer button stays pinned via position: sticky.           */
+@media (min-aspect-ratio: 1/1) {
+  #sheet-info .sheet,
+  #sheet-stats .sheet,
+  #sheet-settings .sheet {
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-bottom: 0;
+  }
+  #sheet-info .sheet__list-wrap,
+  #sheet-stats .sheet__list-wrap,
+  #sheet-settings .sheet__list-wrap {
+    flex: 0 0 auto;
+    overflow: visible;
+    min-height: 0;
+  }
+  #sheet-info .sheet__list-wrap::after,
+  #sheet-stats .sheet__list-wrap::after,
+  #sheet-settings .sheet__list-wrap::after {
+    display: none;
+  }
+  #sheet-info .sheet__scrollbar,
+  #sheet-stats .sheet__scrollbar,
+  #sheet-settings .sheet__scrollbar {
+    display: none;
+  }
+  #sheet-info .sheet-footer,
+  #sheet-stats .sheet-footer,
+  #sheet-settings .sheet-footer {
+    position: sticky;
+    bottom: 0;
   }
 }
 
