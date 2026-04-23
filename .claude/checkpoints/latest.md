@@ -1,45 +1,40 @@
 ---
 label: latest
-saved: 2026-04-15
+saved: 2026-04-23
 ---
 
 ## Goal
-Build out a full visual interactivity layer for PuzzleFit games — Phase 1 general animations (shared components) done, Phase 2 Dobbelaar-specific gameplay animations next. Also polish audio and button feedback across the game.
+Polish PuzzleFit UI — unify the cross icon across the project and rebuild the hint tooltip so it's fully responsive (toolbar-anchored, content-sized, 12px gutters, landscape-aware).
 
 ## Decisions
-- Phase 1 (general): button press, overlay zoom, badge stagger, calendar flip+wave, stats count-up, star ripple, home entry, win/lose sheet entry animations — all complete
-- Phase 2 (Dobbelaar): die land animation + hot zone pulse are the two genuine gaps (merge flash, score pop, reward word, floating score already exist)
-- Button press: JS-driven `initBtnPress()` on `pointerdown` — adds `btn--pressing` class, removed all `:active` overrides so nav-bar + toolbar buttons also animate
-- Star rating toggle: tap top star → clear all; tap other star → set to that level
-- Star ripple stagger reversed: clicked star (top) animates at delay 0, others cascade inward
-- Sound delay fix: `play()` awaits `ctx.resume()` before scheduling; AudioContext pre-warmed at DOMContentLoaded
-- Calendar next-arrow flip lives on the SVG child, not the button element
-- Unavailable calendar cells use `cal-day-wave-unavailable` keyframe ending at opacity 0.4
+- Cross icon upgraded from `0 0 14 14` with hardcoded `#CCCCCC` → `0 0 20 20` with `currentColor`; applied in both `icons.js` and `InternalTesting/game.js`
+- Hint tooltip moved OUT of `.game-hint-pointer` to be a sibling of `.game-toolbar__left/__right` inside `.game-toolbar` — pointer becomes an empty triangle, tooltip anchors to toolbar (which is `position: relative`)
+- Tooltip visibility tied to toolbar via `:has(.game-hint-wrap--open)` instead of inheriting from pointer opacity
+- Tooltip sizes to content: `left: var(--space-3)`, NO `right`, `max-width: calc(100% - var(--space-6))` — keeps 12px gutters on both sides without forcing full stretch
+- InternalTesting has its own copy of hint CSS in `game.css` (not shared), kept in sync
+- InternalTesting landscape override at `@media (min-aspect-ratio: 1/1)` — separate `top` value
+- Merge cascade bug in Dobbelaar is a design consequence (simultaneous group resolution + spawn at last-placed cell), not a simple bug — user chose to move on without fixing
 
 ## Work completed
-- `sound-utils.js` — `play()` waits for context resume before firing; eliminates first-tap delay
-- `game-utils.js` — `initBtnPress()` global button press animation; `triggerStarRipple` reversed stagger; star toggle logic fixed; `countUp()`, `renderCal(dir)` flip animation; calendar next-arrow flip on inner SVG child
-- `components.css` — full Phase 1 animation system: `@keyframes btn-press` + `.btn--pressing`, modal zoom, badge stagger, calendar flip/wave + `cal-day-wave-unavailable`, star ripple, home entry, win/lose sheet entry; all `:active` overrides removed
-- `tokens.css` — `--scale-press: 0.85`
-- `dobbelaar.js` — AudioContext pre-warm; `btn-tap` sound on Play, all back buttons, home/loading/tutorial nav icons, tutorial next, hint close, calendar prev/next, calendar day select; `renderStats()` with count-up; `recordGameResult()`, `computeStreak()`, parking idle/catch animations; `GameUtils.initBtnPress()` called on init
-- `dobbelaar.html` — `.sheet-overlay--win/.--lose` classes; 6 stat IDs; win SVG restructured; removed inline scaleX(-1) from cal-next; fixed mojibake in instructions
-- `dobbelaar.css` — win assembly jump animation, parking idle pulse, parking catch bounce
+- `icons.js:123-128` — cross icon: viewBox 20x20, `currentColor`
+- `InternalTesting/game.js:839-844` — same cross icon update
+- `components.css:2246-2266` — `.game-hint-tooltip` rewritten: absolute from toolbar, `top: calc(100% - var(--space-1))`, `left: var(--space-3)`, `max-width: calc(100% - var(--space-6))`, opacity transition, `:has()` visibility rule
+- `InternalTesting/game.css:2616-2642` — same tooltip rewrite + landscape `@media (min-aspect-ratio: 1/1)` override for top
+- `dobbelaar.html`, `InternalTesting/game.html`, `flow-prototype.html`, `MasterStyleguide.html` — tooltip moved out of `.game-hint-pointer` (now empty) and appended as sibling inside `.game-toolbar`
+- `dobbelaar.js:1487`, `InternalTesting/game.js:2672` — querySelector updated from `#db-game-hint-wrap .game-hint-tooltip__body` → `#screen-gameplay .game-hint-tooltip__body`
+- `workspace_permissions.md` in memory — PuzzleFit/ (root + subfolders) read+write, deletion NOT granted
 
 ## Open threads
-- Phase 2 gameplay animations: die land (`db-cell--land`) on placement, hot zone pulse (infinite amber glow)
-- Wire `data-difficulty` on `#sheet-win` in `dobbelaar.js` before `openSheet`
-- Stats total time does not count-up (intentional)
-- No SFX for streak milestone or hot zone hit
+- Merge cascade bug: 3 fix options discussed (A: adjacency-aware spawn, B: super-group, C: sequential resolution) — user declined all, moved on
+- GitHub merge of internal testing branch → main — user asked, then interrupted the git status check
 
 ## Constraints
-- Sine/triangle waveforms only for SFX
-- No hardcoded hex/px outside SVG illustration paths — tokens only
-- `game-utils.js` backward-compatible
-- `animation-fill-mode: both` on all entry animations
-- `sound-utils.js` / `music-utils.js` are pure audio — no game logic inside them
-- `triggerWin` double-fire guard must stay
-- Hot zones use a separate Set (not a board sentinel)
-- Button press animation on button element only — icon flips must live on icon child
+- PuzzleFit/ root + all subfolders are editable; deletion requires explicit permission
+- Shared files (tokens.css, components.css, icons.js, game-utils.js, MasterStyleguide.html) ARE touchable because root access was granted — but still ask before substantial overwrites
+- CSS must be token-based (no hardcoded hex/px outside SVG paths)
+- Responsive > absolute: prefer layout that adapts to container/orientation, not fixed pixel values
+- `:has()` is acceptable (modern browser support confirmed)
+- Changes to hint structure must be applied to all 4 HTML files AND the 2 JS files AND both CSS files (components.css + InternalTesting/game.css)
 
 ## Next step
-Phase 2: add `db-cell--land` CSS animation + JS to tag placed cells in `doPlace()`, then add hot zone pulse (`@keyframes db-hot-pulse` infinite amber glow on `.db-cell--hot-zone`).
+Resume the GitHub merge of the internal testing branch into main. First step blocked — confirm git repo state and remotes with the user before running any git commands (previous attempt was interrupted).
