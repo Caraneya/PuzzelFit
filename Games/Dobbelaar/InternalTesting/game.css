@@ -1878,6 +1878,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-5) var(--space-8);
+  container-type: size;
 }
 
 .tutorial__play-placeholder {
@@ -1892,9 +1893,8 @@
   flex-direction: column;
   gap: var(--space-5);
   align-items: center;
-  padding: var(--space-5) var(--space-5) var(--space-15);
+  padding: var(--space-5) var(--space-5) var(--space-8);
   flex-shrink: 0;
-  height: 24dvh;
 }
 
 .tutorial__instruction {
@@ -1929,6 +1929,43 @@
 .tutorial__info .btn {
   max-width: 280px;
   width: 100%;
+}
+
+/* ── TUTORIAL — LANDSCAPE ─────────────────────────────────── */
+/* Mirrors the gameplay pattern: step bar stays at top, then    */
+/* the play-area (animation) and info panel sit side-by-side.   */
+/* Info panel becomes a right-hand column with the Next button  */
+/* anchored at the bottom.                                      */
+
+@media (min-aspect-ratio: 1/1) {
+  .tutorial {
+    display: grid;
+    grid-template-columns: 1fr clamp(240px, 30%, 360px);
+    grid-template-rows: auto 1fr;
+  }
+  .tutorial__play-area {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    min-width: 0;
+    min-height: 0;
+  }
+  .tutorial__step {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .tutorial__info {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: space-between;
+    min-width: 0;
+    min-height: 0;
+    padding: var(--space-5);
+  }
+  .tutorial__instruction {
+    flex: 1;
+    justify-content: center;
+    min-height: 0;
+  }
 }
 
 /* ── SHEET — FORM (RATING) VARIANT ─────────────────────────── */
@@ -2495,8 +2532,8 @@
   display: flex;
   flex-direction: column;
   background: var(--color-surface);
-  padding: var(--space-10) var(--space-5) var(--space-15);
-  gap: var(--space-10);
+  padding: var(--space-5);
+  gap: var(--space-2);
 }
 @media (max-width: 390px) {
   .game-main {
@@ -2857,8 +2894,9 @@ body {
 }
 .loading-img {
   width: 100%;
+  max-width: 320px;
   height: auto;
-  max-height: 50vw;
+  max-height: min(50vw, 50vh);
   display: block;
   overflow: visible; /* allow animated elements to exceed SVG viewport */
   animation: db-loading-float 2.4s ease-in-out infinite;
@@ -2936,6 +2974,15 @@ body {
   50% {
     transform: scale(1.18) rotate(90deg);
     opacity: 1;
+  }
+}
+
+/* Short-viewport tweak — phone landscape has <400px of height, so the  */
+/* loading-body's 80px bottom padding + 40px gap crowd the animation.   */
+@media (max-height: 500px) {
+  .loading-body {
+    gap: var(--space-5);
+    padding-bottom: var(--space-5);
   }
 }
 
@@ -3083,6 +3130,14 @@ body {
   color: var(--color-text-tertiary);
   text-align: center;
   flex-shrink: 0;
+}
+
+/* Two copies of the hint exist in the DOM: one inside the tray  */
+/* column (portrait) and one inside the score-bar (landscape).   */
+/* The landscape copy is hidden by default; the landscape media  */
+/* query swaps which one is visible.                             */
+.db-tray-hint--landscape {
+  display: none;
 }
 
 /* ── TRAY INNER (spawner / parking dice layout) ──
@@ -3481,6 +3536,93 @@ body {
   order: 1;
 }
 
+/* ── LANDSCAPE — board left, tray column right ──────────────── */
+/* Toolbar + .game-main + score-bar footer stay structured as in */
+/* portrait. Inside .game-main, the .game-board becomes a flex   */
+/* row: square board on one side, tray column on the other. The  */
+/* tray slots grow vertically to fill the tray column height.    */
+
+@media (min-aspect-ratio: 1/1) {
+  .game-screen .game-board {
+    flex-direction: row-reverse;
+    gap: var(--space-5);
+  }
+
+  /* Chrome: toolbar (~54) + game-main padding (20+20) + score-bar */
+  /* (~44) + game-main gap (8) = 146.                              */
+  .db-grid-outer {
+    width: min(100%, calc(100cqh - 146px));
+  }
+
+  /* Die size is derived from the game-board height so the two    */
+  /* square slots + gap always equal the game-board's available    */
+  /* height (when unclamped). Chrome subtracted: toolbar + main    */
+  /* padding + score-bar + gap + tray gap + slot padding ≈ 214.    */
+  .game-screen {
+    --tray-die: clamp(36px, calc((100cqh - 214px) / 4), 96px);
+    --tray-square: calc(
+      2 * var(--tray-die) + var(--space-1) + 2 * var(--space-3)
+    );
+  }
+
+  /* Keep die, inner, tray-wrap width, and slot min in lockstep  */
+  /* so the slot is always a square that fits a rotated pair.    */
+  .db-tray-die {
+    width: var(--tray-die);
+    height: var(--tray-die);
+  }
+  .db-tray-inner {
+    width: calc(2 * var(--tray-die) + var(--space-1));
+    height: calc(2 * var(--tray-die) + var(--space-1));
+  }
+  /* Tray-wrap width matches the square size exactly so each slot */
+  /* fills with the dice pair perfectly — no extra padding in the */
+  /* slot on any viewport.                                        */
+  .db-tray-wrap {
+    width: var(--tray-square);
+    height: 100%;
+    flex-shrink: 0;
+  }
+
+  /* Auto rows + aspect-ratio: 1 on the slot keeps each slot a    */
+  /* perfect square regardless of available vertical space.       */
+  /* align-content: center keeps the pair centred when the tray   */
+  /* column is taller than its two square slots need.             */
+  .db-tray {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    flex: 1;
+    min-height: 0;
+    align-content: center;
+  }
+  .db-tray-slot {
+    aspect-ratio: 1;
+    height: auto;
+    min-width: var(--tray-square);
+    min-height: var(--tray-square);
+  }
+
+  /* Swap which hint copy is visible: hide the tray-column one,   */
+  /* show the one that lives in the score-bar between the two     */
+  /* score items.                                                  */
+  .db-tray-hint--portrait {
+    display: none;
+  }
+  .db-tray-hint--landscape {
+    display: flex;
+    font-size: var(--font-size-small);
+  }
+
+  /* Neutralise portrait spawner/parking swap; mirror board/tray row instead */
+  .db--right-hand .db-tray #db-spawner,
+  .db--right-hand .db-tray #db-parking {
+    order: 0;
+  }
+  .db--right-hand .game-screen .game-board {
+    flex-direction: row;
+  }
+}
+
 /* ── SCORE POP ── */
 @keyframes db-score-pop {
   0% {
@@ -3622,7 +3764,7 @@ body {
   container-type: inline-size;
   container-name: ta1;
   position: relative;
-  width: 100%;
+  width: min(100%, calc(100cqh * 168 / 204));
   aspect-ratio: 168 / 204;
   /* Pair moves as unit: dx/dy align pair midpoint to cell-pair midpoint */
   --ta1-dx: -15.49cqw; /* (34.52 - 50.01): cell-pair-mid-x - tray-pair-mid-x */
@@ -3900,7 +4042,7 @@ body {
   container-type: inline-size;
   container-name: ta2;
   position: relative;
-  width: 100%;
+  width: min(100%, calc(100cqh * 168 / 204));
   aspect-ratio: 168 / 204;
   --ta2-dx: 30.94cqw; /* pair-center → col-2 center: 80.945 - 50.01 */
   --ta2-dy: -66.67cqw; /* pair-center → row midpoint: 34.52 - 101.19 */
@@ -4308,7 +4450,7 @@ body {
   container-type: inline-size;
   container-name: ta3;
   position: relative;
-  width: 100%;
+  width: min(100%, calc(100cqh * 168 / 204));
   aspect-ratio: 168 / 204;
   --ta3-dx: -15.49cqw; /* (34.52 - 50.01): same pair-x target as step 1 */
   --ta3-dy: -82.15cqw; /* (19.045 - 101.19): row 0 center - tray pair center */
@@ -4825,7 +4967,7 @@ body {
   container-type: inline-size;
   container-name: ta4;
   position: relative;
-  width: 100%;
+  width: min(100%, calc(100cqh * 168 / 204));
   aspect-ratio: 168 / 204;
   --ta4-dy: -82.14cqw; /* tray centre Y → grid row-0 centre Y */
   --ta4-dx-init: -25cqw; /* pair: centred reg tray (before trays settle) */
