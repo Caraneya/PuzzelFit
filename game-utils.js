@@ -36,23 +36,11 @@ const GameUtils = {
   closePopup(id) { document.getElementById(id)?.classList.remove('is-open'); },
 
   // ── SHEETS ──────────────────────────────────────────────────
-  openSheet(id)  { document.getElementById(id)?.classList.add('is-open'); },
-  closeSheet(id) { document.getElementById(id)?.classList.remove('is-open'); },
-
-  // Call once per game after DOMContentLoaded.
-  // Handles scrim-click dismiss for all .sheet-overlay elements,
-  // skipping any marked with data-no-dismiss (e.g. win / lose sheets).
-  // onDismiss(overlay) is called after closing — use it to resume timers etc.
-  initSheetDismiss(onDismiss) {
-    document.querySelectorAll('.sheet-overlay').forEach(overlay => {
-      overlay.addEventListener('click', e => {
-        if (e.target !== overlay) return;
-        if (overlay.hasAttribute('data-no-dismiss')) return;
-        this.closeSheet(overlay.id);
-        onDismiss?.(overlay);
-      });
-    });
+  openSheet(id)  {
+    document.querySelectorAll('.sheet-overlay.is-open').forEach(el => el.classList.remove('is-open'));
+    document.getElementById(id)?.classList.add('is-open');
   },
+  closeSheet(id) { document.getElementById(id)?.classList.remove('is-open'); },
 
   // ── TOAST ───────────────────────────────────────────────────
   _toastTimer: null,

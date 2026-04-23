@@ -648,28 +648,26 @@
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  background: var(--color-overlay);
   display: flex;
-  align-items: flex-end;
   z-index: var(--z-modal);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--duration-slow) ease-in;
+  transition: opacity var(--duration-slow) ease-in, visibility 0s var(--duration-slow);
 }
 .sheet-overlay.is-open {
   opacity: 1;
+  visibility: visible;
   pointer-events: all;
+  transition: opacity var(--duration-slow) ease-in, visibility 0s;
 }
 
-/* The card itself — slides up from the bottom */
+/* The card itself — fills viewport, slides up from bottom */
 .sheet {
   --sheet-footer-height: calc(var(--min-touch-target) + var(--space-8));
   width: 100%;
-  height: 85%;
-  transform: translateY(100%);
-  transition: transform var(--duration-slow) ease-in;
+  height: 100%;
   background: var(--color-background);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   padding: var(--space-5);
   padding-bottom: var(--space-8);
   display: flex;
@@ -679,6 +677,8 @@
   /* 20px minimum between header / illustration / actions */
   overflow: hidden;
   position: relative;
+  transform: translateY(50%);
+  transition: transform var(--duration-slow) ease-in;
 }
 .sheet-overlay.is-open .sheet {
   transform: translateY(0);
@@ -762,7 +762,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
-  padding: var(--space-15) var(--space-5) var(--space-8);
+  padding: var(--space-15) var(--space-5) var(--space-5);
   background: linear-gradient(
     0deg,
     var(--color-background) 0%,
@@ -2109,12 +2109,12 @@
 @media (min-width: 600px) {
   .sheet-overlay {
     justify-content: center;
-    padding: 0 var(--space-6);
+    background: var(--color-background);
   }
 
   .sheet {
     max-width: 440px;
-    height: min(640px, 90vh);
+    height: 100%;
   }
 
   /* Popups — cap width so confirm dialogs don't stretch across desktop */

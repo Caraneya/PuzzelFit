@@ -2271,9 +2271,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   );
 
-  // Scrim click → close sheet + resume timer (win/lose blocked via data-no-dismiss in HTML)
-  GameUtils.initSheetDismiss(() => timerObj?.start());
-
   // Pause continue
   document.getElementById('db-btn-pause-reset').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-pause', startLoading, TIMING.NAV_DELAY); });
   document.getElementById('db-btn-continue').addEventListener('click', () => { GameUtils.closeSheet('sheet-pause'); timerObj.start(); });
