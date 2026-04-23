@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en" id="game-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dobbelaar — Internal Testing</title>
+  <link rel="stylesheet" href="./game.css" />
+</head>
+<body>
+
+  <div class="proto-badge">INTERNAL TESTING — DOBBELAAR</div>
+
+  <!-- == SCREEN: LOADING (entry) =================================== -->
+  <div class="proto-screen is-visible is-active" data-screen="loading" id="screen-loading">
+    <div class="loading-page">
+      <div class="loading-body">
+        <svg class="loading-img" viewBox="-20 -20 295 247" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central die (face-6, dark green) -->
+          <g id="db-lm">
+            <path d="M154.591 116H100.775C90.8674 116 82.8359 124.032 82.8359 133.94V187.76C82.8359 197.668 90.8674 205.7 100.775 205.7H154.591C164.498 205.7 172.529 197.668 172.529 187.76V133.94C172.529 124.032 164.498 116 154.591 116Z" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M150.366 123.305H104.623C96.2017 123.305 89.375 129.998 89.375 138.255V183.105C89.375 191.361 96.2017 198.055 104.623 198.055H150.366C158.788 198.055 165.614 191.361 165.614 183.105V138.255C165.614 129.998 158.788 123.305 150.366 123.305Z" fill="#00565E"/>
+            <path d="M105.257 144.241C108.559 144.241 111.237 141.563 111.237 138.261C111.237 134.958 108.559 132.281 105.257 132.281C101.954 132.281 99.2773 134.958 99.2773 138.261C99.2773 141.563 101.954 144.241 105.257 144.241Z" fill="#F5F1ED"/>
+            <path d="M150.105 144.241C153.407 144.241 156.084 141.563 156.084 138.261C156.084 134.958 153.407 132.281 150.105 132.281C146.802 132.281 144.125 134.958 144.125 138.261C144.125 141.563 146.802 144.241 150.105 144.241Z" fill="#F5F1ED"/>
+            <path d="M105.257 166.655C108.559 166.655 111.237 163.978 111.237 160.675C111.237 157.373 108.559 154.695 105.257 154.695C101.954 154.695 99.2773 157.373 99.2773 160.675C99.2773 163.978 101.954 166.655 105.257 166.655Z" fill="#F5F1ED"/>
+            <path d="M150.105 166.655C153.407 166.655 156.084 163.978 156.084 160.675C156.084 157.373 153.407 154.695 150.105 154.695C146.802 154.695 144.125 157.373 144.125 160.675C144.125 163.978 146.802 166.655 150.105 166.655Z" fill="#F5F1ED"/>
+            <path d="M105.257 189.084C108.559 189.084 111.237 186.407 111.237 183.105C111.237 179.802 108.559 177.125 105.257 177.125C101.954 177.125 99.2773 179.802 99.2773 183.105C99.2773 186.407 101.954 189.084 105.257 189.084Z" fill="#F5F1ED"/>
+            <path d="M150.105 189.084C153.407 189.084 156.084 186.407 156.084 183.105C156.084 179.802 153.407 177.125 150.105 177.125C146.802 177.125 144.125 179.802 144.125 183.105C144.125 186.407 146.802 189.084 150.105 189.084Z" fill="#F5F1ED"/>
+          </g>
+          <!-- Left die (rotated, face-3) -->
+          <g id="db-ll">
+            <path d="M53.1682 19.3L12.9328 30.8382C5.79021 32.8864 1.6603 40.3375 3.70838 47.4805L15.2455 87.7184C17.2936 94.8615 24.7441 98.9916 31.8867 96.9433L72.1221 85.4052C79.2647 83.3569 83.3946 75.9059 81.3465 68.7628L69.8094 28.5249C67.7613 21.3819 60.3108 17.2517 53.1682 19.3Z" fill="white" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M55.4449 38.0857C58.2226 37.2891 59.8287 34.3916 59.0322 31.6138C58.2358 28.836 55.3384 27.2299 52.5607 28.0265C49.783 28.823 48.1769 31.7206 48.9734 34.4983C49.7698 37.2761 52.6672 38.8822 55.4449 38.0857Z" fill="#00565E"/>
+            <path d="M43.9721 63.1559C46.7498 62.3594 48.3559 59.4618 47.5595 56.684C46.7631 53.9063 43.8657 52.3002 41.088 53.0967C38.3103 53.8933 36.7042 56.7909 37.5007 59.5687C38.2971 62.3464 41.1945 63.9525 43.9721 63.1559Z" fill="#00565E"/>
+            <path d="M32.4995 88.2106C35.2772 87.4141 36.8833 84.5165 36.0869 81.7387C35.2904 78.9609 32.393 77.3549 29.6154 78.1514C26.8377 78.948 25.2316 81.8456 26.028 84.6234C26.8244 87.4011 29.7218 89.0072 32.4995 88.2106Z" fill="#00565E"/>
+          </g>
+          <!-- Right die (rotated, face-3) -->
+          <g id="db-lr">
+            <path d="M242.004 26.9181L201.574 16.084C194.396 14.1607 187.019 18.4202 185.096 25.5979L174.263 66.0311C172.34 73.2088 176.599 80.5866 183.776 82.5099L224.207 93.344C231.384 95.2673 238.761 91.0078 240.685 83.8301L251.518 43.3969C253.441 36.2192 249.182 28.8414 242.004 26.9181Z" fill="white" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M199.232 36.3529C202.023 37.1008 204.892 35.4444 205.64 32.6532C206.388 29.8619 204.732 26.9928 201.941 26.2449C199.149 25.497 196.28 27.1534 195.533 29.9446C194.785 32.7359 196.441 35.6049 199.232 36.3529Z" fill="#00565E"/>
+            <path d="M211.541 59.7748C214.332 60.5228 217.201 58.8664 217.949 56.0751C218.697 53.2839 217.04 50.4148 214.249 49.6668C211.458 48.9188 208.589 50.5753 207.841 53.3665C207.093 56.1577 208.75 59.0268 211.541 59.7748Z" fill="#00565E"/>
+            <path d="M223.83 83.1811C226.621 83.929 229.49 82.2726 230.238 79.4814C230.986 76.6901 229.329 73.821 226.538 73.0731C223.747 72.3251 220.878 73.9815 220.13 76.7728C219.382 79.564 221.039 82.4331 223.83 83.1811Z" fill="#00565E"/>
+          </g>
+          <!-- Sparkle left -->
+          <path id="db-ls1" d="M56.8496 8.00391L59.6797 15.0801L66.7568 17.9111L69.0781 18.8398L66.7568 19.7676L59.6807 22.5977L56.8496 29.6758L55.9209 31.9971L54.9932 29.6758L52.1611 22.5977L45.0859 19.7676L42.7646 18.8398L45.0859 17.9111L52.1621 15.0801L54.9932 8.00391L55.9209 5.68262L56.8496 8.00391Z" fill="white" stroke="#00565E" stroke-width="2"/>
+          <!-- Sparkle right -->
+          <path id="db-ls2" d="M207.838 5.01172L210.668 12.0879L217.745 14.9189L220.066 15.8477L217.745 16.7754L210.669 19.6055L207.838 26.6836L206.909 29.0049L205.981 26.6836L203.149 19.6055L196.074 16.7754L193.753 15.8477L196.074 14.9189L203.15 12.0879L205.981 5.01172L206.909 2.69043L207.838 5.01172Z" fill="white" stroke="#00565E" stroke-width="2"/>
+          <!-- Plus / merge indicator -->
+          <path id="db-lp" d="M128 102.735C125.238 102.735 123 100.496 123 97.7349V88.7347H114C111.239 88.7347 109 86.4961 109 83.7347C109 80.9732 111.239 78.7346 114 78.7346L123 78.7346V69.7345C123 66.973 125.238 64.7344 128 64.7344C130.761 64.7344 133 66.973 133 69.7345V78.7346H142C144.761 78.7346 147 80.9732 147 83.7347C147 86.4961 144.761 88.7347 142 88.7347H133V97.7349C133 100.496 130.761 102.735 128 102.735Z" fill="#49DE71" stroke="#00565E" stroke-width="2"/>
+        </svg>
+        <p class="loading-text">Loading engine<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- == SCREEN: GAMEPLAY ========================================== -->
+  <div class="proto-screen" data-screen="gameplay" id="screen-gameplay" inert>
+    <div class="game-screen">
+
+      <div class="game-toolbar">
+        <div class="game-toolbar__left">
+          <button class="btn btn--icon" aria-label="Instructions" id="db-game-icon-info" data-sheet="sheet-info"></button>
+          <div class="game-hint-wrap" id="db-game-hint-wrap">
+            <button class="btn btn--icon" aria-label="Hint" id="db-game-icon-hint"></button>
+            <div class="game-hint-pointer"></div>
+          </div>
+          <button class="game-timer-group" aria-label="Pause" id="db-timer-group">
+            <span class="game-timer" id="db-timer-display">
+              <span class="game-timer__min">00</span>
+              <span class="game-timer__sep">:</span>
+              <span class="game-timer__sec">00</span>
+            </span>
+            <span id="db-game-icon-pause"></span>
+          </button>
+        </div>
+        <div class="game-toolbar__right">
+          <button class="btn btn--icon" aria-label="Reset level" id="db-game-icon-refresh"></button>
+          <button class="btn btn--icon" aria-label="Statistics" id="db-game-icon-stats" data-sheet="sheet-stats"></button>
+          <button class="btn btn--icon" aria-label="Settings" id="db-game-icon-settings" data-sheet="sheet-settings"></button>
+        </div>
+        <div class="game-hint-tooltip">
+          <p class="game-hint-tooltip__title">Hint</p>
+          <p class="game-hint-tooltip__body">Look for 2 identical dice already adjacent. Place a matching die next to them to trigger a merge and score points.</p>
+          <button class="game-hint-tooltip__close" aria-label="Close hint" id="db-game-icon-hint-close"></button>
+        </div>
+      </div>
+
+      <div class="game-main">
+        <div class="game-board">
+          <div class="db-grid-outer">
+            <div class="db-grid" id="db-board-grid"></div>
+            <div id="db-reward-word" class="db-reward-word" aria-live="polite" aria-atomic="true"></div>
+          </div>
+          <div class="db-tray-wrap">
+            <div class="db-tray">
+              <div class="db-tray-slot" id="db-spawner"></div>
+              <div class="db-tray-slot" id="db-parking">
+                <div class="db-tray-empty">
+                <svg viewBox="0 0 29 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 33.2308V0H13.8462C18.4154 0 22.0154 1.24616 24.5077 3.73846C27 6.23077 28.2462 9.41539 28.2462 13.2923C28.2462 17.1692 27 20.3538 24.5077 22.8462C22.0154 25.3385 18.4154 26.5846 13.8462 26.5846H7.75385V33.2308H0ZM7.75385 19.9385H13.2923C15.6462 19.9385 17.4462 19.2462 18.6923 17.8615C19.9385 16.4769 20.5615 15.0923 20.5615 13.2923C20.5615 11.4923 19.9385 10.1077 18.6923 8.72308C17.4462 7.33846 15.6462 6.64615 13.2923 6.64615H7.75385V19.9385Z" fill="currentColor"/>
+                </svg>
+              </div>
+              </div>
+            </div>
+            <div class="db-tray-hint db-tray-hint--portrait">
+              <div>TAP TO ROTATE</div>
+              <div>·</div>
+              <div>DRAG TO PLACE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-score-bar">
+          <div class="game-score-item">
+            <div id="db-score-icon"></div>
+            <span id="db-score-value">0</span>
+          </div>
+          <div class="db-tray-hint db-tray-hint--landscape">
+            <div>TAP TO ROTATE</div>
+            <div>·</div>
+            <div>DRAG TO PLACE</div>
+          </div>
+          <div class="game-score-item">
+            <div id="db-merges-icon"></div>
+            <span id="db-merges-value">0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- == TUTORIAL OVERLAY ========================================== -->
+  <div class="proto-tutorial" id="overlay-tutorial">
+    <div class="tutorial">
+      <div class="tutorial__step" id="db-tut-step">Step 1/5</div>
+      <div class="tutorial__play-area">
+        <div class="tut-anim tut-anim--step-1" aria-hidden="true">
+          <div class="ta1-scene">
+            <div class="ta1-grid">
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell"></div>
+              <div class="ta1-cell ta1-land ta1-land--1"><span class="ta1-pip"></span></div>
+              <div class="ta1-cell ta1-land ta1-land--2">
+                <span class="ta1-pip ta1-pip--tl"></span>
+                <span class="ta1-pip ta1-pip--br"></span>
+              </div>
+              <div class="ta1-cell"></div>
+            </div>
+            <div class="ta1-tray"></div>
+            <div class="ta1-die ta1-die--1"><span class="ta1-pip"></span></div>
+            <div class="ta1-die ta1-die--2">
+              <span class="ta1-pip ta1-pip--tl"></span>
+              <span class="ta1-pip ta1-pip--br"></span>
+            </div>
+            <div class="ta1-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="tut-anim tut-anim--step-2" aria-hidden="true">
+          <div class="ta2-scene">
+            <div class="ta2-grid">
+              <!-- top row: empty, empty, landing for red die -->
+              <div class="ta2-cell"></div>
+              <div class="ta2-cell"></div>
+              <div class="ta2-cell ta2-land ta2-land--r">
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+              </div>
+              <!-- bottom row: green + blue already placed (from step 1), landing for blue die -->
+              <div class="ta2-cell ta2-placed ta2-placed--g"><span class="ta2-pip"></span></div>
+              <div class="ta2-cell ta2-placed ta2-placed--b">
+                <span class="ta2-pip ta2-pip--tl"></span>
+                <span class="ta2-pip ta2-pip--br"></span>
+              </div>
+              <div class="ta2-cell ta2-land ta2-land--b">
+                <span class="ta2-pip ta2-pip--tl"></span>
+                <span class="ta2-pip ta2-pip--br"></span>
+              </div>
+            </div>
+            <div class="ta2-tray">
+              <!-- rotate icon: visual indicator only, not tapped in the animation -->
+              <div class="ta2-rotate">
+                <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18.6667 0C19.0556 0 19.375 0.125 19.625 0.375C19.875 0.625 20 0.944444 20 1.33333V7.33333C20 7.72222 19.875 8.04167 19.625 8.29167C19.375 8.54167 19.0556 8.66667 18.6667 8.66667H13.3333C12.9444 8.66667 12.625 8.54167 12.375 8.29167C12.125 8.04167 12 7.72222 12 7.33333C12 6.94444 12.125 6.625 12.375 6.375C12.625 6.125 12.9444 6 13.3333 6H15.1667C14.5833 5.16667 13.8472 4.51389 12.9583 4.04167C12.0417 3.56944 11.0556 3.33333 10 3.33333C8.58333 3.36111 7.33333 3.76389 6.25 4.54167C5.16667 5.34722 4.38889 6.41667 3.91667 7.75C3.80556 8.11111 3.59722 8.375 3.29167 8.54167C2.95833 8.68056 2.61111 8.69444 2.25 8.58333C1.88889 8.47222 1.63889 8.26389 1.5 7.95833C1.33333 7.625 1.30556 7.27778 1.41667 6.91667C2.05556 5.02778 3.13889 3.51389 4.66667 2.375C6.22222 1.26389 8 0.694444 10 0.666667C11.5 0.666667 12.8889 1 14.1667 1.66667C15.4444 2.33333 16.5 3.25 17.3333 4.41667V1.33333C17.3333 0.944444 17.4583 0.625 17.7083 0.375C17.9583 0.125 18.2778 0 18.6667 0ZM17.75 11.4167C18.1111 11.5 18.3611 11.7083 18.5 12.0417C18.6667 12.375 18.6944 12.7222 18.5833 13.0833C17.9167 14.9722 16.8194 16.4861 15.2917 17.625C13.7361 18.7361 11.9583 19.3056 9.95833 19.3333C8.48611 19.3333 7.11111 19 5.83333 18.3333C4.58333 17.6667 3.52778 16.75 2.66667 15.5833V18.6667C2.66667 19.0556 2.54167 19.375 2.29167 19.625C2.04167 19.875 1.72222 20 1.33333 20C0.944444 20 0.625 19.875 0.375 19.625C0.125 19.375 0 19.0556 0 18.6667V12.6667C0 12.2778 0.125 11.9583 0.375 11.7083C0.625 11.4583 0.944444 11.3333 1.33333 11.3333H6.66667C7.05556 11.3333 7.375 11.4583 7.625 11.7083C7.875 11.9583 8 12.2778 8 12.6667C8 13.0556 7.875 13.375 7.625 13.625C7.375 13.875 7.05556 14 6.66667 14H4.83333C5.41667 14.8333 6.15278 15.4861 7.04167 15.9583C7.95833 16.4306 8.94444 16.6667 10 16.6667C11.4167 16.6389 12.6667 16.2361 13.75 15.4583C14.8333 14.6528 15.6111 13.5833 16.0833 12.25C16.1944 11.8889 16.4028 11.6389 16.7083 11.5C17.0417 11.3333 17.3889 11.3056 17.75 11.4167Z" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Pair wrapper: blue (die-2) + red (die-4), rotates as a unit -->
+            <div class="ta2-pair">
+              <div class="ta2-die ta2-die--b">
+                <span class="ta2-pip ta2-pip--tl"></span>
+                <span class="ta2-pip ta2-pip--br"></span>
+              </div>
+              <div class="ta2-die ta2-die--r">
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+                <span class="ta2-pip"></span>
+              </div>
+            </div>
+            <!-- Tap ripple appears at pair center for each of the 3 taps -->
+            <div class="ta2-tap"></div>
+            <!-- Hand cursor -->
+            <div class="ta2-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="tut-anim tut-anim--step-3" aria-hidden="true">
+          <div class="ta3-scene">
+            <div class="ta3-grid">
+              <!-- top row: empty→red (pair left), empty→blue then merges, red-4 pre-placed -->
+              <div class="ta3-cell ta3-land ta3-land--r">
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+              </div>
+              <div class="ta3-cell ta3-land ta3-land--b">
+                <span class="ta3-pip ta3-pip--tl"></span>
+                <span class="ta3-pip ta3-pip--br"></span>
+              </div>
+              <div class="ta3-cell ta3-placed ta3-placed--r">
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+              </div>
+              <!-- bottom row: green-1, blue-2 (merge center → 6), blue-2 (disappears) -->
+              <div class="ta3-cell ta3-placed ta3-placed--g"><span class="ta3-pip"></span></div>
+              <div class="ta3-cell ta3-preblue ta3-preblue--1">
+                <span class="ta3-pip ta3-pip--tl"></span>
+                <span class="ta3-pip ta3-pip--br"></span>
+              </div>
+              <div class="ta3-cell ta3-preblue ta3-preblue--2">
+                <span class="ta3-pip ta3-pip--tl"></span>
+                <span class="ta3-pip ta3-pip--br"></span>
+              </div>
+            </div>
+            <!-- Merged 6-die: overlays cell (1,1) after merge -->
+            <div class="ta3-merged">
+              <span class="ta3-mpip"></span>
+              <span class="ta3-mpip"></span>
+              <span class="ta3-mpip"></span>
+              <span class="ta3-mpip"></span>
+              <span class="ta3-mpip"></span>
+              <span class="ta3-mpip"></span>
+              <span class="ta3-badge">!</span>
+            </div>
+            <!-- Score popup: floats up after merge -->
+            <div class="ta3-score">+6</div>
+            <!-- Tray -->
+            <div class="ta3-tray"></div>
+            <!-- Pair: red-4 (left) + blue-2 (right) -->
+            <div class="ta3-pair">
+              <div class="ta3-die ta3-die--r">
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+                <span class="ta3-pip"></span>
+              </div>
+              <div class="ta3-die ta3-die--b">
+                <span class="ta3-pip ta3-pip--tl"></span>
+                <span class="ta3-pip ta3-pip--br"></span>
+              </div>
+            </div>
+            <!-- Hand cursor -->
+            <div class="ta3-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="tut-anim tut-anim--step-4" aria-hidden="true">
+          <div class="ta4-scene">
+            <!-- Grid: (0,0)=red-4 overlay, (0,1)=empty→red overlay, (0,2)=red-4 overlay,
+                       (1,0)=green-1 overlay, (1,1)=die-6 static, (1,2)=empty -->
+            <div class="ta4-grid">
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell"></div>
+              <div class="ta4-cell ta4-cell--6">
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+                <span class="ta4-pip"></span>
+              </div>
+              <div class="ta4-cell"></div>
+            </div>
+            <!-- Red-4 die overlays: (0,0) and (0,2) from step 3; (0,1) appears when single die lands -->
+            <div class="ta4-rdie ta4-rdie--a">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <div class="ta4-rdie ta4-rdie--b">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <div class="ta4-rdie ta4-rdie--c">
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+              <span class="ta4-pip"></span><span class="ta4-pip"></span>
+            </div>
+            <!-- Green-1 die overlay at (1,0) -->
+            <div class="ta4-gdie"><span class="ta4-pip"></span></div>
+            <!-- Merged die-3 overlay at (0,0): appears after green merge -->
+            <div class="ta4-merged3">
+              <span class="ta4-mpip ta4-mpip--r"></span>
+              <span class="ta4-mpip ta4-mpip--c"></span>
+              <span class="ta4-mpip ta4-mpip--l"></span>
+            </div>
+            <!-- Score popups -->
+            <div class="ta4-score ta4-score--r">+12</div>
+            <div class="ta4-score ta4-score--g">+3</div>
+            <!-- Regular tray (shifts right when parking arrives) -->
+            <div class="ta4-tray ta4-tray--reg"></div>
+            <!-- Parking tray (slides in from screen left) -->
+            <div class="ta4-tray ta4-tray--park">
+              <span class="ta4-park-p">P</span>
+            </div>
+            <!-- Green pair: regular tray → parking → grid (0,0)+(0,1) -->
+            <div class="ta4-pair">
+              <div class="ta4-pdie ta4-pdie--1"><span class="ta4-ppip"></span></div>
+              <div class="ta4-pdie ta4-pdie--2"><span class="ta4-ppip"></span></div>
+            </div>
+            <!-- Single red-4 die: spawns in regular tray → placed at (0,1) -->
+            <div class="ta4-sdie">
+              <span class="ta4-ppip"></span><span class="ta4-ppip"></span>
+              <span class="ta4-ppip"></span><span class="ta4-ppip"></span>
+            </div>
+            <!-- Hand cursor -->
+            <div class="ta4-hand">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437ZM26.2609 10.317C26.5244 9.9843 26.8539 9.69479 27.2438 9.46969C28.8991 8.51399 31.0158 9.08114 31.9715 10.7365L36.586 18.7291C40.0903 24.7986 38.0107 32.5597 31.9412 36.0639C29.1124 37.6972 25.7032 37.9858 22.6401 36.8514L7.68377 31.3125C6.16343 30.7494 5.11071 29.3519 4.9891 27.7353L4.97486 27.5459C4.86226 26.049 5.61726 24.62 6.91724 23.8694C8.11929 23.1754 9.5266 22.9248 10.8943 23.1612L13.6284 23.6337C14.1489 23.7237 14.6438 23.3747 14.7338 22.8542C14.7719 22.6337 14.7315 22.4068 14.6196 22.2131L11.6808 17.1229L5.91261 7.1321C4.95691 5.47677 5.52407 3.36011 7.17939 2.40441C8.83472 1.44871 10.9514 2.01586 11.9071 3.67119L16.0433 10.8353C16.292 10.5444 16.5936 10.2902 16.9439 10.0879C18.3261 9.28991 20.0299 9.55367 21.111 10.6261C21.3744 10.2934 21.7039 10.0039 22.0938 9.7788C23.476 8.98079 25.1799 9.24455 26.2609 10.317Z" fill="currentColor"/>
+                <path d="M27.9752 13.0437L29.1288 15.0419C29.4474 15.5937 29.2583 16.2992 28.7065 16.6178C28.1548 16.9364 27.4492 16.7473 27.1306 16.1955L24.8234 12.1992C24.5048 11.6474 23.7992 11.4584 23.2475 11.777C22.6957 12.0955 22.5066 12.8011 22.8252 13.3529L25.1325 17.3492C25.4511 17.9009 25.262 18.6065 24.7102 18.9251C24.1584 19.2436 23.4529 19.0546 23.1343 18.5028L19.6734 12.5083C19.3549 11.9566 18.6493 11.7675 18.0975 12.0861C17.5457 12.4046 17.3567 13.1102 17.6753 13.662L21.1362 19.6564C21.4547 20.2082 21.2657 20.9138 20.7139 21.2323C20.1621 21.5509 19.4566 21.3619 19.138 20.8101L9.90893 4.82483C9.59036 4.27305 8.88481 4.084 8.33303 4.40257C7.78125 4.72113 7.5922 5.42669 7.91077 5.97846L13.679 15.9692L16.6178 21.0594C16.9995 21.7206 17.1374 22.4948 17.0073 23.2471C16.7004 25.0233 15.0117 26.2143 13.2355 25.9073L10.5014 25.4348C9.66553 25.2903 8.80548 25.4435 8.07088 25.8676C7.53864 26.1749 7.22953 26.7599 7.27563 27.3728L7.28988 27.5622C7.34382 28.2792 7.81073 28.8991 8.48506 29.1488L23.4413 34.6877C25.8606 35.5837 28.5533 35.3557 30.7875 34.0658C35.7535 31.1987 37.455 24.8487 34.5879 19.8827L29.9733 11.8901C29.6548 11.3383 28.9492 11.1493 28.3974 11.4678C27.8456 11.7864 27.6566 12.492 27.9752 13.0437Z" fill="var(--color-surface)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="tutorial__info">
+        <div class="tutorial__instruction">
+          <span class="tutorial__title" id="db-tut-title">Place your dice</span>
+          <div class="tutorial__desc-wrap">
+            <p class="tutorial__desc" id="db-tut-desc">You get 1 or 2 dice each turn. Drag them on an empty cell to place them on the grid.</p>
+          </div>
+        </div>
+        <button class="btn btn--primary" id="db-tut-next">Next</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- == POPUPS ==================================================== -->
+
+  <div class="overlay" id="popup-welcome" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Welcome to Dobbelaar!</h2>
+      <p class="modal__content">Place, rotate, and merge dice to rack up the highest score. Let's walk you through how to play.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-letsgo">Let's go!</button>
+        <button class="btn btn--secondary" id="db-btn-skip-tutorial">Skip tutorial</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="popup-goal" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Today's Goal</h2>
+      <p class="modal__content" id="db-goal-desc">Reach <strong id="db-goal-target">300</strong> points before the board fills. Merges that exceed 6 disappear from the board and score bonus points!</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-ready">Ready to play</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="popup-exit" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Exit game?</h2>
+      <p class="modal__content">Your current progress will be lost if you leave now.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-exit-confirm">Exit</button>
+        <button class="btn btn--secondary" id="db-btn-exit-stay">Stay</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="popup-reset" role="dialog" aria-modal="true">
+    <div class="modal" style="text-align:center">
+      <h2 class="modal__title">Reset level?</h2>
+      <p class="modal__content">Your current progress for this challenge will be lost.</p>
+      <div class="modal__actions" style="margin-top:var(--space-5)">
+        <button class="btn btn--primary" id="db-btn-reset-confirm">Yes, reset</button>
+        <button class="btn btn--secondary" id="db-btn-reset-cancel">No</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- == SHEETS ==================================================== -->
+
+  <!-- Pause -->
+  <div class="sheet-overlay" id="sheet-pause" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Pause</h2>
+        <p class="sheet__body">The game is paused. Your dice are safe — continue when you're ready.</p>
+      </div>
+      <div class="sheet__illustration">
+        <svg class="db-illus-svg" width="241" height="209" viewBox="0 0 241 209" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Pause illustration" role="img">
+          <path d="M136.334 187.562V207.934L232.756 175.157V12.9922L213.083 17.9053" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28.3613 0.6875L121.345 24.2619V192.597L28.3613 161.434V70.2543V0.6875Z" fill="white" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M29.1816 35.3359L121.159 58.3286" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M29.1816 67.9141L121.351 90.0806" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28.498 101.938L121.355 125.634" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28.498 131.547L121.355 158.894" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M43.9937 77.9018L33.0089 64.1585C31.815 62.6611 30.1628 61.7658 28.4252 61.4781L28.4785 61.4461L39.1489 62.7783C41.041 63.0128 42.8265 61.8564 43.3861 60.0339C44.1109 57.6572 42.48 55.2166 40.007 54.9821L22.8236 53.3461C19.9561 53.2609 16.9554 55.4724 16.4118 58.2914L14.8235 70.0949L4.12119 79.8841C1.00856 82.7351 -0.100044 87.1687 1.30703 91.1441L27.8869 142.462L27.9775 95.6524L22.0508 90.5899L26.805 94.9276C28.212 96.2119 30.3706 96.2119 31.7777 94.9276C33.334 93.4995 33.3767 91.0588 31.8683 89.5827L34.6452 92.3058C36.1695 93.8032 38.5999 93.8512 40.1882 92.4177C41.8618 90.9096 41.9897 88.3251 40.4707 86.6572C39.7938 85.9111 39.0316 85.0745 38.2268 84.1899C39.7991 85.2397 41.9257 85.1651 43.4287 83.8808C45.1982 82.3674 45.4487 79.7242 43.9937 77.9071V77.9018Z" fill="white"/>
+          <path d="M212.991 0.6875L121.334 24.2619V192.597L212.991 161.434V0.6875Z" fill="#00565E" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M213.083 17.8359L136.334 37.6856V187.493" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.6152 84.543L19.3715 82.7521C21.9458 81.9527 24.7493 82.6296 26.6734 84.5163L34.6416 92.3298C36.1659 93.8274 38.5963 93.8754 40.1846 92.4417C41.8582 90.9333 41.9861 88.3484 40.4671 86.6802C36.3418 82.1499 29.0718 74.0859 29.0718 74.0859" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14.5918 91.2632L22.0376 90.6237L26.7919 94.9621C28.1989 96.2466 30.3575 96.2466 31.7646 94.9621C33.3209 93.5337 33.3636 91.0927 31.8552 89.6164L26.4134 84.2812" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M28.4889 96.2789L28.361 124.634V143.418L1.29078 91.1578C-0.121624 87.1825 0.986982 82.7435 4.10494 79.8978L22.2211 63.3303C25.3816 60.442 30.3277 60.8257 32.998 64.1722L43.9828 77.9155C45.4378 79.7326 45.1873 82.3758 43.4178 83.8892C41.627 85.4239 38.9354 85.2374 37.3738 83.4682L29.0592 74.0733C27.2311 72.0057 24.1451 71.622 21.864 73.1728L18.1171 75.7253" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14.8066 70.0976L16.3949 58.2922C16.9386 55.4727 19.9393 53.2609 22.8068 53.3461L39.9903 54.9824C42.4633 55.2169 44.0996 57.6633 43.3694 60.035C42.8098 61.8578 41.0243 63.0143 39.1321 62.7798L28.4618 61.4474" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M197.239 81.7324C198.743 83.0166 200.869 83.0912 202.441 82.0414C201.642 82.926 200.874 83.768 200.198 84.5087C198.679 86.1767 198.812 88.7559 200.48 90.2693C202.068 91.7028 204.493 91.6495 206.023 90.1574L208.8 87.4343C207.292 88.9157 207.334 91.3564 208.891 92.7792C210.298 94.0688 212.456 94.0688 213.863 92.7792L218.617 88.4415L212.691 93.5039L212.781 140.313L239.361 88.9957C240.774 85.015 239.665 80.5813 236.547 77.7357L225.845 67.9465L224.256 56.1429C223.713 53.3239 220.712 51.1124 217.845 51.1977L200.661 52.8337C198.188 53.0681 196.552 55.5141 197.282 57.8855C197.842 59.708 199.627 60.8643 201.519 60.6299L212.19 59.2976L212.243 59.3296C210.5 59.612 208.853 60.5126 207.659 62.0101L196.675 75.7533C195.219 77.5705 195.47 80.2136 197.239 81.727V81.7324Z" fill="white"/>
+          <path d="M212.787 140.249L239.367 88.9313C240.779 84.9559 239.67 80.5169 236.552 77.6713L218.436 61.1037C215.276 58.2154 210.33 58.5991 207.659 61.9457L196.675 75.6889C195.219 77.5061 195.47 80.1492 197.239 81.6626C199.03 83.1973 201.722 83.0108 203.284 81.2416L211.598 71.8468C213.426 69.7792 216.512 69.3955 218.793 70.9462L222.54 73.4987" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M227.059 82.3555L221.303 80.5646C218.729 79.7652 215.925 80.4421 214.001 82.3288L206.033 90.1423C204.509 91.6399 202.078 91.6879 200.49 90.2542C198.816 88.7458 198.688 86.1609 200.207 84.4927C204.333 79.9624 211.603 71.8984 211.603 71.8984" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M226.05 89.0758L218.604 88.4362L213.85 92.7746C212.442 94.0591 210.284 94.0591 208.877 92.7746C207.32 91.3462 207.278 88.9052 208.786 87.4289L214.228 82.0938" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M212.779 93.9688L212.891 140.3" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M225.834 67.9492L224.245 56.1437C223.702 53.3243 220.701 51.1124 217.833 51.1977L200.65 52.8339C198.177 53.0684 196.541 55.5148 197.271 57.8866C197.83 59.7093 199.616 60.8659 201.508 60.6314L212.178 59.299" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M58.8691 8.42188V171.658" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M91.7832 17.4844V182.644" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M58.8691 42.7578V75.0456L91.7704 83.2588V50.9817L58.8691 42.7578Z" fill="#49DE71" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 49.9097L203.122 37.7578" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 64.0006L189.419 54.9453" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 78.1022L189.419 69.0469" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 92.17L189.419 83.1094" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 107.378L189.419 97.2891" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 122.051L203.122 107.719" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 137.344L203.122 121.43" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 152.475L203.122 135.18" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M149.322 167.592L203.122 150.297" stroke="white" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          <g class="db-pause-eye">
+            <path d="M72.9023 70.4908C81.6166 72.9905 89.6114 71.0344 91.0025 66.195C92.3883 61.3556 86.648 55.4608 77.9284 52.9612C69.214 50.4615 61.022 52.3589 59.6362 57.1983C58.2505 62.0378 64.188 67.9911 72.9023 70.4908Z" fill="white" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M90.9159 66.3505C92.0139 62.529 88.5654 58.1906 82.9797 56.5863C77.394 54.982 71.9789 56.7835 70.8809 60.605C69.783 64.4264 73.4233 68.8235 79.009 70.4224C84.5947 72.0267 89.818 70.1719 90.9106 66.3505H90.9159Z" fill="#00565E" stroke="#00565E" stroke-width="1.37009" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-btn-pause-reset">Reset level</button>
+        <button class="btn btn--primary" id="db-btn-continue">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="sheet-overlay" id="sheet-info" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Instructions</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-instr-wrap">
+        <div class="sheet__list">
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">1</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Place your dice</span>
+              <span class="sheet__list-body">You get 1 or 2 dice each turn. Drag them onto an empty cell to place them on the grid.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">2</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Rotate and match</span>
+              <span class="sheet__list-body">Tap a die to rotate it 90°. Place matching dice adjacent to set up a merge.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">3</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Merge and score</span>
+              <span class="sheet__list-body">Three or more identical adjacent dice merge. If their sum is 6 or less, they are replaced by one die showing the sum. If their sum is more than 6, the dice disappear and you score bonus points.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">4</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">Use the parking spot</span>
+              <span class="sheet__list-body">Stash a die in the parking spot to hold it while you place the other. Drag from the spawner to swap.</span>
+            </div>
+          </div>
+          <div class="sheet__list-item">
+            <span class="sheet__list-badge">5</span>
+            <div class="sheet__list-text">
+              <span class="sheet__list-title">More merges = higher score</span>
+              <span class="sheet__list-body">Chain merges across the whole grid for maximum points. Keep your streak alive by playing every day!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-instr-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-close-info">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Statistics -->
+  <div class="sheet-overlay" id="sheet-stats" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Statistics</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-stats-wrap">
+        <div class="stat-card stat-card--bare">
+          <div class="stat-gallery__grid stat-gallery__grid--3">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-played">—</span>
+              <span class="stat-gallery__label">Played</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-streak">—</span>
+              <span class="stat-gallery__label">Streak</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-winrate">—</span>
+              <span class="stat-gallery__label">Win rate</span>
+            </div>
+          </div>
+          <div class="stat-gallery__grid">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-best">—</span>
+              <span class="stat-gallery__label">Best score</span>
+            </div>
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-avg">—</span>
+              <span class="stat-gallery__label">Avg. score</span>
+            </div>
+          </div>
+          <div class="stat-gallery__grid" style="grid-template-columns:1fr">
+            <div class="stat-gallery__tile">
+              <span class="stat-gallery__number" id="db-stat-totaltime">—</span>
+              <span class="stat-gallery__label">Total time played</span>
+            </div>
+          </div>
+        </div>
+        <div class="stat-streak">
+          <span class="stat-streak__title">3 Daily streak</span>
+          <div class="stat-streak__body">
+            <div class="cal-weekdays">
+              <span class="cal-weekday">M</span><span class="cal-weekday">T</span><span class="cal-weekday">W</span>
+              <span class="cal-weekday">T</span><span class="cal-weekday">F</span><span class="cal-weekday">S</span><span class="cal-weekday">S</span>
+            </div>
+            <div class="divider"></div>
+            <div class="stat-streak__grid" id="db-stat-streak-grid"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-stats-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-close-stats">Continue playing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="sheet-overlay" id="sheet-settings" role="dialog" aria-modal="true">
+    <div class="sheet sheet--footer-dual">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Settings</h2>
+      </div>
+      <div class="sheet__list-wrap" id="db-settings-wrap">
+        <div class="stt-card">
+          <div class="stt-row">
+            <span class="stt-row__label">Sound Effects</span>
+            <label class="stt-toggle" aria-label="Sound effects">
+              <input type="checkbox" id="db-toggle-sfx" checked />
+              <span class="stt-toggle__slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <span class="stt-row__label">Background Music</span>
+            <label class="stt-toggle" aria-label="Background music">
+              <input type="checkbox" id="db-toggle-music" />
+              <span class="stt-toggle__slider"></span>
+            </label>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Theme</span>
+              <span class="stt-row__desc">Choose between dark, automatic or bright.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Theme" id="db-stt-theme">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option" data-value="dark"  id="db-stt-theme-dark"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option stt-segment__option--active" data-value="auto" id="db-stt-theme-auto"></button>
+                <div class="stt-segment__divider"></div>
+                <button class="stt-segment__option" data-value="light" id="db-stt-theme-light"></button>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-row">
+            <div class="stt-row__label-wrap">
+              <span class="stt-row__label">Dominant Hand</span>
+              <span class="stt-row__desc">Choose between left / right-handed.</span>
+            </div>
+            <div class="stt-segment" role="group" aria-label="Dominant hand" id="db-stt-hand">
+              <div class="stt-segment-wrap">
+                <button class="stt-segment__option" data-value="left"  id="db-stt-hand-left"></button>
+                <button class="stt-segment__option stt-segment__option--active" data-value="right" id="db-stt-hand-right" style="transform:scaleX(-1)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stt-overflow-card">
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-howto"></div>
+            <span class="stt-overflow-row__label">How to play?</span>
+            <button class="btn btn--success" id="db-stt-btn-howto">Open</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-reset-level"></div>
+            <span class="stt-overflow-row__label">Reset current level</span>
+            <button class="btn btn--success" id="db-stt-btn-reset-level">Reset</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-stats"></div>
+            <span class="stt-overflow-row__label">Have you seen your stats?</span>
+            <button class="btn btn--success" id="db-stt-btn-stats">See</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stt-overflow-row">
+            <div id="db-stt-icon-bible"></div>
+            <span class="stt-overflow-row__label">Read about Dobbelaar</span>
+            <button class="btn btn--success" id="db-stt-btn-bible">Read</button>
+          </div>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-settings-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--secondary" id="db-btn-reset-settings">Reset defaults</button>
+        <button class="btn btn--primary" id="db-btn-save-settings">Save and continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="sheet-overlay" id="sheet-feedback" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Would you like to help us?</h2>
+        <p class="sheet__body">We'd love to hear your feedback — it helps us make Dobbelaar even better.</p>
+      </div>
+      <div class="sheet__list-wrap" id="db-feedback-wrap">
+        <div class="form-group">
+          <label class="form-label">How many stars do you give this game?</label>
+          <div class="form-stars" id="db-stars">
+            <button class="form-star" id="db-star-1" aria-label="1 star"></button>
+            <button class="form-star" id="db-star-2" aria-label="2 stars"></button>
+            <button class="form-star" id="db-star-3" aria-label="3 stars"></button>
+            <button class="form-star" id="db-star-4" aria-label="4 stars"></button>
+            <button class="form-star" id="db-star-5" aria-label="5 stars"></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="db-feedback-tips">What did you like? Any tips?</label>
+          <textarea class="form-field form-field--textarea" id="db-feedback-tips"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="db-feedback-suggestions">Any mechanic or feature suggestions?</label>
+          <input class="form-field" type="text" id="db-feedback-suggestions" />
+        </div>
+        <div class="form-checkbox-row">
+          <button class="form-tickbox" id="db-tickbox" aria-pressed="false">
+            <div class="form-tickbox__box" id="db-tickbox-icon"></div>
+          </button>
+          <label class="form-checkbox-label">The puzzle team may contact me regarding my feedback.</label>
+        </div>
+      </div>
+      <div class="sheet__scrollbar"><div class="sheet__scrollbar-thumb" id="db-feedback-thumb"></div></div>
+      <div class="sheet-footer">
+        <button class="btn btn--primary" id="db-btn-send-feedback">Send feedback</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win -->
+  <div class="sheet-overlay sheet-overlay--win" id="sheet-win" role="dialog" aria-modal="true" data-no-dismiss>
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title">Congratulations!</h2>
+        <p class="sheet__body">You reached today's target! A new puzzle will be ready in <strong id="db-win-countdown">11:55:23</strong>.</p>
+      </div>
+      <div class="sheet__illustration">
+        <svg class="db-illus-svg" width="240" height="211" viewBox="0 0 240 211" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Win illustration" role="img">
+          <g class="db-win-flag-assembly">
+            <g class="db-win-box">
+              <path d="M95.5017 183.173V208.744L37.5137 186.539V160.133L95.5017 183.173Z" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M95.502 183.173V208.744L153.49 186.539V160.133L95.502 183.173Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M37.5137 160.135L95.5017 135.422L153.49 160.135L95.5017 183.175L37.5137 160.135Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M65.5059 197.257V171.258" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M125.495 197.252C126.205 196.982 125.495 171.248 125.495 171.248L68.0684 147.102" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M65.5059 171.258L124.986 147.984" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M125.498 197.257V171.258" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path d="M98.6077 3.28906H92.4004V172.085H98.6077V3.28906Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <g class="db-win-chart">
+              <path d="M171.122 17.1094H98.6074V89.6235H171.122V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.122 89.625L153.432 108.194" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M95.502 12.0625C98.4187 12.0625 100.783 9.69801 100.783 6.78126C100.783 3.8645 98.4187 1.5 95.502 1.5C92.5852 1.5 90.2207 3.8645 90.2207 6.78126C90.2207 9.69801 92.5852 12.0625 95.502 12.0625Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 17.1094H146.947V41.2825H171.12V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 17.1094H122.775V41.2825H146.949V17.1094Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 17.1094H98.6074V41.2825H122.781V17.1094Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 41.2812H146.947V65.4544H171.12V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 41.2812H122.775V65.4544H146.949V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 41.2812H98.6074V65.4544H122.781V41.2812Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M171.12 65.4531H146.947V89.6262H171.12V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M146.949 65.4531H122.775V89.6262H146.949V65.4531Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M122.781 65.4531H98.6074V89.6262H122.781V65.4531Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M153.432 89.625V108.194L171.122 89.625H153.432Z" fill="#00565E"/>
+              <path d="M88.0332 172.086H102.528" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path class="db-win-arrow" fill-rule="evenodd" clip-rule="evenodd" d="M104.298 49.0234L112.235 53.6063L104.298 58.1892V54.4001H99.0059V52.8125H104.298V49.0234Z" fill="#00565E"/>
+          </g>
+          <g class="db-win-notebook">
+            <path d="M153.432 89.6222V108.191H201.773V35.6719H165.222" fill="white"/>
+            <path d="M153.432 89.6222V108.191H201.773V35.6719H165.222" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M201.773 35.6719H177.6V59.845H201.773V35.6719Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M177.605 35.6719H153.432V59.845H177.605V35.6719Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M201.773 59.8438H177.6V84.0169H201.773V59.8438Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M177.605 59.8438H153.432V84.0169H177.605V59.8438Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M201.773 84.0234H177.6V108.197H201.773V84.0234Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M177.605 84.0234H153.432V108.197H177.605V84.0234Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </svg>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-win-btn-share">Share the win</button>
+        <button class="btn btn--primary" id="db-win-btn-another">Play another challenge</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lose -->
+  <div class="sheet-overlay sheet-overlay--lose" id="sheet-lose" role="dialog" aria-modal="true" data-no-dismiss>
+    <div class="sheet">
+      <div class="sheet__header">
+        <h2 class="sheet__title" id="db-lose-title">Board's full!</h2>
+        <p class="sheet__body"><span id="db-lose-reason">No more dice can be placed.</span> You scored <strong id="db-lose-score">0</strong> points. Better luck next time!</p>
+      </div>
+      <div class="sheet__illustration">
+        <svg class="db-illus-svg" width="240" height="211" viewBox="0 0 240 211" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Lose illustration" role="img">
+          <!-- Character body — always visible -->
+          <path d="M142.218 208.744C142.218 208.744 142.484 146.333 142.484 146.322C142.484 146.003 149.798 143.687 150.299 143.49C156.735 140.924 163.005 137.943 169.053 134.557C185.166 125.534 200.614 113.2 209.073 96.4157C218.713 77.2942 217.351 53.7544 205.767 35.852C200.55 27.7871 193.497 21.0424 185.539 15.7031C180.828 21.4736 175.371 27.1856 170.724 33.0093C177.453 40.5365 184.73 48.7611 186.795 58.769C188.52 67.116 186.87 76.2296 182.127 83.4853C176.596 91.9387 162.191 101.494 153.019 104.832C145.726 107.488 144.534 106.312 137.081 107.691C129.826 109.032 123.422 113.28 116.597 116.075C114.574 116.905 109.901 119.966 107.654 119.732L60.3782 114.377C60.3782 114.377 26.2773 118.577 26.2773 153.253V208.738H142.213L142.218 208.744Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- ── SCENE: board-full (default) ── -->
+          <g class="db-lose-board-scene">
+            <g class="db-lose-board-top">
+              <path d="M116.691 100.742H84.8789V132.554H116.691V100.742Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M148.499 100.742H116.688V132.554H148.499V100.742Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M26.2852 82.3281V114.14L53.0718 132.554V100.747L26.2852 82.3281Z" fill="#F5F1ED"/>
+              <path d="M84.8822 100.742H53.0703V132.554H84.8822V100.742Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M53.0718 100.747L26.2852 82.3281H121.715L148.502 100.747" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M89.8984 82.3281L116.685 100.747" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M58.0938 82.3281L84.8804 100.747" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M53.0718 132.554L26.2852 114.14V82.3281" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M139.524 94.6016H44.0938V126.382" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M130.649 88.4609H35.2188V120.273" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M59.1867 115.051V114.098H60.8369V109.898L59.0749 111.112H59.043V109.914L61.0179 108.578H62.04V114.098H63.4453V115.051H59.1867Z" fill="#00565E"/>
+              <path d="M66.6611 115.149C66.1713 115.149 65.7455 115.069 65.3728 114.915C65.0055 114.761 64.7181 114.537 64.5158 114.25C64.3135 113.962 64.207 113.627 64.207 113.243C64.207 112.86 64.3135 112.541 64.5318 112.28C64.75 112.024 65.0375 111.822 65.3888 111.684V111.652C65.0907 111.519 64.8511 111.327 64.6755 111.077C64.4998 110.827 64.4093 110.545 64.4093 110.236C64.4093 109.89 64.4998 109.586 64.6861 109.325C64.8671 109.065 65.128 108.857 65.4686 108.708C65.804 108.559 66.2033 108.484 66.6611 108.484C67.1189 108.484 67.5234 108.559 67.8641 108.708C68.1995 108.857 68.4603 109.065 68.6413 109.325C68.8223 109.586 68.9128 109.89 68.9128 110.23C68.9128 110.539 68.8223 110.811 68.6466 111.045C68.471 111.279 68.2261 111.465 67.9173 111.593V111.625C68.2687 111.764 68.5561 111.971 68.7744 112.243C68.998 112.519 69.1044 112.844 69.1044 113.227C69.1044 113.611 69.0033 113.935 68.7957 114.228C68.5881 114.521 68.3059 114.739 67.9386 114.899C67.5713 115.059 67.1402 115.139 66.6504 115.139L66.6611 115.149ZM66.6611 114.164C67.0443 114.164 67.3531 114.074 67.582 113.888C67.8162 113.707 67.928 113.456 67.928 113.148C67.928 112.839 67.8109 112.594 67.582 112.408C67.3531 112.221 67.0443 112.131 66.6611 112.131C66.2778 112.131 65.969 112.221 65.7401 112.408C65.5112 112.589 65.3941 112.839 65.3941 113.148C65.3941 113.456 65.5112 113.701 65.7401 113.888C65.9744 114.069 66.2778 114.164 66.6611 114.164ZM66.6611 111.178C67.0017 111.178 67.2732 111.103 67.4702 110.949C67.6672 110.795 67.763 110.587 67.763 110.321C67.763 110.055 67.6618 109.842 67.4702 109.687C67.2732 109.533 67.0017 109.453 66.6611 109.453C66.3204 109.453 66.0542 109.533 65.8572 109.687C65.6603 109.847 65.5645 110.055 65.5645 110.321C65.5645 110.587 65.6603 110.795 65.8572 110.949C66.0489 111.103 66.3204 111.178 66.6611 111.178Z" fill="#00565E"/>
+              <path d="M66.101 100.285L37.2383 80.4453" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g class="db-lose-stairs">
+              <path d="M100.469 85.0789L126.622 73.3516V104.317L100.469 116.039V85.0789Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M126.617 73.347L151.865 61.625V92.5909L126.617 104.313V73.347Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M151.867 61.6961L178.925 49.9688V80.9347L151.867 92.6567V61.6961Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M100.47 85.0789L74.3164 73.3516V104.317L100.47 116.039V85.0789Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M148.5 39.5625L178.928 49.597" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M74.3147 73.4173L49.0664 61.6953V92.6559L74.3147 104.378V73.4173Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M49.0661 61.6961L23.8125 49.9688V80.9347L49.0661 92.6567V61.6961Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g class="db-lose-board-bottom">
+              <path d="M116.691 31.4844H84.8789V63.2967H116.691V31.4844Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M148.499 31.4844H116.688V63.2967H148.499V31.4844Z" fill="white" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M26.2852 13.0625V44.8695L53.0718 63.2883V31.476L26.2852 13.0625Z" fill="#F5F1ED"/>
+              <path d="M84.8822 31.4844H53.0703V63.2967H84.8822V31.4844Z" fill="#49DE71" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M53.0718 31.476L26.2852 13.0625H121.715L148.502 31.476" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M89.8984 13.0625L116.685 31.476" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M58.0938 13.0625L84.8804 31.476" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M53.0718 63.2883L26.2852 44.8695V13.0625" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M139.524 25.3438H44.0938V57.1241" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M130.649 19.2031H35.2188V51.0154" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M53.0703 63.2969L100.469 85.08L148.501 63.2969H53.0703Z" fill="#00565E"/>
+              <path d="M23.8125 49.9722L31.8773 48.7266L49.0661 61.6996L23.8125 49.9722Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M148.5 39.5625V63.2886L178.928 49.9643L148.5 39.5625Z" fill="#00565E" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M26.2852 82.3281L53.0718 100.747L66.726 100.859L26.2852 82.3281Z" fill="#00565E"/>
+              <path d="M134.82 100.512L148.501 100.746L142.784 96.8125L134.82 100.512Z" fill="#00565E"/>
+            </g>
+            <path class="db-lose-hand" d="M188.995 18.8255L162.581 2.52541C159.967 0.912437 156.597 1.22651 154.324 3.2973L138.03 18.1601C136.156 19.8689 136.321 22.8712 138.37 24.3671C139.941 25.5116 142.113 25.3626 143.513 24.0158L155.16 12.8048L147.526 20.1563C146.073 21.5564 146.169 23.9199 147.739 25.1869C149.091 26.2835 151.061 26.1664 152.275 24.9101L160.382 16.5045L154.899 22.1898C153.419 23.723 153.712 26.2249 155.501 27.3748C156.911 28.2851 158.774 28.0189 159.876 26.7573L166.003 19.7305L161.995 24.3298C160.659 25.863 161.01 28.2212 162.73 29.3018C164.172 30.2068 166.067 29.8661 167.105 28.5193L170.033 24.7238L175.127 31.4844" stroke="#00565E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M67.0195 19.2031L75.9467 25.3409H107.758L98.8314 19.2031H67.0195Z" fill="#00565E"/>
+            <path d="M59.6902 90.8657L57.2148 89.439V75.0234L67.2865 80.8365V82.9712L59.6902 78.5847V82.5347L66.7701 86.623V88.7577L59.6902 84.6693V90.8604V90.8657Z" fill="#00565E"/>
+          </g>
+
+          <!-- ── SCENE: timer ── -->
+          <g class="db-lose-timer-scene">
+            <!-- Top chamber: empty (all time used up) -->
+            <path d="M57 30 L133 30 L100 71 L90 71 Z" fill="white" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Bottom chamber: full (sand settled — time's up) -->
+            <path d="M57 113 L133 113 L90 71 L100 71 Z" fill="#F5F1ED" stroke="#00565E" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Top cap bar -->
+            <rect x="49" y="17" width="92" height="13" rx="4" fill="#00565E"/>
+            <!-- Bottom cap bar -->
+            <rect x="49" y="113" width="92" height="13" rx="4" fill="#00565E"/>
+            <!-- Pinch waist -->
+            <rect x="84" y="68" width="22" height="7" rx="3.5" fill="#00565E"/>
+            <!-- Sand texture dots at bottom of filled chamber -->
+            <circle cx="80"  cy="100" r="3"   fill="#00565E" opacity="0.18"/>
+            <circle cx="95"  cy="104" r="3"   fill="#00565E" opacity="0.18"/>
+            <circle cx="110" cy="100" r="3"   fill="#00565E" opacity="0.18"/>
+            <circle cx="88"  cy="93"  r="2"   fill="#00565E" opacity="0.12"/>
+            <circle cx="103" cy="93"  r="2"   fill="#00565E" opacity="0.12"/>
+            <!-- White highlight on bottom cap -->
+            <rect x="56" y="116" width="30" height="4" rx="2" fill="white" opacity="0.25"/>
+          </g>
+
+          <!-- ── SCENE: merges ── -->
+          <g class="db-lose-merges-scene">
+            <!-- Depleted merge bar (all filled = limit hit) -->
+            <g class="db-lose-merges-bar">
+              <rect x="35" y="21" width="120" height="9" rx="4.5" fill="#00565E"/>
+              <rect x="38" y="24" width="24" height="3" rx="1.5" fill="white" opacity="0.22"/>
+            </g>
+            <!-- Three X-face dice -->
+            <g class="db-lose-merges-die1">
+              <rect x="35" y="38" width="36" height="36" rx="7" fill="white" stroke="#00565E" stroke-width="3"/>
+              <line x1="43" y1="46" x2="63" y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+              <line x1="63" y1="46" x2="43" y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="db-lose-merges-die2">
+              <rect x="77" y="38" width="36" height="36" rx="7" fill="white" stroke="#00565E" stroke-width="3"/>
+              <line x1="85" y1="46" x2="105" y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+              <line x1="105" y1="46" x2="85"  y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <g class="db-lose-merges-die3">
+              <rect x="119" y="38" width="36" height="36" rx="7" fill="white" stroke="#00565E" stroke-width="3"/>
+              <line x1="127" y1="46" x2="147" y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+              <line x1="147" y1="46" x2="127" y2="66" stroke="#00565E" stroke-width="3" stroke-linecap="round"/>
+            </g>
+          </g>
+
+          <!-- Character body details — always on top -->
+          <path d="M59.3711 153.828V208.749" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M117.508 145.047C117.508 145.047 127.478 152.239 142.485 146.33" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="sheet__actions">
+        <button class="btn btn--secondary" id="db-lose-btn-retry">Play again</button>
+        <button class="btn btn--primary" id="db-lose-btn-another">Play another challenge</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="db-toast"></div>
+
+
+  <!-- == SCRIPTS =================================================== -->
+  <script src="./game.js"></script>
+</body>
+</html>
