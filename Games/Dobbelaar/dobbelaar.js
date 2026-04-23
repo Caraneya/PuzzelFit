@@ -1484,7 +1484,7 @@ function showHint() {
   SoundUtils.play('hint-open');
   clearHintHighlights();
   const hint   = computeHint();
-  const bodyEl = document.querySelector('#db-game-hint-wrap .game-hint-tooltip__body');
+  const bodyEl = document.querySelector('#screen-gameplay .game-hint-tooltip__body');
   if (bodyEl) bodyEl.textContent = hint.text;
   hint.cells.forEach(([r, c]) => cellEl(r, c)?.classList.add('db-cell--hint'));
   if (hint.source) {

@@ -1952,6 +1952,9 @@
   .tutorial__step {
     grid-column: 2;
     grid-row: 1;
+    position: relative;
+    z-index: 1;
+    background: var(--color-background);
   }
   .tutorial__info {
     grid-column: 2;
@@ -1960,11 +1963,17 @@
     min-width: 0;
     min-height: 0;
     padding: var(--space-5);
+    position: relative;
+    z-index: 1;
+    background: var(--color-background);
   }
   .tutorial__instruction {
     flex: 1;
     justify-content: center;
     min-height: 0;
+  }
+  .tutorial__desc-wrap {
+    height: auto;
   }
 }
 
@@ -2604,12 +2613,12 @@
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
-/* Tooltip box hangs from the pointer */
+/* Tooltip box — sibling of hint-wrap in the toolbar; spans toolbar width minus 12px gutters */
 .game-hint-tooltip {
   position: absolute;
-  top: 6px;
-  transform: translateX(-20%);
-  width: min(80cqw, 300px);
+  top: calc(100% - var(--space-1));
+  left: var(--space-3);
+  max-width: calc(100% - var(--space-6));
   background: var(--color-surface-tooltip);
   border-radius: var(--radius-xs);
   padding: var(--space-4);
@@ -2617,6 +2626,18 @@
   flex-direction: column;
   gap: var(--space-2);
   z-index: var(--z-ui);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--easing-default);
+}
+.game-toolbar:has(.game-hint-wrap--open) .game-hint-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (min-aspect-ratio: 1/1) {
+  .game-hint-tooltip {
+    top: calc(100% - var(--space-1));
+  }
 }
 .game-hint-tooltip__title {
   font-family: var(--font-family-secondary);
