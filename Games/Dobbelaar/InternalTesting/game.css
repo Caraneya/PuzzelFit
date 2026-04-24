@@ -11,23 +11,21 @@
 
 @font-face {
   font-family: "Funnel Display";
-  src: url("../../../Fonts/FunnelDisplay/FunnelDisplay-Regular.ttf")
-    format("truetype");
+  src: url("./Fonts/FunnelDisplay/FunnelDisplay-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Funnel Display";
-  src: url("../../../Fonts/FunnelDisplay/FunnelDisplay-Medium.ttf")
-    format("truetype");
+  src: url("./Fonts/FunnelDisplay/FunnelDisplay-Medium.ttf") format("truetype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Funnel Display";
-  src: url("../../../Fonts/FunnelDisplay/FunnelDisplay-SemiBold.ttf")
+  src: url("./Fonts/FunnelDisplay/FunnelDisplay-SemiBold.ttf")
     format("truetype");
   font-weight: 600;
   font-style: normal;
@@ -35,15 +33,14 @@
 }
 @font-face {
   font-family: "Funnel Display";
-  src: url("../../../Fonts/FunnelDisplay/FunnelDisplay-Bold.ttf")
-    format("truetype");
+  src: url("./Fonts/FunnelDisplay/FunnelDisplay-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Funnel Display";
-  src: url("../../../Fonts/FunnelDisplay/FunnelDisplay-ExtraBold.ttf")
+  src: url("./Fonts/FunnelDisplay/FunnelDisplay-ExtraBold.ttf")
     format("truetype");
   font-weight: 800;
   font-style: normal;
@@ -52,24 +49,21 @@
 
 @font-face {
   font-family: "SF Pro Display";
-  src: url("../../../Fonts/SFProDisplay/SFPRODISPLAYREGULAR.OTF")
-    format("opentype");
+  src: url("./Fonts/SFProDisplay/SFPRODISPLAYREGULAR.OTF") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "SF Pro Display";
-  src: url("../../../Fonts/SFProDisplay/SFPRODISPLAYMEDIUM.OTF")
-    format("opentype");
+  src: url("./Fonts/SFProDisplay/SFPRODISPLAYMEDIUM.OTF") format("opentype");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "SF Pro Display";
-  src: url("../../../Fonts/SFProDisplay/SFPRODISPLAYBOLD.OTF")
-    format("opentype");
+  src: url("./Fonts/SFProDisplay/SFPRODISPLAYBOLD.OTF") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -440,8 +434,26 @@
   transition: opacity var(--duration-fast) var(--easing-default);
 }
 
+.btn {
+  position: relative;
+}
+
 .btn--pressing {
   animation: btn-press var(--duration-fast) var(--easing-default) both;
+}
+
+/* Hit-shield: stays at the button's original bounding box while the button
+   animates its scale. The child transform composes with the parent's, so the
+   composite scale is identity and edge taps always land on the real button. */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.btn--pressing::after {
+  pointer-events: auto;
+  animation: btn-press-hitshield var(--duration-fast) var(--easing-default) both;
 }
 
 @keyframes btn-press {
@@ -450,6 +462,18 @@
   }
   45% {
     transform: scale(var(--scale-press));
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes btn-press-hitshield {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(calc(1 / var(--scale-press)));
   }
   100% {
     transform: scale(1);
@@ -1498,7 +1522,6 @@
   color: var(--color-text-primary);
   font-family: var(--font-family-secondary);
   font-size: var(--font-size-small);
-  font-weight: var(--font-weight-semibold);
   transition:
     background var(--duration-fast),
     box-shadow var(--duration-fast);
@@ -1521,6 +1544,14 @@
 .stt-segment__option--active + .stt-segment__divider,
 .stt-segment__divider:has(+ .stt-segment__option--active) {
   opacity: 0;
+}
+
+/* Text-label variant of the segmented toggle (e.g. language NL / ENG). */
+.stt-segment--text .stt-segment__option {
+  font-size: var(--font-size-body);
+  width: auto;
+  min-width: 40px;
+  padding: 0 var(--space-2);
 }
 
 /* ── STATISTICS SHEET ──────────────────────────────────── */
@@ -1944,9 +1975,11 @@
 }
 
 .tutorial__desc-wrap {
-  height: 40px;
+  /* Fixed height sized to 5 lines of body text so longer translations
+     (Dutch/German/etc.) don't overflow and the Next button doesn't jump
+     between steps. Derived from tokens — not hard-coded. */
+  height: calc(var(--font-size-body) * var(--line-height-normal) * 5);
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 

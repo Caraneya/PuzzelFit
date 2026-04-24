@@ -351,7 +351,9 @@ const GameUtils = {
     function reset()     { pause(); seconds = countdownFrom ?? 0; render(seconds); }
     function isRunning()  { return running; }
     function getElapsed() { return countdownFrom !== null ? countdownFrom - seconds : seconds; }
-    return { start, pause, reset, isRunning, getElapsed };
+    function getSeconds() { return seconds; }
+    function setSeconds(s) { seconds = s; render(Math.max(0, seconds)); }
+    return { start, pause, reset, isRunning, getElapsed, getSeconds, setSeconds };
   },
 
   // ── SHEET SCROLLBAR ─────────────────────────────────────────
@@ -1460,7 +1462,7 @@ let score   = 0;
 let merges  = 0;
 let timerObj      = null;
 let tutorialStep  = 0;
-let firstTimeUser = !sessionStorage.getItem('db-tutorialSeen');
+let firstTimeUser = !localStorage.getItem('db-tutorialSeen');
 
 let lastPlacedCells = []; // cells most recently placed by player or merge result (for result positioning)
 let spawnerDice   = [];  // [{value}]  1–2 items
@@ -2107,9 +2109,11 @@ function onTurnEnd() {
         renderSpawner();
       } else {
         triggerLose('board-full');
+        return;
       }
     }
   }
+  saveSession();
 }
 
 // ── FLOATING SCORE ───────────────────────────────────────────
@@ -2148,6 +2152,7 @@ function triggerWin(reason = 'score') {
   if (chainWon) return; // guard against double-fire
   chainWon = true;
   gameActive = false;
+  clearSession();
   calCtrl?.setInProgressDate(null);
   timerObj?.pause();
   recordGameResult(true);
@@ -2205,6 +2210,7 @@ const LOSE_COPY = {
 
 function triggerLose(reason = 'board-full') {
   gameActive = false;
+  clearSession();
   calCtrl?.setInProgressDate(null);
   timerObj?.pause();
   recordGameResult(false);
@@ -3085,6 +3091,115 @@ function describeGoal(ch) {
   return goal + mechanic;
 }
 
+// ── SESSION PERSISTENCE ──────────────────────────────────────
+// Full-fidelity save of an in-progress challenge. Autosaves after every
+// quiet moment (see onTurnEnd) plus on visibilitychange / beforeunload.
+// Cleared on win, lose, and manual reset.
+const SESSION_KEY = 'db-session';
+const SESSION_VERSION = 1;
+
+function saveSession() {
+  if (!gameActive) return;
+  const blob = {
+    version: SESSION_VERSION,
+    challengeKey: activeChallengeDate,
+    board: board.map(row => row.slice()),
+    score, merges,
+    spawnerDice: spawnerDice.slice(), spawnerRotDeg,
+    parkedDice:  parkedDice.slice(),  parkedRotDeg,
+    chainDepth, bestChainDepth, chainWon,
+    wildSpawned, wildSpawnNum,
+    bombFuses:     [...bombFuses],
+    frozenOrigins: [...frozenOrigins],
+    hotZoneCells:  [...hotZoneCells],
+    mergeStreak, turnHadPlacement, turnHadMerge,
+    rewardWordShownThisTurn, turnMergedDiceCount,
+    lastPlacedCells: lastPlacedCells.slice(),
+    timerSeconds: timerObj?.getSeconds() ?? 0,
+    itPlayed: [...IT_PLAYED],
+  };
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(blob)); } catch (e) {}
+}
+
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const blob = JSON.parse(raw);
+    if (blob.version !== SESSION_VERSION) return null;
+    if (!CHALLENGES[blob.challengeKey]) return null;
+    return blob;
+  } catch (e) { return null; }
+}
+
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+
+function resumeSession(blob) {
+  activeChallengeDate = blob.challengeKey;
+  activeChallenge     = CHALLENGES[blob.challengeKey];
+  SCORE_TARGET        = scoreTargetFrom(activeChallenge);
+
+  IT_PLAYED.clear();
+  (blob.itPlayed || []).forEach(k => IT_PLAYED.add(k));
+
+  board            = blob.board.map(row => row.slice());
+  score            = blob.score;
+  merges           = blob.merges;
+  spawnerDice      = blob.spawnerDice.slice();
+  spawnerRotDeg    = blob.spawnerRotDeg;
+  parkedDice       = blob.parkedDice.slice();
+  parkedRotDeg     = blob.parkedRotDeg;
+  chainDepth       = blob.chainDepth;
+  bestChainDepth   = blob.bestChainDepth;
+  chainWon         = blob.chainWon;
+  wildSpawned      = blob.wildSpawned;
+  wildSpawnNum     = blob.wildSpawnNum;
+  bombFuses        = new Map(blob.bombFuses);
+  frozenOrigins    = new Map(blob.frozenOrigins);
+  hotZoneCells     = new Set(blob.hotZoneCells);
+  mergeStreak      = blob.mergeStreak;
+  turnHadPlacement = blob.turnHadPlacement;
+  turnHadMerge     = blob.turnHadMerge;
+  rewardWordShownThisTurn = blob.rewardWordShownThisTurn;
+  turnMergedDiceCount     = blob.turnMergedDiceCount;
+  lastPlacedCells  = (blob.lastPlacedCells || []).slice();
+  isMerging        = false;
+
+  rebuildTimer(activeChallenge);
+  timerObj.setSeconds(blob.timerSeconds);
+
+  // Sheet illustration for lose — reset to default so a previous reason doesn't linger
+  const loseSheetEl = document.getElementById('sheet-lose');
+  if (loseSheetEl) loseSheetEl.dataset.reason = 'board-full';
+
+  // Goal popup copy — reflect the active challenge (same logic as startLoading)
+  const goalEl = document.getElementById('db-goal-target');
+  if (goalEl) {
+    goalEl.textContent = activeChallenge.winType === 'chainGoal'
+      ? `${activeChallenge.target} chain`
+      : SCORE_TARGET;
+  }
+  const goalDescEl = document.getElementById('db-goal-desc');
+  if (goalDescEl) goalDescEl.innerHTML = describeGoal(activeChallenge);
+
+  // CTA says "Continue" on resume; startLoading resets it to "Ready to play" for fresh games
+  const readyBtn = document.getElementById('db-btn-ready');
+  if (readyBtn) readyBtn.textContent = 'Continue';
+
+  gameActive  = true;
+  playingDate = activeChallengeDate;
+  calCtrl?.setInProgressDate(playingDate);
+  GameUtils.navigateTo('gameplay');
+  renderBoard();
+  renderSpawner();
+  renderParking();
+  updateScoreBar();
+  itUpdateAnotherButtons();
+  setTimeout(() => GameUtils.openPopup('popup-goal'), TIMING.POPUP_SHOW);
+}
+
 function startLoading() {
   gameActive = false;
   Music.stop(); // stop any music from a previous round
@@ -3113,6 +3228,8 @@ function startLoading() {
   }
   const goalDescEl = document.getElementById('db-goal-desc');
   if (goalDescEl) goalDescEl.innerHTML = describeGoal(activeChallenge);
+  const readyBtn = document.getElementById('db-btn-ready');
+  if (readyBtn) readyBtn.textContent = 'Ready to play';
 
   GameUtils.navigateTo('loading');
   score = 0; merges = 0; isMerging = false;
@@ -3175,7 +3292,7 @@ function openTutorial(fromWelcome = false) {
 }
 function closeTutorial() {
   document.getElementById('overlay-tutorial').classList.remove('is-open');
-  sessionStorage.setItem('db-tutorialSeen', 'true');
+  localStorage.setItem('db-tutorialSeen', 'true');
   firstTimeUser = false;
   if (_tutorialFromWelcome) {
     _tutorialFromWelcome = false;
@@ -3339,6 +3456,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // Dominant hand (default: right)
   setHand(localStorage.getItem('db-hand') || 'right');
 
+  // ── SETTINGS DIRTY-STATE TRACKING ────────────────────────────
+  // Snapshot the four settings when the sheet opens; the CTA toggles between
+  // "Continue playing" (clean) and "Save and continue" (dirty). Toast fires
+  // only on dirty close. Reset Settings re-seeds the snapshot.
+  let _settingsSnapshot = null;
+  const _readSettings = () => ({
+    theme: localStorage.getItem('db-theme') || 'auto',
+    hand:  localStorage.getItem('db-hand')  || 'right',
+    sfx:   localStorage.getItem('db-sfx') !== 'false',
+    music: localStorage.getItem('db-music') === 'true',
+  });
+  const _isSettingsDirty = () => {
+    if (!_settingsSnapshot) return false;
+    const c = _readSettings();
+    return c.theme !== _settingsSnapshot.theme
+        || c.hand  !== _settingsSnapshot.hand
+        || c.sfx   !== _settingsSnapshot.sfx
+        || c.music !== _settingsSnapshot.music;
+  };
+  const _updateSettingsCTA = () => {
+    const btn = document.getElementById('db-btn-save-settings');
+    if (btn) btn.textContent = _isSettingsDirty() ? 'Save and continue' : 'Continue playing';
+  };
+  const _snapshotSettings = () => { _settingsSnapshot = _readSettings(); _updateSettingsCTA(); };
+
   // ── SOUND & MUSIC PREFERENCES ────────────────────────────────
   // Apply persisted preferences before any sound can fire.
   // SFX: on by default (key absent = enabled). Music: off by default.
@@ -3350,6 +3492,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-toggle-sfx').addEventListener('change', ev => {
     SoundUtils.setEnabled(ev.target.checked);
     localStorage.setItem('db-sfx', ev.target.checked);
+    _updateSettingsCTA();
   });
   document.getElementById('db-toggle-music').addEventListener('change', ev => {
     Music.setEnabled(ev.target.checked);
@@ -3358,6 +3501,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ev.target.checked && document.getElementById('screen-gameplay')?.classList.contains('is-active') && !Music.isRunning()) {
       Music.start();
     }
+    _updateSettingsCTA();
   });
 
   // ── SHEET / TOAST SOUNDS (monkey-patch GameUtils) ────────────
@@ -3374,6 +3518,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(_musicResumeTimer); // cancel any pending fade-in
     Music.fadePause();
     _origOpen(id);
+    if (id === 'sheet-settings') _snapshotSettings();
   };
   GameUtils.closeSheet = function(id) {
     SoundUtils.play('sheet-close');
@@ -3402,7 +3547,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-btn-skip-tutorial').addEventListener('click', () => {
     SoundUtils.play('btn-tap');
     GameUtils.closePopup('popup-welcome');
-    sessionStorage.setItem('db-tutorialSeen', 'true');
+    localStorage.setItem('db-tutorialSeen', 'true');
     firstTimeUser = false;
     GameUtils.openPopup('popup-goal');
   });
@@ -3476,6 +3621,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('stt-segment__option--active');
       if (group.id === 'db-stt-theme') setTheme(btn.dataset.value);
       if (group.id === 'db-stt-hand')  setHand(btn.dataset.value);
+      _updateSettingsCTA();
     })
   );
 
@@ -3483,8 +3629,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('db-stt-btn-howto').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', openTutorial); });
   document.getElementById('db-stt-btn-stats').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', () => { renderStats(); GameUtils.openSheet('sheet-stats'); }); });
   document.getElementById('db-stt-btn-bible').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closeSheet('sheet-settings'); window.location.href = './dobbelaar-bible.html'; });
-  document.getElementById('db-stt-btn-reset-level').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.switchSheet('sheet-settings', startLoading, TIMING.NAV_DELAY); });
-  document.getElementById('db-btn-save-settings').addEventListener('click', () => { SoundUtils.play('btn-tap'); GameUtils.closeSheet('sheet-settings'); timerObj?.start(); GameUtils.showToast('db-toast', 'Settings saved!'); });
+  document.getElementById('db-stt-btn-reset-level').addEventListener('click', () => { SoundUtils.play('btn-tap'); clearSession(); GameUtils.switchSheet('sheet-settings', startLoading, TIMING.NAV_DELAY); });
+  document.getElementById('db-btn-save-settings').addEventListener('click', () => {
+    SoundUtils.play('btn-tap');
+    const dirty = _isSettingsDirty();
+    GameUtils.closeSheet('sheet-settings');
+    timerObj?.start();
+    if (dirty) GameUtils.showToast('db-toast', 'Settings saved!');
+  });
   document.getElementById('db-btn-reset-settings').addEventListener('click', () => {
     SoundUtils.play('btn-tap');
     setHand('right');
@@ -3495,6 +3647,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Music.setEnabled(false);
     document.getElementById('db-toggle-music').checked = false;
     localStorage.setItem('db-music', 'false');
+    _snapshotSettings();
     GameUtils.showToast('db-toast', 'Settings reset to defaults.');
   });
 
@@ -3544,8 +3697,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('db-game-hint-wrap')?.classList.remove('game-hint-wrap--open');
   });
 
+  // ── SESSION AUTOSAVE ON HIDE / CLOSE ───────────────────────
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveSession(); });
+  window.addEventListener('beforeunload', saveSession);
+
   // ── INTERNAL TEST ENTRY ────────────────────────────────────
-  // Skip home screen entirely — go straight into a random challenge.
-  itUpdateAnotherButtons();
-  startITChallenge(itPickRandomUnplayed());
+  // Resume if a saved in-progress game exists; otherwise pick a random challenge.
+  const saved = loadSession();
+  if (saved) {
+    resumeSession(saved);
+  } else {
+    itUpdateAnotherButtons();
+    startITChallenge(itPickRandomUnplayed());
+  }
 });
